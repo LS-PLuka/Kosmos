@@ -3,7 +3,7 @@
 [![Python 3.12](https://img.shields.io/badge/Python-3.12-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
 [![uv 0.13.10](https://img.shields.io/badge/uv-0.13.10-DE5FE9?style=flat-square&logo=uv&logoColor=white)](https://docs.astral.sh/uv/)
 [![Project status: Stage 00](https://img.shields.io/badge/Status-Stage%2000%20%7C%20Foundation-683A79?style=flat-square)](#project-status)
-[![License: PolyForm Noncommercial 1.0.0](https://img.shields.io/badge/License-PolyForm%20Noncommercial%201.0.0-25192D?style=flat-square)](LICENSE)
+[![License: PolyForm Noncommercial 1.0.0](https://img.shields.io/badge/License-PolyForm%20Noncommercial%201.0.0-25192D?style=flat-square)](LICENSE.md)
 [![CI](https://img.shields.io/github/actions/workflow/status/LS-PLuka/Kosmos/ci.yml?branch=develop&style=flat-square&label=CI)](https://github.com/LS-PLuka/Kosmos/actions/workflows/ci.yml)
 
 Kosmos is a source-available, local-first personal AI assistant designed to automate tasks, interact with the operating system, assist developers, and orchestrate intelligent workflows through a unified desktop experience.
@@ -137,7 +137,7 @@ strategy is documented as a proposal pending maintainer and legal approval.
 ## License
 
 Kosmos is source-available under the
-[PolyForm Noncommercial License 1.0.0](LICENSE). Commercial use is not authorized by the standard
+[PolyForm Noncommercial License 1.0.0](LICENSE.md). Commercial use is not authorized by the standard
 license except where its terms provide otherwise. A separate commercial license may be offered in
 the future; none is granted here. Software licensing does not grant rights to use Kosmos names,
 logos, or visual identity as trademarks.
