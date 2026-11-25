@@ -1,0 +1,22 @@
+Geometry: exact phase A at zero deformation; 1,200 finite closed paths; cycle endpoints; audio response.
+2505 finite closed paths, neutral endpoints, repeat seams, motion signatures, 81 transition pairs, event destinations.
+confirmation gif 108 3600 ms
+confirmation webp 108 3600 ms
+success gif 44 1750 ms
+success webp 44 1750 ms
+notification gif 32 1650 ms
+notification webp 32 1650 ms
+warning gif 47 2450 ms
+warning webp 47 2450 ms
+error gif 54 2250 ms
+error webp 54 2250 ms
+approve ['thinking', 'confirmation', 'executing']
+decline ['confirmation', 'core', 'sleeping', 'standby']
+success ['awakening', 'executing', 'success', 'speaking']
+error ['executing', 'error', 'speaking']
+notification ['core', 'sleeping', 'standby', 'awakening', 'notification', 'speaking']
+warning ['core', 'sleeping', 'standby', 'awakening', 'warning', 'speaking']
+sleep ['speaking', 'core', 'sleeping', 'standby']
+Phase C: all seven flows, indefinite confirmation, decisions, event return/hold/repeat, interruptions; no page errors.
+Chromium: state transitions, interruption, scrub, size, backgrounds, manual/auto/mic (virtual), denied permission, flow: ['core', 'sleeping', 'standby', 'awakening', 'listening', 'thinking', 'executing', 'speaking', 'core', 'sleeping', 'standby']
+Original A+B: 35 files byte-identical to approved archive.

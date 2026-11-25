@@ -1,0 +1,242 @@
+{
+  "PHASE-B.md": {
+    "path": "docs/branding/history/PHASE-B.md",
+    "sha256": "de19b9cc9755c2bee5550550c344915a6aa373bd2abbfbff9400ea0c4b557e0d"
+  },
+  "PHASE-C.md": {
+    "path": "docs/branding/history/PHASE-C.md",
+    "sha256": "41b5086a66579c73cde7bcb760a4fb4b745848098783ba0fb3e9b99d1064c61f"
+  },
+  "README.md": {
+    "path": "docs/branding/history/README.md",
+    "sha256": "e83bb3e1f0663fe220ae114ba0bd19724b2c43c22f27823db971db82aae8541e"
+  },
+  "VALIDATION-C.txt": {
+    "path": "docs/branding/history/VALIDATION-C.txt",
+    "sha256": "280dfbef9bb0e8f51e692cf1a8e283324f167cfa3e69c4cc67d271d2c0880cac"
+  },
+  "animations/awakening/awakening.gif": {
+    "path": "assets/branding/animations/awakening/awakening.gif",
+    "sha256": "3b4a2623c3ae1b8d72479aaadf192cc4d5509949b5477d1f47b7912dbaae0f87"
+  },
+  "animations/awakening/awakening.webp": {
+    "path": "assets/branding/animations/awakening/awakening.webp",
+    "sha256": "d69bb052a8adcfcaf2b7a5ed35e3ccce753e781bdce94f3c29c847f87116d65c"
+  },
+  "animations/confirmation/confirmation.gif": {
+    "path": "assets/branding/animations/confirmation/confirmation.gif",
+    "sha256": "bf28716db08fb9fd1c5c9e95d70b769b15d19fe3a51d05492ed5a067932d6db6"
+  },
+  "animations/confirmation/confirmation.webp": {
+    "path": "assets/branding/animations/confirmation/confirmation.webp",
+    "sha256": "7ba237dfc97154848d3fee7bfe4e683b7f7e041b5aa37e47264ea49ba0c5fdec"
+  },
+  "animations/error/error.gif": {
+    "path": "assets/branding/animations/error/error.gif",
+    "sha256": "571ea81ed6f8c5e0bc6ea92fa48620032448368827c5bb7c55ae86133b7cf294"
+  },
+  "animations/error/error.webp": {
+    "path": "assets/branding/animations/error/error.webp",
+    "sha256": "162300755ce469ae69fa8efcf8652bc53f215294c46c8fa0bfc79f14db7b671d"
+  },
+  "animations/executing/executing.gif": {
+    "path": "assets/branding/animations/executing/executing.gif",
+    "sha256": "b64e16b68e6b602fe88de46f4a483c8058249f2213fc0bec652242be66749f1e"
+  },
+  "animations/executing/executing.webp": {
+    "path": "assets/branding/animations/executing/executing.webp",
+    "sha256": "d53506cd328d6836e09322bcb3382bc4c7af912ac57b7ba6b727580c1b9af0e0"
+  },
+  "animations/listening/listening.gif": {
+    "path": "assets/branding/animations/listening/listening.gif",
+    "sha256": "8a5c5d8970da6b01ed805e040c7e4c68f749d9b987add60696635ef4badc6bdd"
+  },
+  "animations/listening/listening.webp": {
+    "path": "assets/branding/animations/listening/listening.webp",
+    "sha256": "1a0148e00de16006fcaa7038b2dbda14a39d9deb40d687cd1572e060f904a939"
+  },
+  "animations/notification/notification.gif": {
+    "path": "assets/branding/animations/notification/notification.gif",
+    "sha256": "5a12794df9b50ecee4466397261b5bb70e98007bea451897f129265c41946ced"
+  },
+  "animations/notification/notification.webp": {
+    "path": "assets/branding/animations/notification/notification.webp",
+    "sha256": "b3c136e815bf8752edd1e8dc47636ee78bdefead23a9ca19e1bb6c3ed1ab63de"
+  },
+  "animations/sleeping/sleeping.gif": {
+    "path": "assets/branding/animations/sleeping/sleeping.gif",
+    "sha256": "89de742149194fc7f7ca1f29f6b8b0e09487b1626c5b919d2a365329eaf47bc8"
+  },
+  "animations/sleeping/sleeping.webp": {
+    "path": "assets/branding/animations/sleeping/sleeping.webp",
+    "sha256": "659377d2cbc951c7502ffc95f7978b12b8cacbfaba96c5b45057d9c838f8a5b6"
+  },
+  "animations/speaking/speaking.gif": {
+    "path": "assets/branding/animations/speaking/speaking.gif",
+    "sha256": "646266852428a215be23df665f54d382e84a43930058b4f2ea98b4d055302ece"
+  },
+  "animations/speaking/speaking.webp": {
+    "path": "assets/branding/animations/speaking/speaking.webp",
+    "sha256": "25184df856ed5fe8cd466685cb3814ae4866750e33bc58774927f70cf33d75c9"
+  },
+  "animations/standby/standby.gif": {
+    "path": "assets/branding/animations/standby/standby.gif",
+    "sha256": "0a3e701a1a4dbc067c69807984f6dcda01076883afe4544e51908845fb000612"
+  },
+  "animations/standby/standby.webp": {
+    "path": "assets/branding/animations/standby/standby.webp",
+    "sha256": "12509e9b53647bbde4933f6d0a3d8b30d8efd061790b02270fae06196ad5f808"
+  },
+  "animations/success/success.gif": {
+    "path": "assets/branding/animations/success/success.gif",
+    "sha256": "cb825c97151e8f07417d1e7ec8b2b2ad3ea26c2faa7abc8f4335b6617663c42c"
+  },
+  "animations/success/success.webp": {
+    "path": "assets/branding/animations/success/success.webp",
+    "sha256": "27b745f162ed54b41f335bedfb6aee56c249dcc4755eb8bd2e4a4e94d1956774"
+  },
+  "animations/thinking/thinking.gif": {
+    "path": "assets/branding/animations/thinking/thinking.gif",
+    "sha256": "ddf227c10b50042585a212a9049f949a3d9a67eb107f545bfea8140623bc36fb"
+  },
+  "animations/thinking/thinking.webp": {
+    "path": "assets/branding/animations/thinking/thinking.webp",
+    "sha256": "55abed63ebed44b3b39d4e119513653c722d48e3409a28db2219a2fd2e7922f2"
+  },
+  "animations/warning/warning.gif": {
+    "path": "assets/branding/animations/warning/warning.gif",
+    "sha256": "cd740e9c1ed8681dcdbbcf3eae840855ecb14d9747215ad38a1e1dd6ab23c4d3"
+  },
+  "animations/warning/warning.webp": {
+    "path": "assets/branding/animations/warning/warning.webp",
+    "sha256": "bfac7655fb2db73e6a417c929243e4f792d0f4990acadd4a763b4fa81812ef6d"
+  },
+  "core/static/core.png": {
+    "path": "assets/branding/core/core.png",
+    "sha256": "3ca9ab638d5a91070ff418fe8f8acf7f26a2c4e5772d2a2135b881d62efed6d1"
+  },
+  "core/static/core.svg": {
+    "path": "assets/branding/core/core.svg",
+    "sha256": "911d515dfa71832ff32b31e290b005c6b78436711647762e53477780cadba551"
+  },
+  "core/static/institutional.png": {
+    "path": "assets/branding/symbols/institutional.png",
+    "sha256": "5d0a9bdf8bb9e47b5ffbad8740a661438363e61e8a8ef443de10e6b0c656166a"
+  },
+  "core/static/institutional.svg": {
+    "path": "assets/branding/symbols/institutional.svg",
+    "sha256": "7c5c4ae9fa7988a3d82964c3dd7d0291c701f27a9a883bfd77a629719412b640"
+  },
+  "previews/lab-phase-b.png": {
+    "path": "assets/branding/previews/lab-phase-b.png",
+    "sha256": "9d9fe3e4828756f8eca481797ad421fef349d2854b1ae87af252e7bb38d5a8f6"
+  },
+  "previews/lab-phase-c-regression.png": {
+    "path": "assets/branding/previews/lab-phase-c-regression.png",
+    "sha256": "0898c8cddb3b2ae8b92dbd3048325dbad79a5ae343858013ec2d842c52483985"
+  },
+  "previews/lab-phase-c.png": {
+    "path": "assets/branding/previews/lab-phase-c.png",
+    "sha256": "3897d593bb7a02905c302fec81c4d327c059d6b8603eb36af9a6f7a43223f839"
+  },
+  "previews/motion-phase-c-contact.png": {
+    "path": "assets/branding/previews/motion-phase-c-contact.png",
+    "sha256": "377833e531cd82ca7325825bb99418b1d8ff07572a6d18c96543217842b9c004"
+  },
+  "previews/playground-phase-b.html": {
+    "path": "tools/motion-lab/history/playground-phase-b.html",
+    "sha256": "9ec413d0c4aea4d4016f7744819aa6d1b004a0cb9b89b247c4ab6b3a9648aa9c"
+  },
+  "previews/playground-phase-c.html": {
+    "path": "tools/motion-lab/history/playground-phase-c.html",
+    "sha256": "b6764ae863f7e323d43860c048b0e11f84a88488b5c56745bcdb7ed76222750c"
+  },
+  "previews/playground.html": {
+    "path": "tools/motion-lab/history/playground.html",
+    "sha256": "681bf83401c625b5e4b7618e5ff94d1aaf41a47d8d0011dd5444233f4a58ae17"
+  },
+  "source/build-phase-b.py": {
+    "path": "tools/motion-lab/source/build-phase-b.py",
+    "sha256": "1fe885b48f34269582df9cd944c14dfbafcd48cc198b8b099557f50725fe1f7a"
+  },
+  "source/build-phase-c.py": {
+    "path": "tools/motion-lab/source/build-phase-c.py",
+    "sha256": "973d0ee91cf3fab438bf715e4117a3d04f1a7b803efdcf0c3cfebfeefbc49e23"
+  },
+  "source/events.js": {
+    "path": "tools/motion-lab/source/events.js",
+    "sha256": "290dae9d90cd36a608f33846596b1ecff6101a319643a8bb40427f8b763d961c"
+  },
+  "source/export-phase-b.py": {
+    "path": "tools/motion-lab/source/export-phase-b.py",
+    "sha256": "8c09d09967f2fab15b7ffbc96b008948dfceab23ea4c7d210e3402377f2addd5"
+  },
+  "source/export-phase-c.py": {
+    "path": "tools/motion-lab/source/export-phase-c.py",
+    "sha256": "49f1aa1fdf79c7f360dda5abf2c5d2c87d510c77de43488091841ac24c1c5e8f"
+  },
+  "source/export.py": {
+    "path": "tools/motion-lab/source/export.py",
+    "sha256": "2db588899092aba4fe4ed24515767f75671a96142e927f3b555681ff00ab967b"
+  },
+  "source/geometry.js": {
+    "path": "tools/motion-lab/source/geometry.js",
+    "sha256": "d68e0aadc5a59d339c7e9843ace5e5f58ccee6228963ff4f0d1be8c4ba247f6a"
+  },
+  "source/lab-phase-b.js": {
+    "path": "tools/motion-lab/source/lab-phase-b.js",
+    "sha256": "51fda8a528284c816686a76e04962e2c571f01455b455e5fc165cce742d13b76"
+  },
+  "source/lab-phase-c.js": {
+    "path": "tools/motion-lab/source/lab-phase-c.js",
+    "sha256": "736c2f6f6c7a0f0e691267a3c3fd0a3b744de7d6fb517acca0c622617df5ab05"
+  },
+  "source/motion.js": {
+    "path": "tools/motion-lab/source/motion.js",
+    "sha256": "5172a04d78a3e005e694c74875f13e83faa345ff4d1d58f6e851a4e3713501de"
+  },
+  "source/playground-template.html": {
+    "path": "tools/motion-lab/source/playground-template.html",
+    "sha256": "b02021e96b67971e4386e0064a0927299099f70f513091e9927f03ee636d24b9"
+  },
+  "source/render-frames.js": {
+    "path": "tools/motion-lab/source/render-frames.js",
+    "sha256": "61102da89d1459767d8067f38c9c00b42d6c8388641e8f4d4f5c12b1f8ee9b3f"
+  },
+  "source/render-phase-b.js": {
+    "path": "tools/motion-lab/source/render-phase-b.js",
+    "sha256": "30386ce90653e1bee9a7c130a0366be2396ceb1dfcd552a7e24d8a742ac9326a"
+  },
+  "source/render-phase-c.js": {
+    "path": "tools/motion-lab/source/render-phase-c.js",
+    "sha256": "4de737179c22b64ca63689f2d7efcfefdcb4738b648dd15446cab234dd907277"
+  },
+  "source/test-exports-c.py": {
+    "path": "tools/motion-lab/tests/test-exports-c.py",
+    "sha256": "09230e2fa63979f77072333c0eb451fa67c10e70e3e8e4bc0f26d8fdbcbf5f1a"
+  },
+  "source/test-exports.py": {
+    "path": "tools/motion-lab/tests/test-exports.py",
+    "sha256": "b9566e95dd238a783ec60dc492abaaaf68c259cfd92236cec3e9bdbf5e14df82"
+  },
+  "source/test-lab-c-regression.py": {
+    "path": "tools/motion-lab/tests/test-lab-c-regression.py",
+    "sha256": "e20e17769f7938e5a0badea2ef289ba4e20420885303519744c20d6ec4ade828"
+  },
+  "source/test-lab-c.py": {
+    "path": "tools/motion-lab/tests/test-lab-c.py",
+    "sha256": "ba9b428daaed38266dc875edc5bd647e92920f8c061821bd679090944ee37689"
+  },
+  "source/test-lab.py": {
+    "path": "tools/motion-lab/tests/test-lab.py",
+    "sha256": "a1a471cf0fed2c1821feac23868b2a6dfeb2d553a2d2ddfd6300b3f11dfae3c7"
+  },
+  "source/test-phase-b.js": {
+    "path": "tools/motion-lab/tests/test-phase-b.js",
+    "sha256": "f4d8f360adc7865fcf84fff173bb40636b1f45db4d1fa528fedc61f38be649cc"
+  },
+  "source/test-phase-c.js": {
+    "path": "tools/motion-lab/tests/test-phase-c.js",
+    "sha256": "6a0df5dff976383a8b7b305ec5c8934e9c33794c2b2ce43881b647b08c10375c"
+  }
+}

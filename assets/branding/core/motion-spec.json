@@ -1,0 +1,358 @@
+{
+  "schemaVersion": 1,
+  "coordinateSystem": {
+    "viewBox": [
+      0,
+      0,
+      320,
+      320
+    ],
+    "deformationCenter": [
+      160,
+      160
+    ],
+    "axisU": [
+      0.78,
+      -0.6257795138864806
+    ],
+    "axisV": [
+      0.6257795138864806,
+      0.78
+    ],
+    "gradient": [
+      50,
+      250,
+      270,
+      75
+    ]
+  },
+  "palette": {
+    "void": "#0D0912",
+    "nebula": "#25192D",
+    "cosmic": "#683A79",
+    "nova": "#BE6BB7",
+    "starlight": "#F4EAF7"
+  },
+  "endpoints": {
+    "institutional": {
+      "move": [
+        152.18,
+        93.76
+      ],
+      "cubics": [
+        [
+          200.02,
+          71.68,
+          246.94,
+          60.64,
+          250.62,
+          96.52
+        ],
+        [
+          255.22,
+          131.48,
+          205.54,
+          177.48,
+          168.74,
+          202.32
+        ],
+        [
+          131.02,
+          228.08,
+          85.02,
+          251.08,
+          65.7,
+          245.56
+        ],
+        [
+          51.9,
+          241.88,
+          50.06,
+          234.52,
+          52.82,
+          220.72
+        ],
+        [
+          35.34,
+          249.24,
+          52.82,
+          272.24,
+          99.74,
+          254.76
+        ],
+        [
+          150.34,
+          238.2,
+          210.14,
+          190.36,
+          239.58,
+          153.56
+        ],
+        [
+          267.18,
+          121.36,
+          282.82,
+          85.48,
+          265.34,
+          68
+        ],
+        [
+          243.26,
+          44.08,
+          193.58,
+          64.32,
+          152.18,
+          93.76
+        ]
+      ],
+      "white": {
+        "cx": 153.1,
+        "cy": 174.72,
+        "outerRadius": 68.08,
+        "innerRadius": 45.54
+      },
+      "clearanceStroke": 5.5,
+      "gradient": [
+        "#ad70bd",
+        "#b16eb9"
+      ]
+    },
+    "core": {
+      "move": [
+        109.4,
+        116.76
+      ],
+      "cubics": [
+        [
+          162.76,
+          83.64,
+          244.64,
+          60.64,
+          250.16,
+          103.88
+        ],
+        [
+          257.52,
+          136.08,
+          216.12,
+          183,
+          174.72,
+          212.44
+        ],
+        [
+          134.24,
+          240.04,
+          79.96,
+          253.84,
+          68.92,
+          222.56
+        ],
+        [
+          58.8,
+          197.72,
+          93.76,
+          157.24,
+          122.28,
+          138.84
+        ],
+        [
+          76.28,
+          162.76,
+          33.04,
+          211.52,
+          40.4,
+          240.04
+        ],
+        [
+          48.68,
+          275.92,
+          111.24,
+          259.36,
+          167.36,
+          225.32
+        ],
+        [
+          218.88,
+          193.12,
+          280.52,
+          133.32,
+          280.52,
+          91.92
+        ],
+        [
+          281.44,
+          47.76,
+          212.44,
+          45.92,
+          109.4,
+          116.76
+        ]
+      ],
+      "white": {
+        "cx": 155.4,
+        "cy": 164.14,
+        "outerRadius": 26.22,
+        "innerRadius": 0
+      },
+      "clearanceStroke": 0,
+      "gradient": [
+        "#893db7",
+        "#be6bb7"
+      ]
+    }
+  },
+  "pose": [
+    "m",
+    "breath",
+    "d"
+  ],
+  "deformationComponents": [
+    "nucleus",
+    "longitudinal",
+    "transverse",
+    "alternation",
+    "thickness",
+    "tips"
+  ],
+  "weights": [
+    0,
+    -0.45,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -1,
+    -0.45,
+    0,
+    0.45,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    0.45,
+    0
+  ],
+  "timingMs": {
+    "standby": 3200,
+    "awakening": 1200,
+    "sleeping": 1200,
+    "listening": 4800,
+    "thinking": 3200,
+    "executing": 1600,
+    "speaking": 4800,
+    "confirmation": 3600,
+    "success": 1500,
+    "notification": 1400,
+    "warning": 2200,
+    "error": 2000,
+    "activeTransition": 450,
+    "eventEntry": 450,
+    "neutralBeforeSleep": 300,
+    "neutralCore": 350,
+    "minimumMorph": 250,
+    "standbyBreathReset": 250
+  },
+  "audio": {
+    "attackMs": 65,
+    "releaseMs": 160,
+    "maxDeltaMs": 100,
+    "micFftSize": 1024,
+    "micNoiseFloor": 0.006,
+    "micGain": 5,
+    "range": [
+      0,
+      1
+    ]
+  },
+  "standbyBreathFraction": 0.008,
+  "profileTypes": {
+    "standby": "persistent",
+    "awakening": "transition",
+    "listening": "persistent",
+    "thinking": "persistent",
+    "executing": "persistent",
+    "speaking": "persistent",
+    "confirmation": "persistent",
+    "success": "event",
+    "notification": "event",
+    "warning": "event_or_persistent",
+    "error": "event_or_persistent",
+    "sleeping": "transition"
+  },
+  "simulation": {
+    "periodMs": 4800,
+    "listening": [
+      [
+        0.12,
+        0.08,
+        0.64
+      ],
+      [
+        0.32,
+        0.06,
+        0.82
+      ],
+      [
+        0.48,
+        0.045,
+        0.4
+      ],
+      [
+        0.72,
+        0.09,
+        0.72
+      ],
+      [
+        0.88,
+        0.045,
+        0.48
+      ]
+    ],
+    "speaking": [
+      [
+        0.07,
+        0.055,
+        0.82
+      ],
+      [
+        0.18,
+        0.045,
+        0.54
+      ],
+      [
+        0.29,
+        0.07,
+        0.92
+      ],
+      [
+        0.46,
+        0.05,
+        0.68
+      ],
+      [
+        0.6,
+        0.08,
+        0.96
+      ],
+      [
+        0.77,
+        0.045,
+        0.45
+      ],
+      [
+        0.87,
+        0.06,
+        0.74
+      ]
+    ]
+  }
+}

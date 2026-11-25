@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Kosmos — Motion Lab / Fases A + B</title>
+<style>
+:root{color-scheme:dark;--void:#0D0912;--nebula:#25192D;--cosmic:#683A79;--nova:#BE6BB7;--starlight:#F4EAF7;--muted:#BAA9C2}*{box-sizing:border-box}body{margin:0;background:var(--void);color:var(--starlight);font:15px/1.5 Inter,system-ui,sans-serif}main{max-width:1100px;margin:auto;padding:36px 24px 48px}header{display:flex;justify-content:space-between;align-items:center;gap:16px;border-bottom:1px solid #392b40;padding-bottom:20px}h1{font-size:24px;letter-spacing:.04em;margin:0;font-weight:650}h2{font-size:15px;margin:0 0 13px;font-weight:600}small,.muted{color:var(--muted)}.kicker{font-size:11px;text-transform:uppercase;letter-spacing:.16em;color:var(--nova)}.layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px;margin-top:20px}.panel{border:1px solid #392b40;border-radius:14px;overflow:hidden;background:#150f1b}.stage{height:460px;display:grid;place-items:center;background:var(--void);position:relative;overflow:hidden}.stage.checker{background-color:#403748;background-image:conic-gradient(#655b6c 25%,transparent 0 50%,#655b6c 0 75%,transparent 0);background-size:20px 20px}.stage.light{background:#F4EAF7}.stage.nebula{background:var(--nebula)}#symbol{width:320px;height:320px;max-width:100%;max-height:100%;display:grid;place-items:center}#symbol svg{width:100%;height:100%;display:block}.info{display:flex;justify-content:space-between;padding:14px 16px;align-items:center;gap:12px;border-top:1px solid #392b40}.side{padding:20px;display:flex;flex-direction:column;gap:18px}.buttons{display:grid;gap:8px}button,select{font:inherit;background:var(--nebula);color:var(--starlight);border:1px solid #594260;border-radius:8px;padding:10px 12px;text-align:left;cursor:pointer}button:hover,select:hover{border-color:var(--nova)}button.primary{background:var(--cosmic);border-color:var(--nova)}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--nova);outline-offset:2px}label{display:block;margin-bottom:7px;color:var(--muted);font-size:12px}input[type=range]{width:100%;accent-color:var(--nova)}select{width:100%}.line{height:1px;background:#392b40}.readout{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);white-space:nowrap}footer{margin-top:20px;color:var(--muted);font-size:13px} .timeline{height:3px;background:#36283e}.timeline>div{height:100%;width:0;background:var(--nova)}@media(max-width:760px){.layout{grid-template-columns:1fr}.stage{height:360px}main{padding:20px 12px}.side{padding:16px}header{align-items:flex-start}h1{font-size:20px}}
+
+.state-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.state-grid button[aria-pressed=true]{background:var(--cosmic);border-color:var(--nova)}.audio-row{display:flex;justify-content:space-between;align-items:center}.meter{height:5px;margin:5px 0 8px}#mic-status{display:block;margin-bottom:8px}#mic-stop{width:100%;font-size:12px}button:disabled{opacity:.4;cursor:default}.layout{align-items:start}.stage{height:500px}.side{gap:15px}#audio-source{margin-bottom:10px}@media(min-width:761px){.layout>section{position:sticky;top:16px}}@media(max-width:760px){.stage{height:360px}}
+
+.check{display:flex;align-items:center;gap:8px;margin:10px 0}.check input{width:auto}#event-status{display:block;min-height:16px;margin:8px 0}#event-return{margin-top:5px}.state-grid{margin-bottom:8px}#scenario{margin-top:5px}</style></head><body><main><header><div><div class="kicker">Kosmos / Motion design</div><h1>Motion Lab</h1><small>Fases A + B + C — transformação, estados e eventos</small></div><div class="readout">DARK NEBULA / 03</div></header>
+<div class="layout"><section class="panel"><div id="stage" class="stage"><div id="symbol" aria-hidden="true"></div></div><div class="timeline"><div id="progress"></div></div><div class="info"><div><strong id="state" aria-live="polite">Standby</strong><div class="muted" id="description">Símbolo institucional em repouso.</div></div><span id="metric" class="readout">0%</span></div></section><aside class="panel side"><div><h2>Controle de estados</h2><div class="buttons"><button class="primary" id="activate">Ativar · Awakening</button><button id="sleep">Desativar · Sleeping</button><button id="rest">Repouso · Standby</button><button id="replay">Ciclo de transformação (Fase A)</button><button id="full-flow">Reproduzir fluxo completo (A + B)</button></div></div><div class="line"></div><div><h2>Estados ativos</h2><div class="state-grid"><button data-state="listening" aria-pressed="false">Listening</button><button data-state="thinking" aria-pressed="false">Thinking</button><button data-state="executing" aria-pressed="false">Executing</button><button data-state="speaking" aria-pressed="false">Speaking</button></div></div><div class="line"></div><div><h2>Estados complementares</h2><div class="state-grid"><button data-state="confirmation" aria-pressed="false">Confirmation</button><button data-state="success" aria-pressed="false">Success</button><button data-state="notification" aria-pressed="false">Notification</button><button data-state="warning" aria-pressed="false">Warning</button><button data-state="error" aria-pressed="false">Error</button></div><label for="event-return">Após evento pontual</label><select id="event-return"><option value="previous">Retornar ao estado anterior</option><option value="core">Core</option><option value="speaking">Speaking</option><option value="listening">Listening</option><option value="thinking">Thinking</option><option value="executing">Executing</option><option value="confirmation">Confirmation</option><option value="standby">Sleeping → Standby</option><option value="hold">Manter pose neutra no evento</option></select><label class="check"><input type="checkbox" id="repeat-alert"> Repetir Warning / Error até interromper</label><small id="event-status" role="status"></small><div class="state-grid"><button id="approve" disabled>Autorizar</button><button id="decline" disabled>Recusar</button><button id="proactive">Simular notificação</button><button id="complete">Simular conclusão</button><button id="warn">Simular alerta</button><button id="fail">Simular erro</button></div></div><div class="line"></div><div><h2>Fluxos da Fase C</h2><select id="scenario"><option value="approve">Thinking → Confirmation → Executing</option><option value="decline">Confirmation → Sleeping → Standby</option><option value="success">Executing → Success → Speaking</option><option value="error">Executing → Error → Speaking</option><option value="notification">Standby → Awakening → Notification → Speaking</option><option value="warning">Standby → Awakening → Warning → Speaking</option><option value="sleep">Speaking → Sleeping → Standby</option></select><button id="play-scenario" style="width:100%;margin-top:8px">Reproduzir fluxo selecionado</button><small>Os fluxos de confirmação aguardam sua decisão.</small></div><div class="line"></div><div><h2>Reatividade de áudio</h2><label for="audio-source">Fonte da amplitude</label><select id="audio-source"><option value="manual">Manual</option><option value="auto">Simulação automática</option><option value="mic">Microfone (opcional)</option></select><label for="audio">Amplitude manual · <span id="audio-value">0%</span></label><input id="audio" type="range" min="0" max="100" value="0"><div class="audio-row"><small>Amplitude efetiva</small><span class="readout" id="audio-live">0%</span></div><div class="timeline meter"><div id="audio-meter"></div></div><small id="mic-status" role="status"></small><button id="mic-stop" disabled>Desligar microfone</button></div><div class="line"></div><div><h2>Inspeção visual</h2><label for="size">Dimensão do overlay · <span id="sizevalue">320 px</span></label><input id="size" type="range" min="16" max="400" value="320" step="1"><label for="bg">Fundo</label><select id="bg"><option value="void">Void — #0D0912</option><option value="nebula">Nebula — #25192D</option><option value="light">Starlight — #F4EAF7</option><option value="checker">Transparência (grade)</option></select></div><div class="line"></div><div><label for="scrub">Inspecionar morphing manualmente</label><input id="scrub" type="range" min="0" max="1000" value="0" step="1"><small>0%: símbolo institucional · 100%: Core</small></div><small>Sem rotação. A animação parte da geometria atual, inclusive se interrompida. Áudio reativo em Listening e Speaking. Nenhum áudio é armazenado ou enviado. Microfone exige permissão e contexto compatível.</small></aside></div><footer>Protótipo de validação, não é o Control Center. Geometria compartilhada entre SVG, GIF, WebP e playground. Atalhos: A ativa, S desativa.</footer></main>
+ <script>
+/* Kosmos — Phase A. One shared cubic geometry, fixed coordinate system. */
+(function(root){
+'use strict';
+const PALETTE={void:'#0D0912',nebula:'#25192D',cosmic:'#683A79',nova:'#BE6BB7',starlight:'#F4EAF7'};
+const VIEW=320, DURATION=1200, BREATH=3200;
+// Cubic anchors traced from the approved board. Start at upper tapered tip;
+// follow inside contour to lower tip, then outside contour back to start.
+const rawStandby=[
+ [1065,148],
+ [1117,124,1168,112,1172,151],
+ [1177,189,1123,239,1083,266],
+ [1042,294,992,319,971,313],
+ [956,309,954,301,957,286],
+ [938,317,957,342,1008,323],
+ [1063,305,1128,253,1160,213],
+ [1190,178,1207,139,1188,120],
+ [1164,94,1110,116,1065,148]
+];
+const rawCore=[
+ [1452,172],
+ [1510,136,1599,111,1605,158],
+ [1613,193,1568,244,1523,276],
+ [1479,306,1420,321,1408,287],
+ [1397,260,1435,216,1466,196],
+ [1416,222,1369,275,1377,306],
+ [1386,345,1454,327,1515,290],
+ [1571,255,1638,190,1638,145],
+ [1639,97,1564,95,1452,172]
+];
+// Optical orbital box centers from the approved board. One common scale.
+const scale=0.92;
+function normalize(arr,cx,cy){return arr.map(seg=>seg.map((v,i)=>(v-(i%2?cy:cx))*scale+160));}
+const A=normalize(rawStandby,1073.5,220), B=normalize(rawCore,1507,219);
+const whiteA=[(1066-1073.5)*scale+160,(236-220)*scale+160,74*scale,49.5*scale];
+const whiteB=[(1502-1507)*scale+160,(223.5-219)*scale+160,28.5*scale,0];
+// Gradient stops sampled approximately from approved raster, with official Nova
+// and Starlight used as anchors. Violet endpoint is already present in the board.
+const colorA=['#AD70BD','#B16EB9'], colorB=['#893DB7',PALETTE.nova];
+const clamp=(t)=>Math.max(0,Math.min(1,t));
+const mix=(a,b,t)=>a+(b-a)*t;
+const ease=(t)=>{t=clamp(t);return t*t*t*(t*(6*t-15)+10);};
+function color(a,b,t){return '#'+[1,3,5].map(i=>Math.round(mix(parseInt(a.slice(i,i+2),16),parseInt(b.slice(i,i+2),16),t)).toString(16).padStart(2,'0')).join('');}
+const n=(v)=>Number(v.toFixed(4));
+function shape(m,breath=0){m=clamp(m);breath=clamp(breath)*(1-m);
+ const p=A.map((seg,j)=>seg.map((v,i)=>mix(v,B[j][i],m)));
+ const w=whiteA.map((v,i)=>mix(v,whiteB[i],m));
+ w[2]*=1+breath*.008;w[3]*=1+breath*.008;
+ const orbit='M'+p[0].map(n).join(' ')+' '+p.slice(1).map(seg=>'C'+seg.map(n).join(' ')).join(' ')+' Z';
+ const [x,y,R,r]=w.map(n);
+ function circle(rad){return `M ${n(x-rad)} ${y} a ${rad} ${rad} 0 1 0 ${n(2*rad)} 0 a ${rad} ${rad} 0 1 0 ${n(-2*rad)} 0 Z`;}
+ const ring=circle(R)+(r>0.001?' '+circle(r):'');
+ return {orbit,ring,cut:n(5.5*(1-m)),c1:color(colorA[0],colorB[0],m),c2:color(colorA[1],colorB[1],m),white:PALETTE.starlight,m};
+}
+function svg(m,breath=0,bg=null,px=320){const s=shape(m,breath);return `<svg xmlns="http://www.w3.org/2000/svg" width="${px}" height="${px}" viewBox="0 0 320 320" role="img" aria-label="Kosmos"><defs><linearGradient id="orbit-gradient" gradientUnits="userSpaceOnUse" x1="50" y1="250" x2="270" y2="75"><stop stop-color="${s.c1}"/><stop offset="1" stop-color="${s.c2}"/></linearGradient><mask id="orbit-clearance" maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse" x="0" y="0" width="320" height="320" style="mask-type:luminance"><rect width="320" height="320" fill="white"/><path d="${s.orbit}" fill="black" stroke="black" stroke-width="${s.cut}" stroke-linejoin="round"/></mask></defs>${bg?`<rect width="320" height="320" fill="${bg}"/>`:''}<path d="${s.ring}" fill-rule="evenodd" fill="${s.white}" mask="url(#orbit-clearance)"/><path d="${s.orbit}" fill="url(#orbit-gradient)"/></svg>`;}
+function frame(state,t){if(state==='standby')return {m:0,breath:(1-Math.cos(2*Math.PI*t/BREATH))/2};const k=ease(t/DURATION);return {m:state==='sleeping'?1-k:k,breath:0};}
+const api={PALETTE,VIEW,DURATION,BREATH,shape,svg,frame,ease};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.KosmosGeometry=api;
+})(typeof globalThis!=='undefined'?globalThis:this);
+
+/* Phase B: additive, zero-at-rest deformation of Phase A geometry. */
+(function(root){'use strict';
+const G=typeof module!=='undefined'&&module.exports?require('./geometry.js'):root.KosmosGeometry;
+const TAU=2*Math.PI, clamp=x=>Math.max(0,Math.min(1,x)), mix=(a,b,t)=>a+(b-a)*t;
+const states=['listening','thinking','executing','speaking'];
+const periods={listening:4800,thinking:3200,executing:1600,speaking:4800};
+const zero=()=>[0,0,0,0,0,0]; // nucleus, longitudinal, transverse, alternation, thickness, tips
+const wave=(p,k=1,offset=0)=>Math.sin(TAU*(p*k+offset));
+function simulatedAudio(state,t){const p=((t%4800)+4800)%4800/4800;
+ const bursts=state==='speaking'?[[.07,.055,.82],[.18,.045,.54],[.29,.07,.92],[.46,.05,.68],[.60,.08,.96],[.77,.045,.45],[.87,.06,.74]]:[[.12,.08,.64],[.32,.06,.82],[.48,.045,.40],[.72,.09,.72],[.88,.045,.48]];
+ let out=0;for(const [c,w,a] of bursts){const d=Math.min(Math.abs(p-c),1-Math.abs(p-c));if(d<w)out+=a*Math.pow(Math.cos(Math.PI*d/(2*w)),2);}
+ return clamp(out);}
+function params(state,t,a=0){a=clamp(a);const p=t/(periods[state]||3200),s=wave(p),c=wave(p,1,.25);
+ switch(state){
+ case 'listening':return [.015*(1+c)/2+.18*a, .015+.055*a, .012*s+.10*a, .014*s, .025+.10*a, .025*s+.05*a];
+ case 'thinking':return [.022*s,.018*c,.045*wave(p,2),.15*s,.045*wave(p,1,.15),.11*wave(p,1,.25)];
+ case 'executing':{const beat=Math.pow((1-Math.cos(TAU*p))/2,2),echo=Math.pow((1-Math.cos(TAU*(p-.19)))/2,3);return [.045*beat,.12*beat-.025,.14*beat-.025,.045*wave(p,2),.23*echo-.04,.09*beat];}
+ case 'speaking':return [.025*s+.37*a,.018*s+.065*a,.025*c+.19*a,.055*wave(p,3)*a,.16*a,.055*wave(p,2)+.10*a];
+ default:return zero();}}
+function pose(m=1,breath=0,d=zero()){return {m,breath,d:[...d]};}
+function blend(a,b,t){return pose(mix(a.m,b.m,t),mix(a.breath,b.breath,t),a.d.map((v,i)=>mix(v,b.d[i],t)));}
+const num=/[-+]?(?:\d*\.\d+|\d+\.?\d*)/g, round=x=>Number(x.toFixed(4));
+function shape(p){const s=G.shape(p.m,p.breath);if(p.d.every(x=>x===0)||p.m===0)return s;
+ const [n,ax,tr,alt,th,tip]=p.d.map(x=>x*p.m), cx=160,cy=160;
+ // Fixed diagonal basis (no angular animation). Changes are along/perpendicular to the orbit.
+ const ux=.78,uy=-Math.sqrt(1-.78*.78),vx=-uy,vy=ux;
+ let k=0,values=s.orbit.match(num).map(Number),out=[];
+ // Signed radial expansion on inner and outer contour, tapered to both shared tips.
+ const weights=[0,-.45,-1,-1,-1,-1,-1,-1,-1,-1,-1,-.45,0,.45,1,1,1,1,1,1,1,1,1,.45,0];
+ for(let i=0;i<values.length;i+=2){let x=values[i]-cx,y=values[i+1]-cy,u=x*ux+y*uy,v=x*vx+y*vy;
+  const side=Math.tanh(u/80),end=Math.min(1,Math.abs(u)/125),rad=1+th*(weights[k++]||0)*.22;
+  const U=u*(1+ax+alt*side*.50)*rad;
+  const V=v*(1+tr-alt*side*.65)*rad+tip*end*end*12;
+  out.push(round(cx+U*ux+V*vx),round(cy+U*uy+V*vy));}
+ let i=0;s.orbit=s.orbit.replace(num,()=>String(out[i++]));
+ const a=s.ring.match(num).map(Number); // original arc path; adjust radii about original center
+ const R=a[2],x=a[0]+R,y=a[1],r=R*(1+n);const circle=z=>`M ${round(x-z)} ${y} a ${round(z)} ${round(z)} 0 1 0 ${round(2*z)} 0 a ${round(z)} ${round(z)} 0 1 0 ${round(-2*z)} 0 Z`;
+ s.ring=circle(r)+(a.length>16?' '+circle(a[18]*(1+n)):'');return s;
+}
+function svg(p,bg=null,px=320){const base=G.shape(p.m,p.breath),s=shape(p);return G.svg(p.m,p.breath,bg,px).split(`d="${base.orbit}"`).join(`d="${s.orbit}"`).replace(`d="${base.ring}"`,`d="${s.ring}"`);}
+const api={states,periods,simulatedAudio,params,pose,blend,shape,svg,zero,clamp};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.KosmosMotion=api;
+})(typeof globalThis!=='undefined'?globalThis:this);
+
+/* Phase C: motion profiles and event policy; no changes to approved geometry. */
+(function(root){'use strict';
+const M=typeof module!=='undefined'&&module.exports?require('./motion'):root.KosmosMotion;
+const states=['confirmation','success','notification','warning','error'];
+const durations={confirmation:3600,success:1500,notification:1400,warning:2200,error:2000};
+const isEvent=s=>states.includes(s)&&s!=='confirmation';
+const canRepeat=s=>s==='warning'||s==='error';
+// Compact raised-cosine envelopes, zero value and velocity at both edges.
+function pulse(t,start,end){if(t<=start||t>=end)return 0;return Math.sin(Math.PI*(t-start)/(end-start))**2;}
+function params(s,t,repeat=false){const D=durations[s];if(!D)return M.zero();
+ if(s==='confirmation'){const p=2*Math.PI*t/D,b=(1-Math.cos(p))/2;return [.055*b,-.04*b,-.065*b,0,.035*b,.032*Math.sin(p)];}
+ const p=repeat&&canRepeat(s)?((t%D)+D)%D/D:M.clamp(t/D);
+ switch(s){
+ case 'success':{const a=pulse(p,0,.65),b=pulse(p,.30,.95);return [.29*a,.085*a-.025*b,.115*a-.035*b,.025*b,-.09*b,.06*a-.04*b];}
+ case 'notification':{const a=pulse(p,0,.33),b=pulse(p,.37,.75),v=a+.78*b;return [.13*v,.045*v,.10*v,0,.08*v,.05*v];}
+ case 'warning':{const a=pulse(p,0,.30),b=pulse(p,.30,.69),c=pulse(p,.09,.42);return [.14*a+.10*b,-.105*c+.07*b,-.12*c+.085*b,.045*(a-b),.13*(a+b),-.075*c];}
+ case 'error':{const a=pulse(p,0,.55),b=pulse(p,.38,.89);return [-.27*a+.055*b,-.08*a+.028*b,-.13*a+.045*b,.115*a-.035*b,.12*a-.035*b,-.13*a+.04*b];}
+ default:return M.zero();}}
+function pose(s,t,repeat=false){return M.pose(1,0,params(s,t,repeat));}
+function destination(policy,previous){if(policy==='previous')return ['standby','core','listening','thinking','executing','speaking','confirmation'].includes(previous)?previous:'core';return ['standby','core','listening','thinking','executing','speaking','confirmation'].includes(policy)?policy:null;}
+const api={states,durations,isEvent,canRepeat,params,pose,destination};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.KosmosEvents=api;
+})(typeof globalThis!=='undefined'?globalThis:this);
+
+</script><script>
+/* Motion Lab C: independent runtime; A/B playgrounds stay intact. */
+const G=KosmosGeometry,M=KosmosMotion,E=KosmosEvents,$=id=>document.getElementById(id);
+let current=M.pose(0),mode='standby',phaseStart=performance.now(),transition=null,queue=[],sequence=null,holdUntil=0,manual=false;
+let event=null,lastStable='standby';
+let audioMode='manual',amplitude=0,lastTick=performance.now(),mic=null,pendingMic=null,micGeneration=0;
+const labels={standby:['Standby','Símbolo institucional em repouso.'],awakening:['Awakening','Transformação do símbolo em Core.'],core:['Kosmos Core','Pose ativa original, sem deformação.'],sleeping:['Sleeping','Retorno à geometria institucional.'],manual:['Inspeção manual','Geometria intermediária do morphing.'],listening:['Listening','Núcleo receptivo e expansão sensível à voz.'],thinking:['Thinking','Extremidades alternadas; núcleo relativamente estável.'],executing:['Executing','Impulsos de expansão e espessura orbital.'],speaking:['Speaking','Núcleo expressivo e órbita sensível à fala.']};
+Object.assign(labels,{confirmation:['Confirmation','Aguardando autorização.'],success:['Success','Conclusão e relaxamento.'],notification:['Notification','Dois pulsos de atenção.'],warning:['Warning','Atenção e cautela.'],error:['Error','Contração e recuperação.']});
+$('symbol').innerHTML=G.svg(0);const svg=$('symbol').querySelector('svg'),ring=svg.querySelector(':scope > path[fill-rule]'),orbit=svg.querySelector(':scope > path:last-child'),mask=svg.querySelector('mask path'),stops=svg.querySelectorAll('stop');
+function setMode(m,now){mode=m;phaseStart=now;$('state').textContent=labels[m][0];$('description').textContent=labels[m][1];document.querySelectorAll('[data-state]').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.state===m)));}
+function draw(){const s=M.shape(current);ring.setAttribute('d',s.ring);orbit.setAttribute('d',s.orbit);mask.setAttribute('d',s.orbit);mask.setAttribute('stroke-width',s.cut);stops[0].setAttribute('stop-color',s.c1);stops[1].setAttribute('stop-color',s.c2);$('progress').style.width=(100*current.m)+'%';$('metric').textContent=Math.round(100*current.m)+'%';if(!manual)$('scrub').value=Math.round(current.m*1000);$('audio-meter').style.width=(100*amplitude)+'%';$('audio-live').textContent=Math.round(100*amplitude)+'%';}
+function targetPose(state,elapsed){if(state==='standby')return M.pose(0,(1-Math.cos(2*Math.PI*elapsed/G.BREATH))/2);if(E.states.includes(state))return E.pose(state,elapsed,event?.repeat);if(M.states.includes(state))return M.pose(1,0,M.params(state,elapsed,amplitude));return M.pose(1);}
+function startStep(step,now){const [label,target,duration,live]=step;setMode(label,now);transition={from:M.pose(current.m,current.breath,current.d),target,duration,start:now,live};}
+function nextStep(now){if(queue.length){startStep(queue.shift(),now);return;}transition=null;if(mode==='awakening')setMode('core',now);else if(mode==='sleeping')setMode('standby',now);if(E.isEvent(mode)&&event){phaseStart=now;event.started=now;}if(sequence)holdUntil=now+(sequence[0]?.hold??0);}
+function requestState(target,keep=false,now=performance.now()){
+ if(!keep){sequence=null;holdUntil=0;}
+ const prior=lastStable;event=E.isEvent(target)?{previous:prior,repeat:!keep&&E.canRepeat(target)&&$('repeat-alert').checked,started:null,policy:keep?'hold':$('event-return').value,done:false}:null;
+ if(!E.isEvent(target))lastStable=target;
+ manual=false;queue=[];transition=null;
+ const active=target!=='standby';const dist=Math.abs((active?1:0)-current.m);const nonzero=current.d.some(v=>Math.abs(v)>1e-8);
+ if(active){if(current.m<1-1e-8){queue.push(['awakening',M.pose(1),Math.max(250,G.DURATION*dist),false]);}
+  if(target!=='core')queue.push([target,M.pose(1),450,!E.isEvent(target)]);else if(!queue.length&&nonzero)queue.push(['core',M.pose(1),350,false]);
+ }else{if(nonzero&&current.m>1-1e-8)queue.push(['core',M.pose(1),300,false]);if(dist>1e-8)queue.push(['sleeping',M.pose(0),Math.max(250,G.DURATION*dist),false]);else if(current.breath>1e-8)queue.push(['standby',M.pose(0),250,false]);}
+ if(queue.length)startStep(queue.shift(),now);else {setMode(target,now);if(sequence)holdUntil=now+(sequence[0]?.hold??0);}
+}
+function advanceSequence(now){if(!sequence)return;const item=sequence.shift();if(!item){sequence=null;holdUntil=0;return;}holdUntil=0;requestState(item.state,true,now);}
+function playFlow(full){sequence=full?[{state:'standby',hold:0},{state:'listening',hold:350},{state:'thinking',hold:2600},{state:'executing',hold:2400},{state:'speaking',hold:2400},{state:'standby',hold:3500}]:[{state:'standby',hold:0},{state:'core',hold:200},{state:'standby',hold:650}];advanceSequence(performance.now());}
+function audioTarget(now){if(audioMode==='auto')return M.simulatedAudio(mode==='speaking'?'speaking':'listening',now-phaseStart);if(audioMode==='mic'&&mic){mic.analyser.getFloatTimeDomainData(mic.samples);let sum=0;for(const x of mic.samples)sum+=x*x;return M.clamp((Math.sqrt(sum/mic.samples.length)-.006)*5);}return Number($('audio').value)/100;}
+function tick(now){const dt=Math.max(0,Math.min(100,now-lastTick));lastTick=now;const a=audioTarget(now);amplitude+=(a-amplitude)*(1-Math.exp(-dt/(a>amplitude?65:160)));
+ if(transition){const q=M.clamp((now-transition.start)/transition.duration),dest=transition.live?targetPose(mode,now-phaseStart):transition.target;current=M.blend(transition.from,dest,G.ease(q));if(q>=1){current=dest;nextStep(now);}}
+ else if(!manual){current=targetPose(mode,now-phaseStart);}
+ if(!transition&&event&&event.started!==null&&!event.repeat&&!event.done&&now-event.started>=E.durations[mode]){event.done=true;const dest=E.destination(event.policy,event.previous);if(dest&&!sequence)requestState(dest,false,now);}
+ if(sequence&&!transition&&holdUntil&&now>=holdUntil)advanceSequence(now);
+ $('approve').disabled=mode!=='confirmation';$('decline').disabled=mode!=='confirmation';$('event-status').textContent=event?(event.repeat?'Evento persistente · interrompa ao mudar de estado':event.done?'Evento concluído · pose neutra':'Evento pontual · '+(event.policy==='previous'?'retorno anterior':event.policy)):(mode==='confirmation'?'Aguardando sua decisão.':'');
+ draw();requestAnimationFrame(tick);}
+$('activate').onclick=()=>requestState('core');$('sleep').onclick=()=>requestState('standby');$('rest').onclick=()=>requestState('standby');$('replay').onclick=()=>playFlow(false);$('full-flow').onclick=()=>playFlow(true);
+document.querySelectorAll('[data-state]').forEach(el=>el.onclick=()=>requestState(el.dataset.state));
+$('size').oninput=e=>{const v=e.target.value;$('sizevalue').textContent=v+' px';$('symbol').style.width=v+'px';$('symbol').style.height=v+'px';};$('bg').onchange=e=>{$('stage').className='stage '+e.target.value;};$('scrub').oninput=e=>{sequence=null;holdUntil=0;queue=[];transition=null;event=null;manual=true;current=M.pose(Number(e.target.value)/1000);setMode('manual',performance.now());draw();};
+$('audio').oninput=e=>{$('audio-value').textContent=e.target.value+'%';if(audioMode!=='manual'||pendingMic)selectAudio('manual');};
+function closeMic(){micGeneration++;if(mic){mic.stream.getTracks().forEach(t=>t.stop());mic.context.close().catch(()=>{});mic=null;}if(pendingMic){pendingMic.close().catch(()=>{});pendingMic=null;}}
+function selectAudio(source){if(source!=='mic')closeMic();audioMode=source;$('audio-source').value=source;$('mic-stop').disabled=source!=='mic';$('mic-status').textContent=source==='auto'?'Simulação local de fala.':source==='manual'?'Amplitude manual; nenhum acesso ao microfone.':'Microfone ativo — áudio processado localmente.';}
+async function enableMic(){closeMic();const token=micGeneration;let stream=null,ctx=null;try{if(!navigator.mediaDevices?.getUserMedia)throw Error('API indisponível neste contexto');const Audio=window.AudioContext||window.webkitAudioContext;if(!Audio)throw Error('Web Audio indisponível');ctx=new Audio();pendingMic=ctx;await ctx.resume();$('mic-status').textContent='Aguardando permissão do navegador…';$('mic-stop').disabled=false;stream=await navigator.mediaDevices.getUserMedia({audio:true});if(token!==micGeneration){stream.getTracks().forEach(t=>t.stop());await ctx.close().catch(()=>{});return;}const analyser=ctx.createAnalyser();analyser.fftSize=1024;ctx.createMediaStreamSource(stream).connect(analyser);mic={context:ctx,stream,analyser,samples:new Float32Array(analyser.fftSize)};pendingMic=null;selectAudio('mic');stream.getAudioTracks().forEach(t=>t.addEventListener('ended',()=>{if(mic?.stream===stream)selectAudio('manual');}));}catch(e){if(stream)stream.getTracks().forEach(t=>t.stop());if(ctx)ctx.close().catch(()=>{});if(token===micGeneration){selectAudio('manual');$('mic-status').textContent='Microfone indisponível ou não autorizado. Use manual/simulação.';}}}
+$('audio-source').onchange=e=>{if(e.target.value==='mic')enableMic();else selectAudio(e.target.value);};$('mic-stop').onclick=()=>selectAudio('manual');window.addEventListener('pagehide',closeMic);
+document.addEventListener('keydown',e=>{if(['INPUT','SELECT','BUTTON'].includes(document.activeElement.tagName))return;if(e.key.toLowerCase()==='a')requestState('core');if(e.key.toLowerCase()==='s')requestState('standby');});
+// C scenarios; independent from the original A+B flow. A decision is never automatic.
+const flows={approve:[{state:'thinking',hold:0},{state:'confirmation',hold:1800}],decline:[{state:'confirmation',hold:0}],success:[{state:'executing',hold:0},{state:'success',hold:1800},{state:'speaking',hold:1550}],error:[{state:'executing',hold:0},{state:'error',hold:1800},{state:'speaking',hold:2050}],notification:[{state:'standby',hold:0},{state:'notification',hold:350},{state:'speaking',hold:1450}],warning:[{state:'standby',hold:0},{state:'warning',hold:350},{state:'speaking',hold:2250}],sleep:[{state:'speaking',hold:0},{state:'standby',hold:1800}]};
+function playScenario(name){sequence=flows[name].map(x=>({...x}));advanceSequence(performance.now());}
+function decide(yes){if(mode!=='confirmation')return;requestState(yes?'executing':'standby');}
+$('approve').onclick=()=>decide(true);$('decline').onclick=()=>decide(false);
+$('play-scenario').onclick=()=>playScenario($('scenario').value);
+$('proactive').onclick=()=>requestState('notification');$('complete').onclick=()=>requestState('success');$('warn').onclick=()=>requestState('warning');$('fail').onclick=()=>requestState('error');
+$('repeat-alert').onchange=()=>{if(event&&E.canRepeat(mode)){const was=event.repeat;event.repeat=$('repeat-alert').checked;if(was&&!event.repeat){const now=performance.now();event.started=now-((now-phaseStart)%E.durations[mode]);phaseStart=event.started;event.done=false;}else if(!was&&event.repeat&&event.done){phaseStart=performance.now();event.started=phaseStart;event.done=false;}}};
+$('event-return').onchange=()=>{if(event)event.policy=$('event-return').value;};
+// Diagnostic interface only, for repeatable technical validation.
+window.KosmosLab={snapshot:()=>({mode,current:M.pose(current.m,current.breath,current.d),amplitude,audioMode,transition:!!transition,sequence:!!sequence,event:event?{...event}:null}),requestState};
+selectAudio('auto');requestAnimationFrame(tick);
+
+</script></body></html>
