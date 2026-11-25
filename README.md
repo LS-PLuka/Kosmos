@@ -1,19 +1,22 @@
-![Kosmos — The intelligence orbiting your world.](assets/branding/banners/kosmos-readme-banner.png)
-
 # Kosmos
 
-**The intelligence orbiting your world.**
+[![Python 3.12](https://img.shields.io/badge/Python-3.12-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
+[![uv 0.13.10](https://img.shields.io/badge/uv-0.13.10-DE5FE9?style=flat-square&logo=uv&logoColor=white)](https://docs.astral.sh/uv/)
+[![Project status: Stage 00](https://img.shields.io/badge/Status-Stage%2000%20%7C%20Foundation-683A79?style=flat-square)](#project-status)
+[![License: PolyForm Noncommercial 1.0.0](https://img.shields.io/badge/License-PolyForm%20Noncommercial%201.0.0-25192D?style=flat-square)](LICENSE)
+[![CI](https://img.shields.io/github/actions/workflow/status/LS-PLuka/Kosmos/ci.yml?branch=develop&style=flat-square&label=CI)](https://github.com/LS-PLuka/Kosmos/actions/workflows/ci.yml)
 
-![Project status](https://img.shields.io/badge/status-foundation-683A79)
-![Python](https://img.shields.io/badge/python-3.12-BE6BB7)
-![License](https://img.shields.io/badge/license-PolyForm%20Noncommercial%201.0.0-25192D)
+Kosmos is a source-available, local-first personal AI assistant designed to automate tasks, interact with the operating system, assist developers, and orchestrate intelligent workflows through a unified desktop experience.
+
+> Built around privacy, modularity, and extensibility, Kosmos aims to bring personal artificial intelligence directly to your machine.
+
+![Kosmos brand banner](assets/branding/banners/kosmos-brand-banner.png)
 
 ## Overview
 
-Kosmos is a source-available personal AI assistant designed to be local-first, modular,
-extensible, and user-controlled. The project is initially targeting Ubuntu and is being built
-incrementally as a modular monolith. Local processing is the default design direction; external
-providers must be explicit, replaceable integrations rather than hidden requirements.
+The project initially targets Ubuntu and is being built incrementally as a modular monolith. Local
+processing is the default design direction; external providers must be explicit, replaceable
+integrations rather than hidden requirements.
 
 ## Project status
 
