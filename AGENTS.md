@@ -8,8 +8,9 @@ then this guide. Do not advance to another roadmap stage unless the user explici
 
 ## Project context
 
-Kosmos is a source-available, local-first personal AI assistant. It is currently in Stage 00:
-Project Foundation. Do not claim that roadmap capabilities are implemented.
+Kosmos is a source-available, local-first personal AI assistant. Stage 00 is complete and Stage 01
+is in development. Only the Core Foundation behavior documented for Stage 01.1 is currently
+implemented; do not claim that later roadmap capabilities are available.
 
 ## Engineering principles
 
@@ -98,8 +99,11 @@ are references; they are not the planned production renderer.
 
 Use GitFlow with permanent `main` and `develop` branches and short-lived `feature/*`, `fix/*`,
 `hotfix/*`, `release/*`, `docs/*`, `refactor/*`, or `chore/*` branches. Integrate through pull
-requests. Do not force-push permanent branches, rewrite published history, create releases or tags
-without delivered versions, or commit/push unless explicitly authorized.
+requests using merge commits exclusively; squash merges and rebase merges are prohibited. Required
+CI checks must pass before integration. Never delete `main` or `develop`; delete eligible temporary
+branches after their pull requests are merged. Do not force-push permanent branches, rewrite
+published history, create releases or tags without delivered versions, or commit/push unless
+explicitly authorized.
 
 Use Semantic Versioning and English Conventional Commits, for example:
 
