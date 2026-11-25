@@ -32,8 +32,9 @@ markers as errors.
 ## Package layout
 
 Importable code lives under `src/kosmos`. Unit tests belong in `tests/unit`; tests exercising real
-boundaries belong in `tests/integration`. Do not add `__init__.py` files merely to populate planned
-domain directories.
+boundaries belong in `tests/integration`, and reusable test doubles belong in `tests/fakes`. Do not
+add `__init__.py` files merely to populate planned domain directories. Stage 01.1 asynchronous
+contract tests use `asyncio.run`, so no asynchronous Pytest plugin is required.
 
 ## Motion Lab
 

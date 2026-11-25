@@ -15,12 +15,12 @@ exists.
 Modules may later use `domain`, `application`, `infrastructure`, and `presentation` subdirectories,
 but only after implemented behavior demonstrates the need. Empty architectural layers are avoided.
 
-## Planned modules
+## Module status
 
-| Module | Planned responsibility |
+| Module | Responsibility and current status |
 | --- | --- |
-| `core` | General orchestration, lifecycle, and operational coordination |
-| `intelligence` | AI models, conversation, reasoning, and tool calling |
+| `core` | Application foundations are implemented; orchestration and lifecycle remain planned |
+| `intelligence` | Text inference models and the provider port are implemented; conversation, reasoning, and tool calling remain planned |
 | `voice` | Activation, capture, recognition, and speech synthesis |
 | `system` | Operating system, applications, files, and processes |
 | `developer` | Development agents, projects, sessions, and tasks |
@@ -33,7 +33,9 @@ but only after implemented behavior demonstrates the need. Empty architectural l
 | `vision` | Computer vision and multimodal processing |
 | `plugins` | Kosmos extension mechanisms |
 
-These directories describe planned boundaries only. Stage 00 does not implement any module.
+Directories other than `core` and `intelligence` still describe planned boundaries only. Stage
+01.1 does not implement their roadmap capabilities. See the
+[Core Foundation specification](core-foundation.md) for the behavior currently available.
 
 ## Architectural rules
 
@@ -43,3 +45,10 @@ These directories describe planned boundaries only. Stage 00 does not implement 
 - Make external providers replaceable where the product requires choice or offline operation.
 - Use synchronous or asynchronous execution according to measured needs, not fashion.
 - Record significant cross-cutting decisions as architecture decision records when they arise.
+
+## Implemented dependency boundary
+
+The `intelligence` models represent Kosmos concepts and do not expose an Ollama or HTTP schema.
+Application code depends on the asynchronous `LLMProvider` protocol. Concrete provider adapters
+will depend inward on that protocol and the models, allowing tests and future integrations to
+substitute implementations without changing the domain boundary.

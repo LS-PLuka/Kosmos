@@ -29,15 +29,20 @@ force and no automated acceptance is configured. See the non-binding
    ```
 
 5. Use English Conventional Commits and open a pull request to `develop`.
+6. Integrate only with a merge commit after all required CI checks pass. Squash merges and rebase
+   merges are not allowed.
+7. Delete an eligible temporary branch after its pull request is merged. Never delete the
+   permanent `main` or `develop` branches.
 
-Release and hotfix flows will be activated only when the project has delivered versions. Do not
-force-push `main` or `develop`.
+Release and hotfix flows will be activated only when the project has delivered versions. The
+`main` and `develop` branches are permanent; do not delete or force-push them.
 
 ## Pull requests
 
 Explain the problem, approach, tests, security and privacy impact, dependency or licensing impact,
-and documentation changes. Keep pull requests reviewable. CI must pass, review feedback must be
-resolved, and new dependencies require a licensing review.
+and documentation changes. Keep pull requests reviewable. Required CI checks must pass, review
+feedback must be resolved, and new dependencies require a licensing review. Use the repository's
+merge-commit strategy; do not squash or rebase a pull request during integration.
 
 ## Code and documentation standards
 
