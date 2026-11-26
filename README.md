@@ -24,9 +24,10 @@ requirements.
 **Stage 00 — Project Foundation is complete. Stage 01 — Core Engine is in development.** The
 repository includes the Stage 01.1 foundations and the Stage 01.2 Ollama HTTP adapter for complete
 and streaming text inference. The adapter is automatically tested, but real inference on the
-target Ubuntu host remains pending. Kosmos is not yet an operational AI assistant and does not
-provide conversation orchestration, voice, system control, persistent memory, automation, or a
-desktop application.
+target Ubuntu host remains pending. The Stage 01.3 feature branch also includes automatically
+tested, in-memory conversation sessions and context continuity; maintainer integration into
+`develop` remains pending. Kosmos is not yet an operational AI assistant and does not provide
+personality, voice, system control, persistent memory, automation, or a desktop application.
 
 Capabilities explicitly described below as planned belong to the roadmap and must not be
 interpreted as implemented.
@@ -104,10 +105,11 @@ Trafilatura, Beautiful Soup, Playwright, and the Google Gemini API.
 
 Stage 00 and Stage 01.1 — Core Foundation are complete. The Stage 01.2 — Ollama Provider adapter is
 implemented and automatically tested; real Ubuntu inference validation remains pending.
-Conversation, personality, tool calling, orchestration, effort levels, the development CLI, and
-model validation follow as separate Stage 01 substages. Later stages cover voice, authorized system
-control, developer agents, memory, proactive intelligence, desktop, web/external integrations,
-multimodal intelligence, and cross-platform ecosystem expansion.
+Stage 01.3 — Conversation Engine is implemented and automatically tested on its feature branch,
+with maintainer integration pending. Personality, tool calling, orchestration, effort levels, the
+development CLI, and model validation follow as separate Stage 01 substages. Later stages cover
+voice, authorized system control, developer agents, memory, proactive intelligence, desktop,
+web/external integrations, multimodal intelligence, and cross-platform ecosystem expansion.
 
 See the [official roadmap](docs/architecture/ROADMAP.md) for the complete staged plan and status.
 
@@ -121,7 +123,7 @@ uv sync --frozen --dev
 uv run python -c "import kosmos; print(kosmos.__version__)"
 ```
 
-No application entry point or functional model integration exists in Stage 01.1.
+No application entry point or real model validation is provided by the current stages.
 
 ## Development
 

@@ -9,8 +9,9 @@ then this guide. Do not advance to another roadmap stage unless the user explici
 ## Project context
 
 Kosmos is a source-available, local-first personal AI assistant. Stage 00 is complete and Stage 01
-is in development. Only the Core Foundation behavior documented for Stage 01.1 is currently
-implemented; do not claim that later roadmap capabilities are available.
+is in development. Stage 01.1 is complete, the Stage 01.2 adapter is implemented with real Ubuntu
+inference validation pending, and Stage 01.3 is implemented on its feature branch pending
+maintainer integration. Do not claim that later roadmap capabilities are available.
 
 ## Engineering principles
 
@@ -96,7 +97,7 @@ operations.** Use deterministic Python for exact calculations, counts, state che
 validation, authorization, and sensitive execution. An LLM must never receive unrestricted
 operating-system or terminal access.
 
-Ollama and Qwen 3.5 4B are the planned initial local provider and model for Stage 01.2. External
+Ollama and Qwen 3.5 4B are the initial local provider and model for Stage 01.2. External
 providers and specialized agents are optional, explicit integrations: never silently fall back to
 them or transmit local data without authorization. See the
 [intelligence architecture](docs/architecture/INTELLIGENCE-ARCHITECTURE.md) for provider,

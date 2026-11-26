@@ -31,3 +31,19 @@ class ProviderHTTPError(InferenceError):
 
 class InvalidProviderResponseError(InferenceError):
     """Raised when a provider response violates its documented schema."""
+
+
+class ConversationError(KosmosError):
+    """Base exception for conversation management failures."""
+
+
+class SessionNotFoundError(ConversationError):
+    """Raised when a conversation session does not exist."""
+
+
+class SessionBusyError(ConversationError):
+    """Raised when an active turn prevents a session operation."""
+
+
+class ContextLimitExceededError(ConversationError):
+    """Raised when required messages exceed the configured context budget."""

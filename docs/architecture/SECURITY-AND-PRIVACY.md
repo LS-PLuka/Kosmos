@@ -29,6 +29,15 @@ queries to external search engines and must disclose that boundary.
 Future external-agent integrations must follow the same rules. This document states architectural
 requirements; Stage 01.1 does not implement a complete authorization system.
 
+## In-memory conversation boundary
+
+The Stage 01.3 Conversation Engine retains confirmed message pairs only in process memory and keeps
+session histories isolated. It performs no automatic persistence, logging of message content,
+remote fallback, tool execution, or additional transmission beyond the explicitly injected
+provider call. Clearing or deleting a session removes managed references but does not guarantee
+physical memory erasure. The engine is not a complete retention, secure-erasure, or multi-process
+isolation system.
+
 ## Local Ollama boundary
 
 The Stage 01.2 adapter accepts only HTTP(S) loopback endpoints without credentials, queries,

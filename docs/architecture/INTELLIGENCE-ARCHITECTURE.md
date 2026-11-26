@@ -4,9 +4,10 @@
 
 This document records the intelligence architecture beyond the completed Stage 01.1 Core
 Foundation. The Stage 01.2 Ollama HTTP adapter is implemented and automatically tested with
-simulated transports, but real inference on the target Ubuntu host remains pending. Conversation
-orchestration, tools, effort levels, external agents, and web intelligence still require their
-corresponding roadmap stages and separate approval.
+simulated transports, but real inference on the target Ubuntu host remains pending. Stage 01.3
+in-memory conversation management is implemented and automatically tested on its feature branch,
+with maintainer integration pending. Tools, effort levels, external agents, and web intelligence
+still require their corresponding roadmap stages and separate approval.
 
 ## Hybrid local-first orchestration
 

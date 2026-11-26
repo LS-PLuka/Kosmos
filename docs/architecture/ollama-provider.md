@@ -150,6 +150,7 @@ not provide a CLI or alter the real service configuration in this stage.
 
 ## Limitations
 
-Stage 01.2 supports text chat only. It does not implement conversations, sessions, personality,
-tool calls, images, embeddings, temperature policy, retries, effort levels, remote providers,
-automatic routing, persistent memory, voice, GUI behavior, or operating-system control.
+Stage 01.2 remains a text-inference adapter and does not itself manage conversations. Stage 01.3
+adds provider-independent sessions and confirmed history above this boundary. Personality, tool
+calls, images, embeddings, temperature policy, retries, effort levels, remote providers, automatic
+routing, persistent memory, voice, GUI behavior, and operating-system control remain unavailable.
