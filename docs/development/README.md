@@ -20,14 +20,47 @@ when project dependencies intentionally change and include the resulting lockfil
 ## Checks
 
 ```bash
+uv lock --check
+uv sync --frozen --dev
 uv run ruff check .
 uv run ruff format --check .
 uv run pytest
+git diff --check
 ```
 
 Use `uv run ruff format .` to apply formatting. Ruff is configured for Python 3.12 and a
 100-character line length. Pytest discovers tests under `tests` and treats unknown configuration or
 markers as errors.
+
+## Code quality and readability
+
+Formatting is the baseline, not the complete review. For each changed Python file:
+
+- use four spaces and never tabs; keep UTF-8, LF line endings, and a final newline;
+- use double quotes and natural line breaks within the configured 100-character limit;
+- group standard-library, third-party, and Kosmos imports, removing unused and wildcard imports;
+- choose specific English names and preserve public contracts unless a change is approved;
+- type public parameters, returns, and concrete boundaries with modern Python 3.12 syntax;
+- keep functions and classes cohesive, nesting low, side effects visible, and exception handling
+  specific;
+- extract helpers only when they improve comprehension or reuse;
+- explain only decisions, constraints, security, and non-obvious trade-offs in English comments or
+  docstrings; and
+- inspect responsibility, complexity, duplication, coupling, dependency direction, and
+  maintainability after automated checks pass.
+
+Tests receive the same review. Use descriptive names, focused fixtures, clear assertions, and
+deterministic inputs. Arrange, Act, Assert separation is useful when it clarifies a scenario, but
+should not add ceremonial comments. Automated tests must not depend on a GPU, Ollama, installed
+models, credentials, network services, or corporate infrastructure.
+
+## Cross-platform workflow
+
+Ubuntu is the primary execution environment. Windows supports development and isolated testing for
+portable behavior. Prefer fakes for internal contracts, mocks or simulated HTTP transports for
+external integrations, and platform adapters only when actual operating-system differences exist.
+Do not maintain separate complete implementations. Real local-model inference tests are manual or
+integration-specific and remain outside the deterministic automated suite.
 
 ## Package layout
 
