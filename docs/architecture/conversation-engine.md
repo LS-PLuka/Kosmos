@@ -206,5 +206,9 @@ Stage 01.4 supplies an explicit, deterministic personality instruction through t
 boundary without moving personality rules into this engine. The selected instruction is preserved
 between turns and after history clearing, while different sessions remain isolated. A future Memory
 Engine may provide separately approved context, but persistent storage, retrieval, summaries, and
-retention policy are not implemented here. Tool calling, orchestration, effort levels, automatic
-model routing, and real Ubuntu model validation also remain separate roadmap work.
+retention policy are not implemented here. Stage 01.5 tool calling uses separate contracts and
+manual composition without changing this engine. Orchestration, effort levels, automatic model
+routing, and real Ubuntu model validation remain separate roadmap work.
+
+> Stage 01.5 preserves this text-only engine unchanged. Structured tool messages use separate
+> contracts and manual composition; automatic orchestration is planned for Stage 01.6.

@@ -100,6 +100,19 @@ For an exclusively local Ollama runtime, configure the service itself with `OLLA
 A loopback API connection alone does not prove that every server-side feature is offline. Kosmos
 does not modify the host's Ollama settings.
 
+## Structured tool calling
+
+Stage 01.5 adds the optional provider-independent `ToolCallingProvider` capability to
+`OllamaProvider`. `generate_with_tools()` uses the native `/api/chat` `tools` field with
+`stream=false` and accepts assistant text, ordered structured calls, or both. It validates protocol
+structure, generates local correlation identifiers, and supports explicit continuation through
+assistant `tool_calls` messages followed by `role: tool` messages containing `tool_name`.
+
+The adapter does not parse calls from free text and never authorizes or executes a handler. Its
+existing text generation and streaming behavior is unchanged. Native streaming tool calls remain
+outside this stage. See [Tool Calling and Tool Registry](tool-calling.md) for schemas, limits, and
+the manual composition flow.
+
 ## Manual Ubuntu demonstration
 
 The following example requires the maintainer's Ubuntu installation, an already installed model,
@@ -150,7 +163,8 @@ not provide a CLI or alter the real service configuration in this stage.
 
 ## Limitations
 
-Stage 01.2 remains a text-inference adapter and does not itself manage conversations. Stage 01.3
-adds provider-independent sessions and confirmed history above this boundary. Personality, tool
-calls, images, embeddings, temperature policy, retries, effort levels, remote providers, automatic
-routing, persistent memory, voice, GUI behavior, and operating-system control remain unavailable.
+The adapter does not itself manage conversations or execution. Stage 01.3 adds provider-independent
+sessions and confirmed text history above this boundary, while Stage 01.5 adds explicit structured
+tool inference without automatic orchestration. Images, embeddings, temperature policy, retries,
+effort levels, remote providers, automatic routing, persistent memory, voice, GUI behavior, and
+operating-system control remain unavailable.

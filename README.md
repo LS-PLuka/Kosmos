@@ -26,8 +26,10 @@ repository includes the Stage 01.1 foundations and the Stage 01.2 Ollama HTTP ad
 and streaming text inference. The adapter is automatically tested, but real inference on the
 target Ubuntu host remains pending. Stage 01.3 provides automatically tested, in-memory
 conversation sessions and context continuity and is integrated into `develop`.
-Stage 01.4 provides a provider-independent Personality Engine on its feature branch, pending
-maintainer integration and real model validation. Kosmos is not yet an operational AI assistant
+Stage 01.4 provides an integrated provider-independent Personality Engine, with real behavioral
+validation pending. Stage 01.5 implements provider-independent tool contracts, deterministic
+validation and authorization, two pure tools, and native non-streaming Ollama tool calling on its
+feature branch. Real Qwen tool selection and maintainer integration remain pending. Kosmos is not yet an operational AI assistant
 and does not provide voice, system control, persistent memory, automation, or a desktop
 application.
 
@@ -109,10 +111,11 @@ Trafilatura, Beautiful Soup, Playwright, and the Google Gemini API.
 
 Stage 00 and Stage 01.1 — Core Foundation are complete. The Stage 01.2 — Ollama Provider adapter is
 implemented and automatically tested; real Ubuntu inference validation remains pending.
-Stage 01.3 — Conversation Engine is integrated. Stage 01.4 — Personality Engine is implemented and
-automatically tested on its feature branch, with maintainer integration and real behavioral
-validation pending. Tool calling, orchestration, effort levels, the development CLI, and model
-validation follow as separate Stage 01 substages. Later stages cover
+Stage 01.3 — Conversation Engine and Stage 01.4 — Personality Engine are integrated, with real
+personality validation pending. Stage 01.5 — Tool Calling & Tool Registry is implemented and
+automatically tested on its feature branch; maintainer integration and real Qwen validation remain
+pending. Orchestration, effort levels, the development CLI, and model validation follow as separate
+Stage 01 substages. Later stages cover
 voice, authorized system control, developer agents, memory, proactive intelligence, desktop,
 web/external integrations, multimodal intelligence, and cross-platform ecosystem expansion.
 

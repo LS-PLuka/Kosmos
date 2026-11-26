@@ -5,11 +5,11 @@
 This document records the intelligence architecture beyond the completed Stage 01.1 Core
 Foundation. The Stage 01.2 Ollama HTTP adapter is implemented and automatically tested with
 simulated transports, but real inference on the target Ubuntu host remains pending. Stage 01.3
-in-memory conversation management is integrated. Stage 01.4 personality representation and
-deterministic system-instruction construction are implemented and automatically tested on their
-feature branch; integration and real model behavior validation remain pending. Tools, effort
-levels, external agents, and web intelligence still require their corresponding roadmap stages
-and separate approval.
+in-memory conversation management and Stage 01.4 personality representation are integrated; real
+personality behavior validation remains pending. Stage 01.5 tool-calling foundations are
+implemented and automatically tested on their feature branch, with maintainer integration and real
+Qwen behavior validation pending. Effort levels, external agents, and web intelligence still
+require their corresponding roadmap stages and separate approval.
 
 ## Hybrid local-first orchestration
 
@@ -94,6 +94,20 @@ may set limits for time, tool calls, iterations, research, and delegation.
 - **Medium:** thinking enabled; reasoning, task planning, and problem analysis.
 - **High:** thinking enabled; authorized external research, analysis, multiple tools, and result
   validation.
+
+## Tool-calling boundary
+
+Stage 01.5 adds provider-independent structured tool requests and responses, an explicit registry,
+deterministic schema validation, execution-scoped authorization, sequential execution, and two
+pure local tools. The optional `ToolCallingProvider` capability does not change the text-only
+`LLMProvider` contract. The Ollama adapter translates structured proposals but has no dependency on
+the registry, authorization, or executor and never runs handlers.
+
+Registration does not grant permission. Only explicitly allowed `PURE` tools can execute in this
+stage; read-only, state-changing, and sensitive classes remain blocked. The complete automatic
+conversation and tool orchestration loop, integrated context budgeting, retries, replay policy,
+and approval interaction remain outside Stage 01.5. See
+[Tool Calling and Tool Registry](tool-calling.md).
 - **Expert:** specialized model or agent delegation, software development, and advanced analysis;
   thinking configured as needed.
 - **Auto:** later automatic selection based on request nature and complexity, after the other

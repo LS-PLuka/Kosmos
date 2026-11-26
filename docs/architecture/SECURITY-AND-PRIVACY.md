@@ -27,7 +27,25 @@ facts from inference, and preserve source references. A self-hosted search front
 queries to external search engines and must disclose that boundary.
 
 Future external-agent integrations must follow the same rules. This document states architectural
-requirements; Stage 01.1 does not implement a complete authorization system.
+requirements; the current stages do not implement a complete user authorization system.
+
+## Tool execution boundary
+
+Stage 01.5 treats every model-proposed `ToolCall` as untrusted data. Tools exist only through an
+explicit per-instance registry built by trusted application code. Definitions sent to providers do
+not contain handlers or policy details, and provider responses cannot register tools, grant
+permission, select executable code, or change risk classifications.
+
+Execution denies by default and requires an exact execution-scoped allowlist. Only the two approved
+pure tools can run; read-only, state-changing, and sensitive classifications remain blocked even
+when named in an allowlist. Authorization occurs before argument validation and handler execution.
+Arguments are validated without coercion, detached from provider-owned structures, and bounded.
+Results are bounded JSON data with generic failures and no stack traces or internal exception text.
+
+The executor is not a sandbox and provides no shell, filesystem, process, application, device,
+credential, network, or arbitrary code access. Tool results remain untrusted content and do not
+become system instructions. Automated tests validate these software properties without contacting
+Ollama or any external service.
 
 ## In-memory conversation boundary
 
