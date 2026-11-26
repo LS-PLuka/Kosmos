@@ -28,3 +28,15 @@ queries to external search engines and must disclose that boundary.
 
 Future external-agent integrations must follow the same rules. This document states architectural
 requirements; Stage 01.1 does not implement a complete authorization system.
+
+## Local Ollama boundary
+
+The Stage 01.2 adapter accepts only HTTP(S) loopback endpoints without credentials, queries,
+fragments, or paths. Its HTTP client ignores proxy and certificate environment variables, does not
+follow redirects, and preserves normal TLS certificate verification for HTTPS. The adapter uses
+only fixed Ollama API paths and has no remote fallback, telemetry, shell execution, or automatic
+model download.
+
+Loopback transport alone does not prove offline inference. Operators requiring exclusively local
+execution must start Ollama with `OLLAMA_NO_CLOUD=1` and verify the installed model artifact and
+service configuration. Kosmos does not change the host's Ollama configuration.

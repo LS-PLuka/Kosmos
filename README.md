@@ -22,13 +22,14 @@ requirements.
 ## Project status
 
 **Stage 00 — Project Foundation is complete. Stage 01 — Core Engine is in development.** The
-repository now includes the Stage 01.1 foundations for validated application settings, explicit
-logging, text-inference models, and a replaceable asynchronous LLM provider contract. It does not
-yet provide an operational AI assistant, a real model provider, an HTTP client, conversation
-orchestration, voice, system control, persistent memory, automation, or a desktop application.
+repository includes the Stage 01.1 foundations and the Stage 01.2 Ollama HTTP adapter for complete
+and streaming text inference. The adapter is automatically tested, but real inference on the
+target Ubuntu host remains pending. Kosmos is not yet an operational AI assistant and does not
+provide conversation orchestration, voice, system control, persistent memory, automation, or a
+desktop application.
 
-Everything described below as planned belongs to the roadmap and must not be interpreted as an
-implemented capability.
+Capabilities explicitly described below as planned belong to the roadmap and must not be
+interpreted as implemented.
 
 ## Vision
 
@@ -71,10 +72,11 @@ independent of the graphical interface and frameworks. External services and sys
 will be isolated behind adapters when a real substitution or testing need exists. Internal layer
 directories are introduced only as modules acquire behavior, avoiding speculative abstractions.
 
-The planned intelligence design is hybrid and local-first: a local model interprets intent and
-coordinates workflows, while deterministic software validates, authorizes, and executes
-operations. Ollama with Qwen 3.5 4B is the planned initial local configuration for Stage 01.2, not
-an implemented dependency in Stage 01.1. Remote providers and specialized agents remain optional.
+The intelligence design is hybrid and local-first: a local model interprets intent and coordinates
+workflows, while deterministic software validates, authorizes, and executes operations. The
+Ollama HTTP adapter is implemented with Qwen 3.5 4B as the initial external runtime model; real
+inference validation on the target Ubuntu host remains pending. Remote providers and specialized
+agents remain optional.
 
 The planned top-level domains are documented in
 [the architecture overview](docs/architecture/README.md), with details in the
@@ -88,22 +90,24 @@ Currently configured:
 - uv for environments, dependency resolution, and locking
 - Ruff for linting and formatting
 - Pytest for automated tests
+- HTTPX for asynchronous communication with the loopback-only Ollama API
 - Python standard-library configuration, logging, dataclasses, and asynchronous provider contracts
 - GitHub Actions for continuous integration
 
-Planned technologies, subject to their applicable evaluation and licensing review, include Ollama,
-Qwen 3.5 4B, Pydantic, SQLite, openWakeWord, Silero VAD, faster-whisper, SoundDevice, Kokoro or
+Ollama and Qwen 3.5 4B are external local-inference requirements and are not incorporated into the
+repository. Other planned technologies, subject to their applicable evaluation and licensing
+review, include Pydantic, SQLite, openWakeWord, Silero VAD, faster-whisper, SoundDevice, Kokoro or
 Piper, psutil, Docker SDK, Codex and Claude Code integrations, PySide6, Qt Quick/QML, SearXNG,
-Trafilatura, Beautiful Soup, Playwright, and the Google Gemini API. None is a current runtime
-dependency.
+Trafilatura, Beautiful Soup, Playwright, and the Google Gemini API.
 
 ## Roadmap
 
-Stage 00 is complete. Stage 01.1 — Core Foundation is complete, and Stage 01.2 — Ollama Provider is
-the next planned substage. Conversation, personality, tool calling, orchestration, effort levels,
-the development CLI, and model validation follow as separate Stage 01 substages. Later stages cover
-voice, authorized system control, developer agents, memory, proactive intelligence, desktop,
-web/external integrations, multimodal intelligence, and cross-platform ecosystem expansion.
+Stage 00 and Stage 01.1 — Core Foundation are complete. The Stage 01.2 — Ollama Provider adapter is
+implemented and automatically tested; real Ubuntu inference validation remains pending.
+Conversation, personality, tool calling, orchestration, effort levels, the development CLI, and
+model validation follow as separate Stage 01 substages. Later stages cover voice, authorized system
+control, developer agents, memory, proactive intelligence, desktop, web/external integrations,
+multimodal intelligence, and cross-platform ecosystem expansion.
 
 See the [official roadmap](docs/architecture/ROADMAP.md) for the complete staged plan and status.
 

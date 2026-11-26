@@ -10,7 +10,8 @@ Complete.
 ## Stage 01 — Core Engine
 
 - **01.1 — Core Foundation:** complete
-- **01.2 — Ollama Provider:** planned
+- **01.2 — Ollama Provider:** adapter implemented and automatically tested; real inference
+  validation on the target Ubuntu host remains pending
 - **01.3 — Conversation Engine:** planned
 - **01.4 — Personality Engine:** planned
 - **01.5 — Tool Calling & Tool Registry:** planned

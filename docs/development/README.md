@@ -62,6 +62,10 @@ external integrations, and platform adapters only when actual operating-system d
 Do not maintain separate complete implementations. Real local-model inference tests are manual or
 integration-specific and remain outside the deterministic automated suite.
 
+Stage 01.2 provider tests use HTTPX `MockTransport` and custom asynchronous byte streams. They
+exercise complete responses, incremental NDJSON delivery, transport failures, cancellation,
+resource release, and local-endpoint constraints without requiring Ollama, a GPU, or a model.
+
 ## Package layout
 
 Importable code lives under `src/kosmos`. Unit tests belong in `tests/unit`; tests exercising real

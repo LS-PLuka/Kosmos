@@ -158,7 +158,7 @@ published history, create releases or tags without delivered versions, or commit
 explicitly authorized.
 
 Commits, pushes, pull requests, merges, rebases, force pushes, tags, releases, and branch deletion
-are maintainer-only operations unless the maintainer explicitly delegates a specific operation.
+are absolute maintainer-only operations. Development agents must not perform them.
 
 Use Semantic Versioning and English Conventional Commits, for example:
 

@@ -2,10 +2,11 @@
 
 ## Status and scope
 
-This document records the planned intelligence architecture beyond the completed Stage 01.1 Core
-Foundation. It does not describe these capabilities as implemented. Provider adapters,
-conversation orchestration, tools, effort levels, external agents, and web intelligence require
-their corresponding roadmap stages and separate approval.
+This document records the intelligence architecture beyond the completed Stage 01.1 Core
+Foundation. The Stage 01.2 Ollama HTTP adapter is implemented and automatically tested with
+simulated transports, but real inference on the target Ubuntu host remains pending. Conversation
+orchestration, tools, effort levels, external agents, and web intelligence still require their
+corresponding roadmap stages and separate approval.
 
 ## Hybrid local-first orchestration
 
@@ -25,8 +26,8 @@ policy before any execution.
 
 ## Initial local intelligence
 
-The planned primary provider is Ollama. The initial official model selection is Qwen 3.5 4B with
-these starting settings:
+The primary provider adapter is Ollama. The initial official runtime model selection is Qwen 3.5
+4B with these starting settings:
 
 | Setting | Planned value |
 | --- | --- |
@@ -37,9 +38,10 @@ these starting settings:
 | Default thinking | Disabled |
 | Advanced thinking | Enabled according to effort level |
 
-The model remains externally configurable. No model identifier belongs in business rules, and the
-provider-independent `LLMProvider` contract must not expose Ollama-specific details. Model weights
-are installed separately and are not included in this repository.
+The model remains externally configurable and must be selected in each `InferenceRequest`. No
+model identifier belongs in business rules, and the provider-independent `LLMProvider` contract
+does not expose Ollama-specific details. Model weights are installed separately and are not
+included in this repository. See [Ollama Provider](ollama-provider.md) for the implemented adapter.
 
 Ollama presents the selected model as Apache-2.0 licensed. That information must be verified for
 the exact model artifact before distribution or incorporation. Separate model weights and their
