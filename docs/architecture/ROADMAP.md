@@ -19,9 +19,10 @@ Complete.
   validation remains pending
 - **01.6 — Core Orchestration & Effort Levels:** complete and integrated; real Qwen validation
   remains pending
-- **01.7 — Development CLI:** implemented on its feature branch with automated validation; real
-  Ubuntu and Qwen validation remain pending
-- **01.8 — Model Benchmark & Validation:** planned
+- **01.7 — Development CLI:** complete and integrated; real Ubuntu and Qwen validation remain
+  pending
+- **01.8 — Model Benchmark & Validation:** benchmark infrastructure implemented and automatically
+  tested; real model and offline validation on the target Ubuntu host remain pending
 
 ## Stage 02 — Voice Engine
 

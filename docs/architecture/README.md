@@ -27,6 +27,7 @@ but only after implemented behavior demonstrates the need. Empty architectural l
 | --- | --- |
 | `core` | Foundations and Stage 01.6 bounded orchestration are integrated |
 | `intelligence` | Text inference, Ollama, conversation, personality, and Stage 01.5 tool calling are integrated; real model behavior remains pending |
+| `benchmarking` | Stage 01.8 scenario, evaluation, runner, and reporting infrastructure is implemented; real validation remains pending |
 | `voice` | Activation, capture, recognition, and speech synthesis |
 | `system` | Operating system, applications, files, and processes |
 | `developer` | Development agents, projects, sessions, and tasks |
@@ -75,6 +76,10 @@ Tests and future integrations can substitute implementations without changing th
   authorization, execution, pure tools, and native Ollama integration
 - [Core Orchestration](core-orchestration.md): Stage 01.6 coordination, limits, context, and metrics
 - [Development CLI](../development/development-cli.md): Stage 01.7 terminal composition and usage
+- [Model Benchmark and Validation](../development/model-benchmark.md): Stage 01.8 suites, evidence,
+  metrics, and reporting
+- [Ubuntu Core Engine Validation](../development/ubuntu-validation.md): maintainer-run validation
+  and promotion checklist
 - [Effort Levels](effort-levels.md): supported and reserved Kosmos effort policies
 - [Intelligence Architecture](INTELLIGENCE-ARCHITECTURE.md): hybrid intelligence, providers,
   effort levels, and planned web research
