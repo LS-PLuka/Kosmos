@@ -12,15 +12,22 @@ The Core Engine must remain usable without a GUI. System and service integration
 the edge and introduced behind adapters when a concrete testing, replacement, or security need
 exists.
 
+Kosmos is a hybrid, local-first orchestration system. The local model interprets intent and
+coordinates conversation, but software owns validation, authorization, deterministic operations,
+and execution. External intelligence is optional and must never become a hidden runtime
+requirement. The detailed decisions are in the
+[Intelligence Architecture](INTELLIGENCE-ARCHITECTURE.md).
+
 Modules may later use `domain`, `application`, `infrastructure`, and `presentation` subdirectories,
 but only after implemented behavior demonstrates the need. Empty architectural layers are avoided.
 
-## Planned modules
+## Module status
 
-| Module | Planned responsibility |
+| Module | Responsibility and current status |
 | --- | --- |
-| `core` | General orchestration, lifecycle, and operational coordination |
-| `intelligence` | AI models, conversation, reasoning, and tool calling |
+| `core` | Foundations and Stage 01.6 bounded orchestration are integrated |
+| `intelligence` | Text inference, Ollama, conversation, personality, and Stage 01.5 tool calling are integrated; real model behavior remains pending |
+| `benchmarking` | Stage 01.8 scenario, evaluation, runner, and reporting infrastructure is implemented; real validation remains pending |
 | `voice` | Activation, capture, recognition, and speech synthesis |
 | `system` | Operating system, applications, files, and processes |
 | `developer` | Development agents, projects, sessions, and tasks |
@@ -33,7 +40,8 @@ but only after implemented behavior demonstrates the need. Empty architectural l
 | `vision` | Computer vision and multimodal processing |
 | `plugins` | Kosmos extension mechanisms |
 
-These directories describe planned boundaries only. Stage 00 does not implement any module.
+Directories other than `core` and `intelligence` still describe planned boundaries only. See the
+[Core Foundation specification](core-foundation.md) for the behavior currently available.
 
 ## Architectural rules
 
@@ -43,3 +51,37 @@ These directories describe planned boundaries only. Stage 00 does not implement 
 - Make external providers replaceable where the product requires choice or offline operation.
 - Use synchronous or asynchronous execution according to measured needs, not fashion.
 - Record significant cross-cutting decisions as architecture decision records when they arise.
+- Prefer deterministic software over LLM output for exact calculations, counts, state checks,
+  validation, authorization, and execution.
+- Deny unauthorized operations by default and prohibit unrestricted terminal access by an LLM.
+
+## Implemented dependency boundary
+
+The `intelligence` models represent Kosmos concepts and do not expose an Ollama or HTTP schema.
+Application code depends on the asynchronous `LLMProvider` protocol for complete and streaming
+inference. `OllamaProvider` is an edge adapter that depends inward on this port and the models.
+Tests and future integrations can substitute implementations without changing the domain boundary.
+
+## Architectural references
+
+- [Core Foundation](core-foundation.md): implemented Stage 01.1 behavior
+- [Ollama Provider](ollama-provider.md): implemented Stage 01.2 adapter and pending real validation
+- [Conversation Engine](conversation-engine.md): implemented Stage 01.3 in-memory conversation
+  management
+- [Personality Specification](PERSONALITY-SPECIFICATION.md): official Kosmos behavioral and
+  future voice identity
+- [Personality Engine](personality-engine.md): implemented Stage 01.4 personality representation
+  pending real behavioral validation
+- [Tool Calling and Tool Registry](tool-calling.md): Stage 01.5 contracts, validation,
+  authorization, execution, pure tools, and native Ollama integration
+- [Core Orchestration](core-orchestration.md): Stage 01.6 coordination, limits, context, and metrics
+- [Development CLI](../development/development-cli.md): Stage 01.7 terminal composition and usage
+- [Model Benchmark and Validation](../development/model-benchmark.md): Stage 01.8 suites, evidence,
+  metrics, and reporting
+- [Ubuntu Core Engine Validation](../development/ubuntu-validation.md): maintainer-run validation
+  and promotion checklist
+- [Effort Levels](effort-levels.md): supported and reserved Kosmos effort policies
+- [Intelligence Architecture](INTELLIGENCE-ARCHITECTURE.md): hybrid intelligence, providers,
+  effort levels, and planned web research
+- [Security and Privacy Principles](SECURITY-AND-PRIVACY.md): trust and authorization constraints
+- [Official Roadmap](ROADMAP.md): incremental delivery stages and implementation status

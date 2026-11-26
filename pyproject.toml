@@ -14,7 +14,13 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Private :: Do Not Upload",
 ]
-dependencies = []
+dependencies = [
+    "httpx>=0.28,<0.29",
+]
+
+[project.scripts]
+kosmos = "kosmos.cli.main:main"
+kosmos-benchmark = "kosmos.benchmarking.main:main"
 
 [dependency-groups]
 dev = [
@@ -45,6 +51,7 @@ line-ending = "lf"
 
 [tool.pytest.ini_options]
 addopts = ["--strict-config", "--strict-markers"]
+pythonpath = ["."]
 testpaths = ["tests"]
 
 [tool.uv]

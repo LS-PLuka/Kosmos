@@ -22,28 +22,40 @@ force and no automated acceptance is configured. See the non-binding
 4. Run the required checks:
 
    ```bash
+   uv lock --check
    uv sync --frozen --dev
    uv run ruff check .
    uv run ruff format --check .
    uv run pytest
+   git diff --check
    ```
 
 5. Use English Conventional Commits and open a pull request to `develop`.
+6. Integrate only with a merge commit after all required CI checks pass. Squash merges and rebase
+   merges are not allowed.
+7. Delete an eligible temporary branch after its pull request is merged. Never delete the
+   permanent `main` or `develop` branches.
 
-Release and hotfix flows will be activated only when the project has delivered versions. Do not
-force-push `main` or `develop`.
+Release and hotfix flows will be activated only when the project has delivered versions. The
+`main` and `develop` branches are permanent; do not delete or force-push them.
 
 ## Pull requests
 
 Explain the problem, approach, tests, security and privacy impact, dependency or licensing impact,
-and documentation changes. Keep pull requests reviewable. CI must pass, review feedback must be
-resolved, and new dependencies require a licensing review.
+and documentation changes. Keep pull requests reviewable. Required CI checks must pass, review
+feedback must be resolved, and new dependencies require a licensing review. Use the repository's
+merge-commit strategy; do not squash or rebase a pull request during integration.
 
 ## Code and documentation standards
 
 - Use English throughout new project material.
 - Target Python 3.12 and the configured 100-character line limit.
-- Prefer clear code and concrete boundaries over speculative abstractions.
+- Follow PEP 8 and the configured double quotes, four-space indentation, UTF-8, LF line endings,
+  import grouping, and final-newline rules.
+- Prefer clear English names, cohesive control flow, useful type hints, and concrete boundaries
+  over compressed code or speculative abstractions.
+- Review responsibility, complexity, duplication, coupling, exception handling, test quality, and
+  maintainability. Passing Ruff does not replace structural and readability review.
 - Never claim roadmap functionality is implemented before validation.
 - Never include credentials, private data, model files, recordings, or generated local state.
 - Do not modify approved visual identity artifacts without explicit approval and hash validation.

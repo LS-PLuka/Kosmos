@@ -61,3 +61,4 @@ node_modules/
 # Tool-specific output
 playwright-report/
 test-results/
+benchmark-results/
