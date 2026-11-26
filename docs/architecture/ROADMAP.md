@@ -15,9 +15,10 @@ Complete.
 - **01.3 — Conversation Engine:** complete and integrated into `develop`
 - **01.4 — Personality Engine:** complete and integrated into `develop`; real behavioral
   validation remains pending
-- **01.5 — Tool Calling & Tool Registry:** implemented and automatically tested on its feature
-  branch; maintainer review, integration, and real Qwen validation remain pending
-- **01.6 — Core Orchestration & Effort Levels:** planned
+- **01.5 — Tool Calling & Tool Registry:** complete and integrated into `develop`; real Qwen
+  validation remains pending
+- **01.6 — Core Orchestration & Effort Levels:** implemented and automatically tested on its
+  feature branch; maintainer review, integration, and real Qwen validation remain pending
 - **01.7 — Development CLI:** planned
 - **01.8 — Model Benchmark & Validation:** planned
 

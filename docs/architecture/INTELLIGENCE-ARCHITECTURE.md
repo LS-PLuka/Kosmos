@@ -7,9 +7,9 @@ Foundation. The Stage 01.2 Ollama HTTP adapter is implemented and automatically 
 simulated transports, but real inference on the target Ubuntu host remains pending. Stage 01.3
 in-memory conversation management and Stage 01.4 personality representation are integrated; real
 personality behavior validation remains pending. Stage 01.5 tool-calling foundations are
-implemented and automatically tested on their feature branch, with maintainer integration and real
-Qwen behavior validation pending. Effort levels, external agents, and web intelligence still
-require their corresponding roadmap stages and separate approval.
+integrated, with real Qwen behavior validation pending. Stage 01.6 core orchestration and effort
+policies are implemented and automatically tested on their feature branch, with maintainer
+integration pending. External agents and web intelligence still require separate roadmap stages.
 
 ## Hybrid local-first orchestration
 
@@ -83,17 +83,21 @@ boundary. They cannot replace deterministic validation, authorization, execution
 evidence of completed work. Real response quality and instruction adherence remain pending for
 Stage 01.8 validation.
 
-## Planned effort levels
+## Effort levels
 
-Effort levels are future Kosmos Core Engine abstractions, not native Qwen levels. The installed
-model exposes thinking as enabled or disabled; Kosmos will coordinate the remaining behavior and
-may set limits for time, tool calls, iterations, research, and delegation.
+Effort levels are Kosmos Core abstractions, not native Qwen levels. The installed model exposes
+thinking as enabled or disabled; Kosmos coordinates bounded inference count, tool proposals,
+deadline, and streaming policy.
 
 - **Instant:** thinking disabled; direct, low-latency answers and simple conversation.
 - **Low:** thinking disabled; everyday tool use and simple system queries.
 - **Medium:** thinking enabled; reasoning, task planning, and problem analysis.
-- **High:** thinking enabled; authorized external research, analysis, multiple tools, and result
-  validation.
+- **High:** thinking enabled; deeper bounded analysis and multiple explicitly authorized tools.
+- **Expert:** reserved for future authorized specialized delegation; unsupported in Stage 01.6.
+- **Auto:** reserved for future automatic selection; unsupported in Stage 01.6.
+
+Effort never grants authority. High does not enable external research, delegation, or additional
+permissions. Low is the configurable default. See [Effort Levels](effort-levels.md).
 
 ## Tool-calling boundary
 
@@ -104,16 +108,12 @@ pure local tools. The optional `ToolCallingProvider` capability does not change 
 the registry, authorization, or executor and never runs handlers.
 
 Registration does not grant permission. Only explicitly allowed `PURE` tools can execute in this
-stage; read-only, state-changing, and sensitive classes remain blocked. The complete automatic
-conversation and tool orchestration loop, integrated context budgeting, retries, replay policy,
-and approval interaction remain outside Stage 01.5. See
-[Tool Calling and Tool Registry](tool-calling.md).
-- **Expert:** specialized model or agent delegation, software development, and advanced analysis;
-  thinking configured as needed.
-- **Auto:** later automatic selection based on request nature and complexity, after the other
-  levels are validated.
-
-Effort levels are planned for Stage 01.6 and are not implemented by this documentation change.
+stage; read-only, state-changing, and sensitive classes remain blocked. Stage 01.6 composes these
+contracts into a bounded sequential loop with integrated context budgeting, duplicate call-ID
+protection, atomic confirmation, timeout, cancellation, and metrics. It adds no retries, external
+tools, cross-turn replay protection, or approval UI. See
+[Tool Calling and Tool Registry](tool-calling.md) and
+[Core Orchestration](core-orchestration.md).
 
 ## Optional external intelligence
 

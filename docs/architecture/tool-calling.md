@@ -7,9 +7,8 @@ validation, an explicit registry, execution-scoped authorization, sequential exe
 built-in tools, and native non-streaming Ollama tool calling. Automated tests use fakes and HTTPX
 `MockTransport`; real Qwen behavior on the target Ubuntu host remains pending.
 
-This stage does not implement automatic orchestration. Application code must explicitly select
-definitions, request inference, authorize and execute each proposal, add result messages, and
-request any continuation.
+Stage 01.6 composes these unchanged contracts into automatic bounded orchestration. Stage 01.5
+remains independently usable for explicit manual composition.
 
 ## Architectural boundaries
 
@@ -191,6 +190,6 @@ limits. Character and byte counts are not guaranteed token counts, and Stage 01.
 the existing context policy or 4,096-token Ollama configuration.
 
 There is no shell, file, process, application, device, credential, network, remote, or arbitrary
-code tool. Results are untrusted data and do not become system instructions. Stage 01.6 will own
-integrated context budgeting and explicit orchestration; it must not infer authorization from
+code tool. Results are untrusted data and do not become system instructions. Stage 01.6 owns
+integrated context budgeting and explicit orchestration without inferring authorization from
 personality text, user language, or model output.

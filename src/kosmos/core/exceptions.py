@@ -47,3 +47,15 @@ class SessionBusyError(ConversationError):
 
 class ContextLimitExceededError(ConversationError):
     """Raised when required messages exceed the configured context budget."""
+
+
+class OrchestrationError(KosmosError):
+    """Base exception for core orchestration failures."""
+
+
+class UnsupportedEffortLevelError(OrchestrationError):
+    """Raised when a reserved effort level is requested."""
+
+
+class ToolCapabilityUnavailableError(OrchestrationError):
+    """Raised when selected tools require a provider capability that is unavailable."""

@@ -36,7 +36,7 @@ The `kosmos.intelligence.conversation` package exports:
 - `ConversationStream`
 
 `ConversationEngine` provides `create_session()`, `get_session()`, `list_sessions()`,
-`clear_session()`, `delete_session()`, `generate()`, and `stream()`. Session identifiers are
+`clear_session()`, `delete_session()`, `generate()`, `run_turn()`, and `stream()`. Session identifiers are
 standard-library `UUID` values. Returned sessions are immutable snapshots whose message history is
 a tuple, so callers cannot mutate managed state by retaining a reference.
 
@@ -206,9 +206,7 @@ Stage 01.4 supplies an explicit, deterministic personality instruction through t
 boundary without moving personality rules into this engine. The selected instruction is preserved
 between turns and after history clearing, while different sessions remain isolated. A future Memory
 Engine may provide separately approved context, but persistent storage, retrieval, summaries, and
-retention policy are not implemented here. Stage 01.5 tool calling uses separate contracts and
-manual composition without changing this engine. Orchestration, effort levels, automatic model
-routing, and real Ubuntu model validation remain separate roadmap work.
-
-> Stage 01.5 preserves this text-only engine unchanged. Structured tool messages use separate
-> contracts and manual composition; automatic orchestration is planned for Stage 01.6.
+retention policy are not implemented here. Stage 01.6 uses `run_turn()` as a narrow public boundary:
+the engine reserves the session, supplies selected textual context to an asynchronous operation,
+and commits only its validated final text. Intermediate calls and results remain outside history.
+Automatic model routing and real Ubuntu model validation remain separate roadmap work.
