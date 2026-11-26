@@ -14,7 +14,9 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Private :: Do Not Upload",
 ]
-dependencies = []
+dependencies = [
+    "httpx>=0.28,<0.29",
+]
 
 [dependency-groups]
 dev = [

@@ -24,10 +24,14 @@ deterministic.
 | `KOSMOS_OLLAMA_BASE_URL` | `http://127.0.0.1:11434` | HTTP(S), no credentials, loopback host only |
 | `KOSMOS_OLLAMA_TIMEOUT_SECONDS` | `120` | finite number greater than zero |
 | `KOSMOS_OLLAMA_MODEL` | not configured | non-empty text when explicitly set |
+| `KOSMOS_OLLAMA_CONTEXT_LENGTH` | `4096` | positive integer |
+| `KOSMOS_OLLAMA_THINKING` | `false` | explicit boolean text |
+| `KOSMOS_OLLAMA_KEEP_ALIVE` | `5m` | validated Ollama duration |
 
+The final three settings were added by Stage 01.2 without changing the explicit loading contract.
 The model is never selected automatically. Loading settings performs no network operation and does
-not mutate the process environment. The timeout is preliminary configuration: its effective
-connection and request semantics will be defined when the HTTP adapter is implemented.
+not mutate the process environment. The HTTP adapter applies the timeout independently to connect,
+read, write, and pool waits; it is not an absolute inference deadline.
 
 ## Intelligence responsibilities
 
@@ -56,12 +60,12 @@ response or raises a configured error. Tests require no network, Ollama process,
 
 ## Current limitations and next substage
 
-Stage 01.1 supports only complete textual generation at the contract level. It intentionally has no
-Ollama adapter, HTTP client, streaming, model availability checks, generation parameters, metrics,
-embeddings, images, tool calls, conversation engine, persistence, CLI, or graphical interface.
+At its delivery point, Stage 01.1 supported only complete textual generation at the contract level.
+It intentionally had no Ollama adapter, HTTP client, streaming, model availability checks,
+generation parameters, metrics, embeddings, images, tool calls, conversation engine, persistence,
+CLI, or graphical interface.
 
-The next substage may implement the Ollama HTTP adapter and define concrete timeout and response
-handling behavior, but that work is outside Stage 01.1 and requires separate approval. The planned
-provider and model decisions are documented in the
-[Intelligence Architecture](INTELLIGENCE-ARCHITECTURE.md); they do not change the current
-provider-independent contract or select a model at runtime.
+Stage 01.2 subsequently implemented the Ollama HTTP adapter, streaming contract, and concrete
+timeout and response handling. Those additions are documented separately in
+[Ollama Provider](ollama-provider.md) and do not alter the historical Stage 01.1 scope described
+above or select a model automatically.

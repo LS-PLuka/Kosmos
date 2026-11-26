@@ -5,6 +5,8 @@ from dataclasses import FrozenInstanceError
 import pytest
 
 from kosmos.intelligence.models import (
+    InferenceChunk,
+    InferenceMetrics,
     InferenceRequest,
     InferenceResponse,
     Message,
@@ -71,3 +73,31 @@ def test_rejects_empty_text_content(content: str) -> None:
 
     with pytest.raises(ValueError, match="content"):
         InferenceResponse("test-model", content)
+
+
+def test_request_thinking_is_optional_and_strictly_boolean() -> None:
+    message = Message(MessageRole.USER, "Hello")
+
+    assert InferenceRequest("test-model", (message,)).thinking is None
+    assert InferenceRequest("test-model", (message,), thinking=False).thinking is False
+
+    with pytest.raises(TypeError, match="thinking"):
+        InferenceRequest("test-model", (message,), thinking=1)  # type: ignore[arg-type]
+
+
+def test_chunk_allows_empty_and_whitespace_content() -> None:
+    assert InferenceChunk("test-model", "").content == ""
+    assert InferenceChunk("test-model", " ").content == " "
+
+
+def test_metrics_validate_non_negative_integer_values() -> None:
+    metrics = InferenceMetrics(total_duration_ns=10, eval_count=2)
+
+    assert metrics.total_duration_ns == 10
+    assert metrics.eval_count == 2
+
+    with pytest.raises(ValueError, match="negative"):
+        InferenceMetrics(eval_count=-1)
+
+    with pytest.raises(TypeError, match="integer"):
+        InferenceMetrics(eval_count=True)  # type: ignore[arg-type]

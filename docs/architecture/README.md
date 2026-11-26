@@ -26,7 +26,7 @@ but only after implemented behavior demonstrates the need. Empty architectural l
 | Module | Responsibility and current status |
 | --- | --- |
 | `core` | Application foundations are implemented; orchestration and lifecycle remain planned |
-| `intelligence` | Text inference models and the provider port are implemented; conversation, reasoning, and tool calling remain planned |
+| `intelligence` | Text inference models, streaming port, and Ollama adapter are implemented; real Ubuntu inference validation, conversation, reasoning, and tool calling remain pending or planned |
 | `voice` | Activation, capture, recognition, and speech synthesis |
 | `system` | Operating system, applications, files, and processes |
 | `developer` | Development agents, projects, sessions, and tasks |
@@ -58,13 +58,14 @@ Directories other than `core` and `intelligence` still describe planned boundari
 ## Implemented dependency boundary
 
 The `intelligence` models represent Kosmos concepts and do not expose an Ollama or HTTP schema.
-Application code depends on the asynchronous `LLMProvider` protocol. Concrete provider adapters
-will depend inward on that protocol and the models, allowing tests and future integrations to
-substitute implementations without changing the domain boundary.
+Application code depends on the asynchronous `LLMProvider` protocol for complete and streaming
+inference. `OllamaProvider` is an edge adapter that depends inward on this port and the models.
+Tests and future integrations can substitute implementations without changing the domain boundary.
 
 ## Architectural references
 
 - [Core Foundation](core-foundation.md): implemented Stage 01.1 behavior
+- [Ollama Provider](ollama-provider.md): implemented Stage 01.2 adapter and pending real validation
 - [Intelligence Architecture](INTELLIGENCE-ARCHITECTURE.md): planned hybrid intelligence,
   providers, effort levels, and web research
 - [Security and Privacy Principles](SECURITY-AND-PRIVACY.md): trust and authorization constraints
