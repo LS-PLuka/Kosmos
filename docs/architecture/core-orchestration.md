@@ -19,7 +19,7 @@ trusted application request
 
 The public package `kosmos.core.orchestration` exports `CoreOrchestrator`, `EffortLevel`,
 `EffortPolicy`, `OrchestrationContextPolicy`, `OrchestrationResult`, `OrchestrationStatus`,
-`OrchestrationMetrics`, and `OrchestrationStream`.
+`OrchestrationMetrics`, `ContextMetrics`, `ContextRequestMetrics`, and `OrchestrationStream`.
 
 ## Sessions, personality, and atomicity
 
@@ -64,6 +64,18 @@ never truncates required active data. If required context does not fit, it retur
 `CONTEXT_LIMIT` before another provider call or tool execution. Character estimation is
 deterministic but is not exact tokenization and cannot guarantee a provider's actual token window.
 
+R3 keeps the 12,000-character integrated limit and 2,000-character response reserve, producing a
+10,000-character serialized input budget. Conversation selection runs first with its 8,000 content
+budget. The integrated text and tool paths then measure compact serialization and may remove more
+oldest complete confirmed turns when framing or tool schemas require space. Complete generation and
+streaming use the same integrated fitting operation. Structured tool inference repeats it before
+every provider call because assistant calls and tool results enlarge the active turn.
+
+System instruction, current user message, selected schemas, assistant calls, and correlated tool
+results are mandatory. If they do not fit after all eligible prior history is removed, the next
+inference is not started. A tool already executed is not rolled back: its `ToolResult` remains in
+the controlled result as evidence, while the uncompleted conversational turn remains unconfirmed.
+
 The total effort deadline covers coordination, inference, and tools. External cancellation
 propagates. Timeout and cancellation are cooperative and cannot immediately interrupt a blocking
 synchronous handler or internal Ollama generation. No background task, thread, process, or sandbox
@@ -81,9 +93,18 @@ handlers invoked, successful tools, rejected or failed tools, effort, thinking, 
 available per-inference `InferenceMetrics`. Missing provider metrics are omitted rather than
 invented or treated as zero. Provider nanosecond durations remain distinct from measured wall time.
 
+R3 also exposes immutable, content-free context metrics. `ContextMetrics.conversation` records the
+initial content-only selection. Each `ContextRequestMetrics` entry records request kind, integrated
+character budget, selected message characters, compact serialized request characters, response
+reserve, and turns omitted specifically by the integrated stage. Tool turns can therefore expose
+one entry per attempted inference. Metrics are absent only when selection could not be measured
+before failure; they never log prompts, message content, or personal data.
+
 `stream()` wraps the existing real `ConversationStream`, preserves Unicode and whitespace, applies
 the total deadline during consumption, and commits only on a valid final event. It rejects an
 effective structured-tool selection. Tool-call streaming is not implemented.
+The returned `OrchestrationStream.context_metrics` exposes the selection made synchronously before
+provider streaming begins; CLI presentation of those metrics remains deferred to R5.
 
 ## Example
 

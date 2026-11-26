@@ -239,6 +239,31 @@ def test_instant_turn_streams_unicode_and_preserves_whitespace() -> None:
     assert provider.text_requests[0].thinking is False
 
 
+def test_cli_propagates_conversation_history_configuration() -> None:
+    provider = FakeRuntimeProvider(
+        models=(_model(),),
+        chunks=(InferenceChunk(DEFAULT_OLLAMA_MODEL, "response", True),),
+    )
+
+    code, _, error = _run(
+        provider,
+        _arguments("--effort", "instant"),
+        "first private turn",
+        "second turn",
+        "/exit",
+        environment={"KOSMOS_CONVERSATION_MAX_HISTORY_TURNS": "0"},
+    )
+
+    assert code == 0
+    assert error == ""
+    assert len(provider.text_requests) == 2
+    assert len(provider.text_requests[1].messages) == 2
+    assert all(
+        "first private turn" not in message.content
+        for message in provider.text_requests[1].messages
+    )
+
+
 def test_no_tools_uses_streaming_and_does_not_advertise_tools() -> None:
     provider = FakeRuntimeProvider(
         models=(_model(),),

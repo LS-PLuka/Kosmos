@@ -11,7 +11,8 @@ integrated, with real Qwen behavior validation pending. Stage 01.6 core orchestr
 policies are integrated and automatically tested. Stage 01.7 provides the development CLI. Stage
 01.8 provides benchmark infrastructure and a maintainer-run Ubuntu validation procedure; real Qwen
 behavior, performance, and offline validation remain pending. R2 adds deterministic institutional
-knowledge to the session instruction without changing these operational capabilities. External
+knowledge to the session instruction. R3 improves temporary session-context selection and
+observability without adding persistent memory. External
 agents and web intelligence still require separate roadmap stages.
 
 ## Hybrid local-first orchestration
@@ -99,6 +100,27 @@ a capability is available or an action was executed. A name supplied in conversa
 temporary unverified context and never identifies the user as the developer. Runtime policy,
 selected tools, authorization, provider capability, and configuration remain authoritative. See
 [Institutional Knowledge](institutional-knowledge.md).
+
+## Conversation-context boundary
+
+R3 preserves three separate concepts. Session history is the complete sequence of successfully
+confirmed turns held in memory by one `ConversationEngine` instance. Selected context is the
+continuous suffix sent for one inference after deterministic policies apply. The provider context
+window is Ollama's token limit and is neither a character count nor storage.
+
+The default conversation selection budget is 8,000 content characters and ten previous complete
+turns. The integrated orchestration policy retains its 10,000-character serialized input budget
+after response reserve and additionally accounts for protocol framing, tool schemas, calls, and
+results. Both policies preserve the system instruction, current message, complete ordered turns,
+and active structured tool data. Removing a turn from selected context never removes it from
+confirmed session history.
+
+Long answers consume later context and can cause an entire recent turn plus older turns to be
+omitted. Shorter proportional R1 responses improve available capacity but R3 imposes no response
+truncation or generation limit. There is no summarization, fact extraction, semantic retrieval,
+embedding, RAG, or promise that omitted information remains available to the model. Immutable
+context metrics expose counts and sizes without exposing content. See
+[Conversation Engine](conversation-engine.md) and [Core Orchestration](core-orchestration.md).
 
 ## Effort levels
 

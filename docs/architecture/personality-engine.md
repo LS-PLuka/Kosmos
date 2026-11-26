@@ -120,13 +120,15 @@ claims. These changes reuse the existing budget instead of increasing it.
 
 The R2 institutional component contains **611 characters**. The newline-composed system instruction
 contains **2,594 characters**, 612 more than R1 alone, and leaves **3,406 characters** of the
-6,000-character `ContextPolicy` budget for the current message and eligible history. Character
+former 6,000-character budget or **5,406 characters** of the R3 8,000-character `ContextPolicy`
+budget for the current message and eligible history. Character
 counts are deterministic engineering measures, not exact token counts.
 
 ## Conversation integration
 
 The Personality Engine continues to compose with the existing explicit system-instruction
-boundary. Neither `ConversationEngine`, `ContextPolicy`, nor `LLMProvider` changes:
+boundary. R3 changes the configurable `ContextPolicy` budget and its observability, but not the
+personality or `LLMProvider` contracts:
 
 ```python
 from kosmos.intelligence.conversation import ConversationEngine

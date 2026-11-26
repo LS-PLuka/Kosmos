@@ -88,6 +88,12 @@ first non-empty streaming text, provider durations, prompt tokens, generated tok
 counts, tool proposals, handler executions, successful tools, and rejected or failed tools. Values
 that the provider does not supply remain unavailable.
 
+R3 adds internal `ContextMetrics` to orchestration results. They distinguish initial conversation
+omissions caused by the turn and content-character limits from later omissions caused by compact
+serialized requests, tool schemas, calls, and results. They contain counts and sizes only. Existing
+terminal, JSON, and Markdown presentation remains unchanged for report comparability; visible
+context diagnostics are deferred to R5.
+
 Generation speed is calculated only for positive reported generation duration:
 
 ```python
@@ -120,3 +126,8 @@ network state. Hardware utilization is observed manually. The benchmark is speci
 behavior and does not measure general intelligence. Real model quality, offline operation,
 performance, personality, and hardware fit remain pending until the maintainer completes the
 [Ubuntu validation](ubuntu-validation.md).
+
+The existing full-suite `multiple_fact_recall`, `context_correction`, and `long_context_response`
+scenarios remain semantically unchanged, so historical catalogs are comparable. R3 automated
+regressions inspect fake-provider request messages directly; benchmark text heuristics remain model
+quality signals and are not treated as proof of software-side retention.

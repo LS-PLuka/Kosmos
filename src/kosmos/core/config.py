@@ -17,6 +17,8 @@ DEFAULT_OLLAMA_CONTEXT_LENGTH = 4096
 DEFAULT_OLLAMA_THINKING = False
 DEFAULT_OLLAMA_KEEP_ALIVE = "5m"
 DEFAULT_OLLAMA_MODEL = "qwen3.5:4b-q4_K_M"
+DEFAULT_CONVERSATION_MAX_HISTORY_TURNS = 10
+DEFAULT_CONVERSATION_MAX_CONTEXT_CHARACTERS = 8_000
 _KEEP_ALIVE_PATTERN = re.compile(r"(?:0|(?:\d+(?:\.\d+)?)(?:ms|s|m|h))\Z")
 
 
@@ -31,6 +33,8 @@ class ApplicationSettings:
     ollama_context_length: int = DEFAULT_OLLAMA_CONTEXT_LENGTH
     ollama_thinking: bool = DEFAULT_OLLAMA_THINKING
     ollama_keep_alive: str = DEFAULT_OLLAMA_KEEP_ALIVE
+    conversation_max_history_turns: int = DEFAULT_CONVERSATION_MAX_HISTORY_TURNS
+    conversation_max_context_characters: int = DEFAULT_CONVERSATION_MAX_CONTEXT_CHARACTERS
 
     def __post_init__(self) -> None:
         log_level = _validate_log_level(self.log_level)
@@ -40,6 +44,14 @@ class ApplicationSettings:
         context_length = _validate_context_length(self.ollama_context_length)
         thinking = _validate_thinking(self.ollama_thinking)
         keep_alive = _validate_keep_alive(self.ollama_keep_alive)
+        history_turns = _validate_non_negative_integer(
+            self.conversation_max_history_turns,
+            "conversation history turns",
+        )
+        context_characters = _validate_positive_integer(
+            self.conversation_max_context_characters,
+            "conversation context characters",
+        )
 
         object.__setattr__(self, "log_level", log_level)
         object.__setattr__(self, "ollama_base_url", base_url)
@@ -48,6 +60,8 @@ class ApplicationSettings:
         object.__setattr__(self, "ollama_context_length", context_length)
         object.__setattr__(self, "ollama_thinking", thinking)
         object.__setattr__(self, "ollama_keep_alive", keep_alive)
+        object.__setattr__(self, "conversation_max_history_turns", history_turns)
+        object.__setattr__(self, "conversation_max_context_characters", context_characters)
 
 
 def load_settings(environment: Mapping[str, str] | None = None) -> ApplicationSettings:
@@ -64,6 +78,20 @@ def load_settings(environment: Mapping[str, str] | None = None) -> ApplicationSe
     thinking = _parse_thinking(
         values.get("KOSMOS_OLLAMA_THINKING", str(DEFAULT_OLLAMA_THINKING).lower())
     )
+    history_turns = _parse_non_negative_integer(
+        values.get(
+            "KOSMOS_CONVERSATION_MAX_HISTORY_TURNS",
+            str(DEFAULT_CONVERSATION_MAX_HISTORY_TURNS),
+        ),
+        "KOSMOS_CONVERSATION_MAX_HISTORY_TURNS",
+    )
+    context_characters = _parse_positive_integer(
+        values.get(
+            "KOSMOS_CONVERSATION_MAX_CONTEXT_CHARACTERS",
+            str(DEFAULT_CONVERSATION_MAX_CONTEXT_CHARACTERS),
+        ),
+        "KOSMOS_CONVERSATION_MAX_CONTEXT_CHARACTERS",
+    )
 
     return ApplicationSettings(
         log_level=values.get("KOSMOS_LOG_LEVEL", "INFO"),
@@ -73,6 +101,8 @@ def load_settings(environment: Mapping[str, str] | None = None) -> ApplicationSe
         ollama_context_length=context_length,
         ollama_thinking=thinking,
         ollama_keep_alive=values.get("KOSMOS_OLLAMA_KEEP_ALIVE", DEFAULT_OLLAMA_KEEP_ALIVE),
+        conversation_max_history_turns=history_turns,
+        conversation_max_context_characters=context_characters,
     )
 
 
@@ -88,6 +118,22 @@ def _parse_context_length(value: object) -> int:
         raise ConfigurationError("KOSMOS_OLLAMA_CONTEXT_LENGTH must be a positive integer")
 
     return int(value)
+
+
+def _parse_non_negative_integer(value: object, setting_name: str) -> int:
+    if not isinstance(value, str) or not value.isdecimal():
+        raise ConfigurationError(f"{setting_name} must be a non-negative integer")
+
+    return int(value)
+
+
+def _parse_positive_integer(value: object, setting_name: str) -> int:
+    parsed = _parse_non_negative_integer(value, setting_name)
+
+    if parsed == 0:
+        raise ConfigurationError(f"{setting_name} must be a positive integer")
+
+    return parsed
 
 
 def _parse_thinking(value: object) -> bool:
@@ -148,6 +194,20 @@ def _validate_optional_model(value: object) -> str | None:
 def _validate_context_length(value: object) -> int:
     if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
         raise ConfigurationError("Ollama context length must be a positive integer")
+
+    return value
+
+
+def _validate_non_negative_integer(value: object, field_name: str) -> int:
+    if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+        raise ConfigurationError(f"{field_name} must be a non-negative integer")
+
+    return value
+
+
+def _validate_positive_integer(value: object, field_name: str) -> int:
+    if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
+        raise ConfigurationError(f"{field_name} must be a positive integer")
 
     return value
 

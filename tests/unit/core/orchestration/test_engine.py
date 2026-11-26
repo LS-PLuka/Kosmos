@@ -2,7 +2,7 @@
 
 import asyncio
 from collections.abc import AsyncIterator
-from dataclasses import dataclass, field
+from dataclasses import FrozenInstanceError, dataclass, field
 
 import pytest
 
@@ -18,6 +18,7 @@ from kosmos.core.orchestration import (
     OrchestrationContextPolicy,
     OrchestrationStatus,
 )
+from kosmos.intelligence.conversation import ContextPolicy
 from kosmos.intelligence.models import (
     InferenceChunk,
     InferenceRequest,
@@ -83,6 +84,139 @@ def test_default_low_direct_response_uses_text_inference_and_commits_turn() -> N
         MessageRole.ASSISTANT,
     ]
     assert confirmed.is_busy is False
+
+
+def test_context_metrics_measure_selection_without_exposing_message_content() -> None:
+    provider = ScriptedProvider(text_responses=[InferenceResponse("test-model", "done")])
+    orchestrator = CoreOrchestrator(provider)
+    session = orchestrator.create_session()
+
+    result = asyncio.run(
+        orchestrator.generate(session.session_id, "private value", model="test-model")
+    )
+    context = result.metrics.context
+
+    assert context.conversation is not None
+    assert context.conversation.total_confirmed_turns == 0
+    assert context.conversation.character_budget == 8_000
+    assert context.requests[0].request_kind == "text"
+    assert context.requests[0].response_reserve_characters == 2_000
+    assert context.requests[0].serialized_request_characters <= 10_000
+    assert "private value" not in repr(context)
+    with pytest.raises(FrozenInstanceError):
+        context.requests[0].omitted_history_turns = 1  # type: ignore[misc]
+
+
+def test_long_response_remains_confirmed_but_can_remove_its_turn_from_next_context() -> None:
+    provider = ScriptedProvider(
+        text_responses=[
+            InferenceResponse("test-model", "a" * 1_500),
+            InferenceResponse("test-model", "still usable"),
+        ]
+    )
+    orchestrator = CoreOrchestrator(
+        provider,
+        context_policy=ContextPolicy(max_context_characters=4_000),
+    )
+    session = orchestrator.create_session()
+
+    asyncio.run(orchestrator.generate(session.session_id, "first", model="test-model"))
+    result = asyncio.run(orchestrator.generate(session.session_id, "second", model="test-model"))
+    confirmed = orchestrator.get_session(session.session_id)
+
+    assert len(confirmed.messages) == 4
+    assert confirmed.messages[1].content == "a" * 1_500
+    assert len(provider.text_requests[1].messages) == 2
+    assert result.metrics.context.conversation is not None
+    assert result.metrics.context.conversation.omitted_by_character_limit == 1
+
+
+def test_complete_and_streaming_apply_the_same_integrated_history_reduction() -> None:
+    complete_provider = ScriptedProvider(
+        text_responses=[
+            *(InferenceResponse("test-model", "a" * 500) for _ in range(4)),
+            InferenceResponse("test-model", "complete"),
+        ]
+    )
+    stream_provider = ScriptedProvider(
+        text_responses=[InferenceResponse("test-model", "a" * 500) for _ in range(4)],
+        chunks=(InferenceChunk("test-model", "streamed", done=True),),
+    )
+    conversation_policy = ContextPolicy(max_context_characters=20_000)
+    integrated_policy = OrchestrationContextPolicy(5_000, 500)
+    complete = CoreOrchestrator(
+        complete_provider,
+        context_policy=conversation_policy,
+        orchestration_context_policy=integrated_policy,
+    )
+    streaming = CoreOrchestrator(
+        stream_provider,
+        context_policy=conversation_policy,
+        orchestration_context_policy=integrated_policy,
+    )
+    complete_session = complete.create_session()
+    stream_session = streaming.create_session()
+
+    for turn in range(4):
+        message = f"turn-{turn}:" + "u" * 493
+        asyncio.run(complete.generate(complete_session.session_id, message, model="test-model"))
+        asyncio.run(streaming.generate(stream_session.session_id, message, model="test-model"))
+
+    complete_result = asyncio.run(
+        complete.generate(complete_session.session_id, "current", model="test-model")
+    )
+
+    async def consume_stream() -> None:
+        stream = streaming.stream(
+            stream_session.session_id,
+            "current",
+            model="test-model",
+            effort=EffortLevel.INSTANT,
+        )
+        assert stream.context_metrics.conversation is not None
+        assert stream.context_metrics.conversation.selected_history_turns == 4
+        assert stream.context_metrics.requests[0].omitted_history_turns == 3
+        async for _ in stream:
+            pass
+
+    asyncio.run(consume_stream())
+
+    complete_request = complete_provider.text_requests[-1]
+    stream_request = stream_provider.text_requests[-1]
+    assert complete_request.messages == stream_request.messages
+    assert complete_result.metrics.context.requests[0].omitted_history_turns == 3
+    assert complete_result.metrics.context.requests[0].context_limit_reached is True
+
+
+def test_tool_context_counts_schemas_and_stops_after_executed_result_exceeds_budget() -> None:
+    call = ToolCall("call_1", "count_items", {"items": ["x" * 200] * 20})
+    provider = ScriptedProvider(tool_responses=[ToolInferenceResponse("test-model", "", (call,))])
+    orchestrator = CoreOrchestrator(
+        provider,
+        tool_registry=create_builtin_registry(),
+        orchestration_context_policy=OrchestrationContextPolicy(5_000, 500),
+    )
+    session = orchestrator.create_session()
+
+    result = asyncio.run(
+        orchestrator.generate(
+            session.session_id,
+            "count",
+            model="test-model",
+            authorization=ToolAuthorization(("count_items",)),
+            selected_tools=("count_items",),
+        )
+    )
+
+    request_metrics = result.metrics.context.requests[0]
+    assert result.status is OrchestrationStatus.CONTEXT_LIMIT
+    assert result.tool_results[0].status is ToolResultStatus.SUCCESS
+    assert result.tool_results[0].data == {"count": 20}
+    assert (
+        request_metrics.serialized_request_characters > request_metrics.selected_message_characters
+    )
+    assert len(provider.tool_requests) == 1
+    assert orchestrator.get_session(session.session_id).messages == ()
 
 
 def test_calculate_flow_executes_and_continues_with_structured_result() -> None:
@@ -304,6 +438,8 @@ def test_required_context_over_budget_returns_controlled_result() -> None:
     assert result.status is OrchestrationStatus.CONTEXT_LIMIT
     assert provider.text_requests == []
     assert orchestrator.get_session(session.session_id).messages == ()
+    assert result.metrics.context.conversation is not None
+    assert result.metrics.context.requests == ()
 
 
 def test_stream_preserves_chunks_and_commits_only_on_completion() -> None:
@@ -344,7 +480,7 @@ def test_institutional_instruction_survives_clear_without_personal_user_memory()
     orchestrator = CoreOrchestrator(provider)
     session = orchestrator.create_session()
 
-    asyncio.run(orchestrator.generate(session.session_id, "Meu nome é Pedro", model="test-model"))
+    asyncio.run(orchestrator.generate(session.session_id, "Meu nome é André", model="test-model"))
     cleared = orchestrator.clear_session(session.session_id)
     asyncio.run(orchestrator.generate(session.session_id, "Quem criou você?", model="test-model"))
 
@@ -353,7 +489,7 @@ def test_institutional_instruction_survives_clear_without_personal_user_memory()
     assert knowledge in cleared.system_instruction
     assert provider.text_requests[1].messages[0].content == cleared.system_instruction
     second_request = provider.text_requests[1]
-    assert all("Meu nome é Pedro" not in message.content for message in second_request.messages)
+    assert all("André" not in message.content for message in second_request.messages)
 
 
 @pytest.mark.parametrize(

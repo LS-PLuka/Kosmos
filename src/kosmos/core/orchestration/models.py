@@ -5,6 +5,7 @@ from enum import Enum
 from uuid import UUID
 
 from kosmos.core.orchestration.effort import EffortLevel
+from kosmos.intelligence.conversation import ContextSelectionMetrics
 from kosmos.intelligence.models import InferenceMetrics
 from kosmos.intelligence.tools.models import ToolResult
 
@@ -22,6 +23,27 @@ class OrchestrationStatus(str, Enum):
 
 
 @dataclass(frozen=True, slots=True)
+class ContextRequestMetrics:
+    """Integrated serialized-budget measurements for one provider request."""
+
+    request_kind: str
+    character_budget: int
+    serialized_request_characters: int
+    selected_message_characters: int
+    response_reserve_characters: int
+    omitted_history_turns: int
+    context_limit_reached: bool
+
+
+@dataclass(frozen=True, slots=True)
+class ContextMetrics:
+    """Measurements from conversation selection and subsequent provider requests."""
+
+    conversation: ContextSelectionMetrics | None = None
+    requests: tuple[ContextRequestMetrics, ...] = ()
+
+
+@dataclass(frozen=True, slots=True)
 class OrchestrationMetrics:
     """Measured coordination counts without inventing unavailable provider values."""
 
@@ -35,6 +57,7 @@ class OrchestrationMetrics:
     effort: EffortLevel
     thinking: bool
     inference_metrics: tuple[InferenceMetrics, ...] = ()
+    context: ContextMetrics = ContextMetrics()
 
 
 @dataclass(frozen=True, slots=True)

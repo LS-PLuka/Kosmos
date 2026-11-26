@@ -95,7 +95,8 @@ For the approved default profile:
 | R2 institutional knowledge | 611 |
 | Joining newline | 1 |
 | Complete system instruction | 2,594 |
-| Remaining within `ContextPolicy(6000)` | 3,406 |
+| Remaining within former `ContextPolicy(6000)` | 3,406 |
+| Remaining within R3 `ContextPolicy(8000)` | 5,406 |
 
 R2 therefore adds 612 characters to the R1 system instruction while remaining below the provisional
 2,600-character target. These are exact Python character counts for the current strings, not token
@@ -109,6 +110,7 @@ independence and authorization boundaries, review the prompt budget, and add det
 Runtime YAML, JSON, databases, generic knowledge management, and dynamic loaders are intentionally
 out of scope.
 
-R2 adds no memory, authentication, authorization, provider, tool, routing, context-policy change,
-effort-policy change, voice, system control, web access, GUI, or dependency. R3–R6 remain separate
-future refinement work.
+R2 adds no memory, authentication, authorization, provider, tool, routing, effort-policy change,
+voice, system control, web access, GUI, or dependency. R3 changes context policy separately while
+preserving this institutional instruction byte-for-byte. R4–R6 remain separate future refinement
+work.

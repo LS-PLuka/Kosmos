@@ -46,6 +46,7 @@ from kosmos.core.orchestration import (
     OrchestrationStatus,
     default_effort_policies,
 )
+from kosmos.intelligence.conversation import ContextPolicy
 from kosmos.intelligence.providers.ollama import OllamaModel, OllamaProvider
 from kosmos.intelligence.tools import ToolAuthorization, ToolRegistry, create_builtin_registry
 
@@ -158,7 +159,15 @@ async def run_cli(
                 return EXIT_ERROR
 
             registry = create_builtin_registry()
-            orchestrator = CoreOrchestrator(provider, tool_registry=registry)
+            context_policy = ContextPolicy(
+                max_history_turns=settings.conversation_max_history_turns,
+                max_context_characters=settings.conversation_max_context_characters,
+            )
+            orchestrator = CoreOrchestrator(
+                provider,
+                tool_registry=registry,
+                context_policy=context_policy,
+            )
             session = orchestrator.create_session()
             state = CliState(
                 effort=EffortLevel(arguments.effort),

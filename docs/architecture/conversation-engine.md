@@ -2,9 +2,9 @@
 
 ## Implementation status
 
-Stage 01.3 implements, automatically tests, and integrates provider-independent, in-memory
-conversation management. Real Ollama inference on Ubuntu remains pending and is not validated by
-the deterministic test suite.
+Stage 01.3 implements provider-independent, in-memory conversation management. R3 refines its
+context budget, configuration, and privacy-safe selection metrics. Real Ollama inference on Ubuntu
+remains pending and is not validated by the deterministic test suite.
 
 ## Objective and responsibilities
 
@@ -31,7 +31,8 @@ Caller
 The `kosmos.intelligence.conversation` package exports:
 
 - `ConversationEngine(provider, context_policy=None)`
-- `ContextPolicy(max_history_turns=10, max_context_characters=6000)`
+- `ContextPolicy(max_history_turns=10, max_context_characters=8000)`
+- `ContextSelection` and immutable `ContextSelectionMetrics`
 - `ConversationSession`
 - `ConversationStream`
 
@@ -73,6 +74,30 @@ Character count is a deterministic preliminary heuristic over message content. I
 protocol framing and is not a token count. In particular, it cannot guarantee compliance with
 Ollama's separately configured model context length. Tokenization, summarization, semantic
 compression, RAG, embeddings, and LLM-based selection remain outside this stage.
+
+R3 raises only the default content budget from 6,000 to 8,000 characters. The ten-turn limit is
+unchanged. `KOSMOS_CONVERSATION_MAX_HISTORY_TURNS` accepts zero to disable prior history, and
+`KOSMOS_CONVERSATION_MAX_CONTEXT_CHARACTERS` requires a positive integer. `ApplicationSettings`
+validates both values and the CLI and benchmark pass them explicitly into `ContextPolicy`.
+
+`select_with_metrics()` returns the same messages as `select()` plus counts for total confirmed,
+eligible, selected, turn-limit omitted, character-limit omitted, aggregate omitted turns, selected
+content characters, and the applied content budget. The metrics contain no message text. Aggregate
+omissions equal total confirmed minus selected, so a turn excluded by the turn limit is not counted
+again as a character omission.
+
+## Deterministic R3 reproduction
+
+An automated fake-message regression uses eight 600-character confirmed turns, a 2,500-character
+system instruction, and a 100-character current message. The former 6,000-character policy selects
+the newest five turns, uses 5,600 content characters, and omits the oldest three turns. The R3
+8,000-character policy selects all eight and uses 7,400 characters. This proves which messages the
+software includes; it does not prove semantic recall by Qwen or exclude provider truncation.
+
+A long recent assistant response can still prevent its complete turn and every older turn from
+fitting. The full response remains in session history, but suffix continuity prevents skipping that
+turn to recover older facts. R3 deliberately does not truncate, summarize, pin, semantically rank,
+or persist messages.
 
 ## Complete inference
 

@@ -17,6 +17,7 @@ from kosmos.benchmarking.scenarios import SCENARIO_VERSION, list_scenarios, sele
 from kosmos.core.config import DEFAULT_OLLAMA_MODEL, ApplicationSettings, load_settings
 from kosmos.core.exceptions import KosmosError
 from kosmos.core.orchestration import CoreOrchestrator, EffortLevel, default_effort_policies
+from kosmos.intelligence.conversation import ContextPolicy
 from kosmos.intelligence.providers.ollama import OllamaModel, OllamaProvider
 from kosmos.intelligence.tools import create_builtin_registry
 
@@ -140,7 +141,15 @@ async def run_cli(
                 ollama_version,
                 execution_mode,
             )
-            orchestrator = CoreOrchestrator(provider, tool_registry=create_builtin_registry())
+            context_policy = ContextPolicy(
+                max_history_turns=settings.conversation_max_history_turns,
+                max_context_characters=settings.conversation_max_context_characters,
+            )
+            orchestrator = CoreOrchestrator(
+                provider,
+                tool_registry=create_builtin_registry(),
+                context_policy=context_policy,
+            )
             run = await run_benchmark(orchestrator, scenarios, config, metadata)
 
         _write_line(output, render_terminal(run))

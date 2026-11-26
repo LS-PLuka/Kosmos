@@ -29,7 +29,9 @@ Core runtime refinement status:
 - **R1 — Personality & Communication:** implemented; renewed real behavioral validation pending
 - **R2 — Institutional Knowledge:** implemented in the current refinement branch; renewed real
   behavioral validation pending
-- **R3–R6:** planned separate refinements; not implemented by R2
+- **R3 — Conversation & Context:** implemented in the current refinement branch; renewed real
+  contextual validation pending
+- **R4–R6:** planned separate refinements; not implemented by R3
 
 ## Stage 02 — Voice Engine
 

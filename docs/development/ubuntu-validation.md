@@ -85,6 +85,27 @@ available RAM, loaded model, and GPU offload. Compare generation speed with the 
 44–48 tokens/s observation only when the workload and conditions are described; do not assume
 equivalence. Never invent missing hardware measurements.
 
+## Controlled 4,096 versus 8,192 context comparison
+
+Do not change the committed 4,096-token default. On the Ubuntu validation host, run two explicitly
+configured sessions against the same commit, model digest, scenario catalog, repetition count,
+effort levels, prompts, and otherwise unchanged Ollama service configuration:
+
+```bash
+KOSMOS_OLLAMA_CONTEXT_LENGTH=4096 uv run kosmos-benchmark --suite full --live \
+  --repetitions 3 --output benchmark-results/context-4096
+KOSMOS_OLLAMA_CONTEXT_LENGTH=8192 uv run kosmos-benchmark --suite full --live \
+  --repetitions 3 --output benchmark-results/context-8192
+```
+
+Before each run, record idle and loaded state. During each run, sample `nvidia-smi`, `ollama ps`,
+and `free -h` under the same observation cadence. Compare total and process VRAM, RAM, GPU offload,
+software and provider latency, generation tokens per second, contextual scenario outcomes,
+stability, timeouts, and any provider context-limit failure. Retain raw reports and hardware
+observations, and do not compare non-equivalent scenario catalogs or warmed and cold samples as if
+they were identical. An 8,192-token permanent default requires these real results and explicit
+maintainer approval.
+
 ## Offline validation
 
 Prepare the environment and model first. Confirm `OLLAMA_NO_CLOUD=1`, then disconnect the machine

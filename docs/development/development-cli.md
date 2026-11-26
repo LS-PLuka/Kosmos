@@ -29,10 +29,14 @@ model. It never installs, starts, or downloads Ollama or models. Model precedenc
 The CLI does not select the first installed model and does not fall back to another model. Existing
 settings remain supported: `KOSMOS_OLLAMA_BASE_URL`, `KOSMOS_OLLAMA_TIMEOUT_SECONDS`,
 `KOSMOS_OLLAMA_MODEL`, `KOSMOS_OLLAMA_CONTEXT_LENGTH`, `KOSMOS_OLLAMA_THINKING`,
-`KOSMOS_OLLAMA_KEEP_ALIVE`, and `KOSMOS_LOG_LEVEL`.
+`KOSMOS_OLLAMA_KEEP_ALIVE`, `KOSMOS_CONVERSATION_MAX_HISTORY_TURNS`,
+`KOSMOS_CONVERSATION_MAX_CONTEXT_CHARACTERS`, and `KOSMOS_LOG_LEVEL`.
 
 The effort policy, rather than `KOSMOS_OLLAMA_THINKING`, determines thinking during orchestrated
-conversation turns. The context window is never increased automatically.
+conversation turns. The context window is never increased automatically. The CLI constructs its
+`ContextPolicy` from the validated conversation settings. The defaults are 10 previous complete
+turns and 8,000 content characters; the integrated orchestration budget remains 12,000 serialized
+characters with a 2,000-character response reserve.
 
 ## Arguments
 
