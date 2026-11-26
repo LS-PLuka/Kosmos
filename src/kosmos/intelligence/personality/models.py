@@ -15,14 +15,14 @@ _MAX_HONORIFIC_LENGTH = 24
 class PersonalityProfile:
     """Immutable communication preferences for one conversational session."""
 
-    formality: int = 65
-    directness: int = 85
-    humor: int = 40
+    formality: int = 45
+    directness: int = 90
+    humor: int = 45
     sarcasm: int = 25
     proactivity: int = 85
     assertiveness: int = 80
-    emotional_expressiveness: int = 35
-    detail_level: int = 60
+    emotional_expressiveness: int = 45
+    detail_level: int = 40
     preferred_language: str = DEFAULT_LANGUAGE
     honorific: str | None = DEFAULT_HONORIFIC
 

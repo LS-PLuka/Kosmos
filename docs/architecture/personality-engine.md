@@ -2,28 +2,27 @@
 
 ## Implementation status
 
-Stage 01.4 implements and automatically tests a provider-independent representation of the Kosmos
-identity, immutable communication profiles, permanent principles, and deterministic system
-instructions. The work is on `feature/personality-engine` pending maintainer review and integration.
-Real response quality and adherence by Qwen on Ubuntu remain unvalidated.
+The provider-independent Personality Engine is integrated into the Stage 01 Core Engine. R1 —
+Personality & Communication refines its defaults and deterministic instruction after the first real
+Ubuntu validation. Automated coverage is complete for the software contracts, but real Qwen
+behavior under the revised prompt still requires renewed Ubuntu validation.
 
-The official behavioral and future voice direction is defined in
-[Kosmos Personality Specification](PERSONALITY-SPECIFICATION.md). This document describes its
-software representation.
+The official direction is defined in
+[Kosmos Personality Specification](PERSONALITY-SPECIFICATION.md).
 
 ## Responsibilities and boundaries
 
 The package `kosmos.intelligence.personality`:
 
-- exposes the official immutable identity;
-- validates structured profile fields;
-- maps trait ranges to semantically distinct guidance;
-- preserves permanent principles for every valid profile; and
-- builds compact deterministic text suitable for the existing `SYSTEM` role.
+- exposes the immutable `AssistantIdentity` and `KOSMOS_IDENTITY`;
+- validates immutable `PersonalityProfile` values;
+- translates qualitative trait ranges into distinct instructions;
+- preserves `PERMANENT_PRINCIPLES` for every profile; and
+- builds one compact deterministic system instruction.
 
-It does not infer, call providers, execute or authorize tools, read user files, persist settings,
-log personal data, access a network, synthesize voice, or accept arbitrary text as system-level
-configuration. It has no Ollama, HTTPX, Qwen, audio, GPU, endpoint, or model dependency.
+It performs no inference, persistence, network access, logging, authorization, tool execution,
+command execution, memory operation, or voice processing. It has no provider, model, endpoint,
+hardware, or transport dependency and accepts no conversation content as configuration.
 
 ## Package structure
 
@@ -36,14 +35,10 @@ src/kosmos/intelligence/personality/
 └── principles.py
 ```
 
-- `identity.py` owns `AssistantIdentity` and the official `KOSMOS_IDENTITY` value.
-- `models.py` owns `PersonalityProfile` and structured-field validation.
-- `principles.py` owns immutable permanent and contextual guidance.
-- `engine.py` owns trait translation and deterministic instruction assembly.
-- `__init__.py` defines the public package surface.
-
-No interface, factory, repository, service locator, or persistence layer is needed for this
-deterministic standard-library behavior.
+`identity.py` owns the official identity, `models.py` owns validated configuration,
+`principles.py` owns permanent and contextual guidance, and `engine.py` owns deterministic trait
+translation and assembly. No additional interface, factory, repository, or service layer is
+needed.
 
 ## Public contracts
 
@@ -57,158 +52,111 @@ from kosmos.intelligence.personality import (
 )
 ```
 
-`AssistantIdentity` and `PersonalityProfile` are frozen, slotted dataclasses.
-`PersonalityEngine(profile=None)` accepts a validated profile or creates the approved default.
-`profile` returns that immutable profile. `build_system_instruction()` accepts no user content and
-returns the complete instruction.
+`AssistantIdentity` and `PersonalityProfile` remain frozen, slotted dataclasses.
+`PersonalityEngine(profile=None)` accepts only a validated profile or builds the approved default.
+The `profile` property returns that immutable value. `build_system_instruction()` accepts no user
+content and returns the complete instruction.
 
-### Default API example
-
-```python
-from kosmos.intelligence.personality import PersonalityEngine
-
-personality = PersonalityEngine()
-system_instruction = personality.build_system_instruction()
-```
-
-### Custom profile example
-
-```python
-from kosmos.intelligence.personality import PersonalityEngine, PersonalityProfile
-
-profile = PersonalityProfile(
-    formality=50,
-    humor=10,
-    detail_level=85,
-    preferred_language="en-US",
-    honorific=None,
-)
-system_instruction = PersonalityEngine(profile).build_system_instruction()
-```
-
-New sessions may use a new profile. Stage 01.4 intentionally does not mutate the personality of an
-active session.
-
-## Validation
-
-All eight traits must be real integers in the inclusive range `0..100`; booleans are rejected even
-though Python treats them as integers. The language is a compact structured language tag with a
-35-character maximum. The honorific is either `None` or a single trimmed title of at most 24
-characters containing letters and limited title punctuation. Empty, multiline, spaced,
-control-like, or instruction-shaped values are rejected rather than concatenated into a system
-instruction.
-
-The default values are:
+## Approved defaults
 
 ```python
 PersonalityProfile(
-    formality=65,
-    directness=85,
-    humor=40,
+    formality=45,
+    directness=90,
+    humor=45,
     sarcasm=25,
     proactivity=85,
     assertiveness=80,
-    emotional_expressiveness=35,
-    detail_level=60,
+    emotional_expressiveness=45,
+    detail_level=40,
     preferred_language="pt-BR",
     honorific="senhor",
 )
 ```
 
+All traits remain real integers in the inclusive range `0..100`; booleans and non-integers are
+rejected. Language tags and honorifics retain their existing structured validation. An honorific
+may be customized or disabled with `None`.
+
 ## Trait translation
 
-Each trait uses deterministic inclusive ranges:
+The existing inclusive qualitative ranges remain:
 
 - `0..33`: low guidance;
 - `34..66`: medium guidance; and
 - `67..100`: high guidance.
 
-Every range selects different natural-language guidance. The values are not probabilities. Traits
-remain independent so, for example, high directness can coexist with high detail. Permanent
-principles and critical-situation rules override stylistic humor or sarcasm guidance where the two
-would conflict.
+The text for each range now emphasizes modern natural language, proportional detail, selective
+proactivity, respectful disagreement, and situational humor. Extreme profiles continue to produce
+distinct instructions. A narrow zero-value override makes `sarcasm=0` disable sarcasm and irony;
+values `1..33`, including the default `25`, permit rare mild dry irony in suitable low-risk
+contexts. No additional scale or probabilistic behavior is introduced.
 
-## System instruction construction
+## Instruction construction
 
-The builder assembles six stable sections in this order:
+The builder emits six stable sections:
 
-1. official identity and purpose;
-2. preferred language and honorific;
-3. selected guidance for all eight traits;
-4. contextual adaptation;
-5. permanent honesty, safety, privacy, integrity, and identity principles; and
-6. deterministic execution and untrusted-content boundaries.
+1. identity and purpose;
+2. language and honorific;
+3. selected trait guidance;
+4. contextual proportionality;
+5. permanent principles; and
+6. execution and untrusted-content boundaries.
 
-It uses no templates from external packages, inference, random values, timestamps, runtime model
-data, or caller-provided arbitrary instruction fragments. Equal profiles therefore produce exactly
-equal strings. Principles are never truncated to meet the engineering budget.
+Equal profiles produce equal strings. The builder uses no random values, timestamps, provider
+state, external templates, or caller-provided instruction fragments.
 
-The current default instruction is below 2,000 characters. The existing `ContextPolicy` default is
-6,000 content characters, leaving more than 4,000 characters for the current user message and
-eligible confirmed history. Character counts are an engineering proxy, not model-specific token
-counts.
+The previous default instruction contained **1,990 characters**. The R1 instruction contains
+**1,982 characters**, a reduction of 8 characters (about 0.40%). The largest behavioral changes
+are selective proactivity, concise-by-default detail, natural language, rare low-risk dry irony,
+contextual handling of shared information, and explicit prohibition of unsupported operational
+claims. These changes reuse the existing budget instead of increasing it.
 
-## Conversation Engine integration
+`ContextPolicy` still provides a 6,000-character default budget. The R1 instruction leaves 4,018
+characters for the current message and eligible history. Character counts are deterministic
+engineering measures, not exact token counts.
 
-The Personality Engine composes with the existing explicit system-instruction boundary; neither
-`ConversationEngine` nor `LLMProvider` is changed:
+## Conversation integration
+
+The Personality Engine continues to compose with the existing explicit system-instruction
+boundary. Neither `ConversationEngine`, `ContextPolicy`, nor `LLMProvider` changes:
 
 ```python
-import asyncio
-
 from kosmos.intelligence.conversation import ConversationEngine
-from kosmos.intelligence.models import InferenceResponse
 from kosmos.intelligence.personality import PersonalityEngine
-from tests.fakes.llm_provider import FakeLLMProvider
 
-
-async def main() -> None:
-    provider = FakeLLMProvider(
-        response=InferenceResponse(model="test-model", content="Certamente, senhor.")
-    )
-    conversation = ConversationEngine(provider)
-    instruction = PersonalityEngine().build_system_instruction()
-    session = conversation.create_session(system_instruction=instruction)
-
-    await conversation.generate(session.session_id, "Podemos começar?", model="test-model")
-
-    request = provider.requests[0]
-    assert request.messages[0].content == instruction
-
-
-asyncio.run(main())
+instruction = PersonalityEngine().build_system_instruction()
+conversation = ConversationEngine(provider)
+session = conversation.create_session(system_instruction=instruction)
 ```
 
-`ContextPolicy` places the system message first, followed by the newest complete historical turns
-that fit and the current user message. The instruction is stored separately from confirmed history,
-survives history clearing, works for complete and streaming inference, and remains isolated by
-session. Building it performs no provider call, so one conversation turn still produces exactly
-one inference request. Personality is explicit and is not imposed globally on specialized future
-inference tasks.
+The system instruction remains first in complete, streaming, and tool-calling requests. It is
+stored separately from confirmed history, survives `clear_session()`, and remains isolated between
+sessions. Building it performs no inference, so a user turn still produces only the inference calls
+defined by the existing conversation and orchestration flows.
 
-The example is deterministic and network-free. It validates request composition, not real model
-behavior.
+## Security and operational honesty
 
-## Security and privacy
-
-Only validated application configuration enters the instruction. User messages, retrieved data,
-external results, and other untrusted text remain ordinary conversation data and cannot be promoted
-through this API. The engine has no persistence, telemetry, network, command, file, authorization,
-or audio capability and introduces no new dependency.
-
-Language-model instructions are not an enforcement mechanism and cannot guarantee resistance to
-prompt injection or faithful behavior from a small model. Deterministic software remains
-responsible for argument validation, permissions, authorization, execution, and evidence of
-results:
+Only validated structured configuration enters the system instruction. Conversation messages,
+retrieved content, and tool results remain untrusted data. Behavioral text never grants permission:
 
 > The AI interprets intent. The software validates and executes operations.
 
-## Limitations
+The instruction allows voluntarily shared information to be used in the current conversation
+without implying identity verification, persistence, disclosure permission, external processing,
+or operational authorization. It requires evidence before claiming execution and prohibits
+invented memory, checks, monitoring, capabilities, or operations. Existing deterministic tool
+validation and authorization remain unchanged.
 
-- Automated tests use fake providers and do not validate Qwen personality adherence.
-- The 2,000-character target and three trait ranges are provisional engineering choices.
-- No tokenization, context-window change, additional tone inference, user account, persistence,
-  dynamic active-session update, GUI, voice, tool execution, memory, or monitoring is implemented.
-- Voice identity, Razo, and Piper are documentation-only Stage 02 candidates with unresolved
-  technical and licensing review.
+## Testing and limitations
 
+Tests cover defaults, immutability, validation, deterministic construction, qualitative range
+distinction, proportionality, natural language, custom languages and honorifics, disabled
+honorifics, humor, sarcasm zero behavior, selective proactivity, permanent principles, contextual
+information versus authorization, operational honesty, prompt budget, complete inference,
+streaming, session isolation, and persistence across `clear_session()`.
+
+Fake providers validate request composition, not generated personality. R1 performs no real
+inference and changes no generation limit, `num_ctx`, model, provider, conversation policy, effort
+policy, tool routing, authorization mechanism, persistent memory, voice system, or dependency.
+Renewed real Ubuntu validation is required before claiming the behavioral refinement is validated.
