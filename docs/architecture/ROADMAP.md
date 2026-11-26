@@ -17,9 +17,10 @@ Complete.
   validation remains pending
 - **01.5 — Tool Calling & Tool Registry:** complete and integrated into `develop`; real Qwen
   validation remains pending
-- **01.6 — Core Orchestration & Effort Levels:** implemented and automatically tested on its
-  feature branch; maintainer review, integration, and real Qwen validation remain pending
-- **01.7 — Development CLI:** planned
+- **01.6 — Core Orchestration & Effort Levels:** complete and integrated; real Qwen validation
+  remains pending
+- **01.7 — Development CLI:** implemented on its feature branch with automated validation; real
+  Ubuntu and Qwen validation remain pending
 - **01.8 — Model Benchmark & Validation:** planned
 
 ## Stage 02 — Voice Engine

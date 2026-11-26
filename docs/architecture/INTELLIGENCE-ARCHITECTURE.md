@@ -8,8 +8,8 @@ simulated transports, but real inference on the target Ubuntu host remains pendi
 in-memory conversation management and Stage 01.4 personality representation are integrated; real
 personality behavior validation remains pending. Stage 01.5 tool-calling foundations are
 integrated, with real Qwen behavior validation pending. Stage 01.6 core orchestration and effort
-policies are implemented and automatically tested on their feature branch, with maintainer
-integration pending. External agents and web intelligence still require separate roadmap stages.
+policies are integrated and automatically tested. Stage 01.7 provides a development CLI for later
+real validation. External agents and web intelligence still require separate roadmap stages.
 
 ## Hybrid local-first orchestration
 

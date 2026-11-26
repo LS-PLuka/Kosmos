@@ -66,6 +66,9 @@ Stage 01.2 provider tests use HTTPX `MockTransport` and custom asynchronous byte
 exercise complete responses, incremental NDJSON delivery, transport failures, cancellation,
 resource release, and local-endpoint constraints without requiring Ollama, a GPU, or a model.
 
+Stage 01.7 development CLI usage, local configuration, commands, and Ubuntu validation steps are
+documented in [Development CLI](development-cli.md).
+
 ## Package layout
 
 Importable code lives under `src/kosmos`. Unit tests belong in `tests/unit`; tests exercising real

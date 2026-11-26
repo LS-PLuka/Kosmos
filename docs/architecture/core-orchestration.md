@@ -2,7 +2,7 @@
 
 ## Status and responsibility
 
-Stage 01.6 implements the provider-independent `CoreOrchestrator` on its feature branch. Automated
+Stage 01.6 implements the integrated provider-independent `CoreOrchestrator`. Automated
 tests use fake providers; real Qwen behavior on Ubuntu remains pending. The orchestrator composes
 the existing Personality Engine, Conversation Engine, provider ports, Tool Registry,
 `ToolAuthorization`, and `ToolExecutor`. It does not replace them or own an Ollama lifecycle.
