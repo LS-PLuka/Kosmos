@@ -12,6 +12,12 @@ The Core Engine must remain usable without a GUI. System and service integration
 the edge and introduced behind adapters when a concrete testing, replacement, or security need
 exists.
 
+Kosmos is a hybrid, local-first orchestration system. The local model interprets intent and
+coordinates conversation, but software owns validation, authorization, deterministic operations,
+and execution. External intelligence is optional and must never become a hidden runtime
+requirement. The detailed decisions are in the
+[Intelligence Architecture](INTELLIGENCE-ARCHITECTURE.md).
+
 Modules may later use `domain`, `application`, `infrastructure`, and `presentation` subdirectories,
 but only after implemented behavior demonstrates the need. Empty architectural layers are avoided.
 
@@ -45,6 +51,9 @@ Directories other than `core` and `intelligence` still describe planned boundari
 - Make external providers replaceable where the product requires choice or offline operation.
 - Use synchronous or asynchronous execution according to measured needs, not fashion.
 - Record significant cross-cutting decisions as architecture decision records when they arise.
+- Prefer deterministic software over LLM output for exact calculations, counts, state checks,
+  validation, authorization, and execution.
+- Deny unauthorized operations by default and prohibit unrestricted terminal access by an LLM.
 
 ## Implemented dependency boundary
 
@@ -52,3 +61,11 @@ The `intelligence` models represent Kosmos concepts and do not expose an Ollama 
 Application code depends on the asynchronous `LLMProvider` protocol. Concrete provider adapters
 will depend inward on that protocol and the models, allowing tests and future integrations to
 substitute implementations without changing the domain boundary.
+
+## Architectural references
+
+- [Core Foundation](core-foundation.md): implemented Stage 01.1 behavior
+- [Intelligence Architecture](INTELLIGENCE-ARCHITECTURE.md): planned hybrid intelligence,
+  providers, effort levels, and web research
+- [Security and Privacy Principles](SECURITY-AND-PRIVACY.md): trust and authorization constraints
+- [Official Roadmap](ROADMAP.md): incremental delivery stages and implementation status

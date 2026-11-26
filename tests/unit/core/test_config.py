@@ -81,7 +81,9 @@ def test_rejects_invalid_or_non_loopback_urls(url: str) -> None:
     ],
 )
 def test_accepts_loopback_urls(url: str) -> None:
-    assert load_settings({"KOSMOS_OLLAMA_BASE_URL": url}).ollama_base_url == url
+    settings = load_settings({"KOSMOS_OLLAMA_BASE_URL": url})
+
+    assert settings.ollama_base_url == url
 
 
 def test_explicit_environment_does_not_read_or_modify_process_environment(

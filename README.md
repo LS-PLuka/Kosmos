@@ -14,9 +14,10 @@ Kosmos is a source-available, local-first personal AI assistant designed to auto
 
 ## Overview
 
-The project initially targets Ubuntu and is being built incrementally as a modular monolith. Local
-processing is the default design direction; external providers must be explicit, replaceable
-integrations rather than hidden requirements.
+The project uses Ubuntu as its primary execution environment and Windows for portable development
+and testing. It is being built incrementally as a modular monolith. Local processing is the default;
+external providers must be explicit, optional, replaceable integrations rather than hidden
+requirements.
 
 ## Project status
 
@@ -70,8 +71,14 @@ independent of the graphical interface and frameworks. External services and sys
 will be isolated behind adapters when a real substitution or testing need exists. Internal layer
 directories are introduced only as modules acquire behavior, avoiding speculative abstractions.
 
+The planned intelligence design is hybrid and local-first: a local model interprets intent and
+coordinates workflows, while deterministic software validates, authorizes, and executes
+operations. Ollama with Qwen 3.5 4B is the planned initial local configuration for Stage 01.2, not
+an implemented dependency in Stage 01.1. Remote providers and specialized agents remain optional.
+
 The planned top-level domains are documented in
-[the architecture overview](docs/architecture/README.md).
+[the architecture overview](docs/architecture/README.md), with details in the
+[intelligence architecture](docs/architecture/INTELLIGENCE-ARCHITECTURE.md).
 
 ## Technology stack
 
@@ -84,23 +91,21 @@ Currently configured:
 - Python standard-library configuration, logging, dataclasses, and asynchronous provider contracts
 - GitHub Actions for continuous integration
 
-Planned technologies, subject to evaluation and licensing review, include Ollama, Pydantic,
-SQLite, openWakeWord, Silero VAD, faster-whisper, SoundDevice, Kokoro or Piper, psutil, Docker SDK,
-Codex integration, PySide6, and Qt Quick/QML. None is a current runtime dependency.
+Planned technologies, subject to their applicable evaluation and licensing review, include Ollama,
+Qwen 3.5 4B, Pydantic, SQLite, openWakeWord, Silero VAD, faster-whisper, SoundDevice, Kokoro or
+Piper, psutil, Docker SDK, Codex and Claude Code integrations, PySide6, Qt Quick/QML, SearXNG,
+Trafilatura, Beautiful Soup, Playwright, and the Google Gemini API. None is a current runtime
+dependency.
 
 ## Roadmap
 
-1. **Stage 00 — Project Foundation:** repository, tooling, standards, documentation, identity, CI
-2. **Stage 01 — Core Engine:** local-model evaluation, Ollama, conversation, providers, tools
-3. **Stage 02 — Voice Engine:** wake word, audio, VAD, speech-to-text, text-to-speech
-4. **Stage 03 — System Control:** applications, files, processes, resources, Docker, OS integration
-5. **Stage 04 — Developer Agent:** Codex, projects, sessions, tasks, execution tracking
-6. **Stage 05 — Memory Engine:** context, preferences, persistence, retrieval
-7. **Stage 06 — Proactive Engine:** events, monitoring, automations, reminders, notifications
-8. **Stage 07 — Desktop Experience:** PySide6, QML, Control Center, Overlay, tray, vector motion
-9. **Stage 08 — Extended Integrations:** AWS, Spotify, browser, productivity tools, services
-10. **Stage 09 — Multimodal Engine:** webcam, computer vision, image and screen interpretation
-11. **Stage 10 — Cross-platform & Ecosystem:** Windows, plugins, distribution, contributors
+Stage 00 is complete. Stage 01.1 — Core Foundation is complete, and Stage 01.2 — Ollama Provider is
+the next planned substage. Conversation, personality, tool calling, orchestration, effort levels,
+the development CLI, and model validation follow as separate Stage 01 substages. Later stages cover
+voice, authorized system control, developer agents, memory, proactive intelligence, desktop,
+web/external integrations, multimodal intelligence, and cross-platform ecosystem expansion.
+
+See the [official roadmap](docs/architecture/ROADMAP.md) for the complete staged plan and status.
 
 ## Getting started
 
@@ -117,10 +122,12 @@ No application entry point or functional model integration exists in Stage 01.1.
 ## Development
 
 ```bash
+uv lock --check
 uv sync --frozen --dev
 uv run ruff check .
 uv run ruff format --check .
 uv run pytest
+git diff --check
 ```
 
 Ruff uses a 100-character line limit: wide enough for readable modern Python while still supporting

@@ -39,11 +39,10 @@ def load_settings(environment: Mapping[str, str] | None = None) -> ApplicationSe
     """Load settings from an explicit mapping or a snapshot of the process environment."""
 
     values = dict(os.environ if environment is None else environment)
-    timeout_value = values.get("KOSMOS_OLLAMA_TIMEOUT_SECONDS", str(DEFAULT_OLLAMA_TIMEOUT_SECONDS))
-    try:
-        timeout = float(timeout_value)
-    except (TypeError, ValueError):
-        raise ConfigurationError("KOSMOS_OLLAMA_TIMEOUT_SECONDS must be a number") from None
+
+    timeout = _parse_timeout(
+        values.get("KOSMOS_OLLAMA_TIMEOUT_SECONDS", str(DEFAULT_OLLAMA_TIMEOUT_SECONDS))
+    )
 
     return ApplicationSettings(
         log_level=values.get("KOSMOS_LOG_LEVEL", "INFO"),
@@ -53,66 +52,94 @@ def load_settings(environment: Mapping[str, str] | None = None) -> ApplicationSe
     )
 
 
+def _parse_timeout(value: object) -> float:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        raise ConfigurationError("KOSMOS_OLLAMA_TIMEOUT_SECONDS must be a number") from None
+
+
 def _validate_log_level(value: object) -> str:
     if not isinstance(value, str):
         raise ConfigurationError("log level must be a string")
+
     normalized = value.strip().upper()
+
     if normalized not in VALID_LOG_LEVELS:
         allowed = ", ".join(sorted(VALID_LOG_LEVELS))
         raise ConfigurationError(f"log level must be one of: {allowed}")
+
     return normalized
 
 
 def _validate_timeout(value: object) -> float:
     if isinstance(value, bool) or not isinstance(value, int | float):
         raise ConfigurationError("Ollama timeout must be a number")
+
     timeout = float(value)
+
     if not math.isfinite(timeout) or timeout <= 0:
         raise ConfigurationError("Ollama timeout must be finite and greater than zero")
+
     return timeout
 
 
 def _validate_optional_model(value: object) -> str | None:
     if value is None:
         return None
+
     if not isinstance(value, str):
         raise ConfigurationError("Ollama model must be a string when configured")
+
     model = value.strip()
+
     if not model:
         raise ConfigurationError("Ollama model must not be empty when configured")
+
     return model
 
 
 def _validate_loopback_url(value: object) -> str:
-    if not isinstance(value, str) or not value.strip():
+    if not isinstance(value, str):
         raise ConfigurationError("Ollama base URL must be a non-empty string")
+
+    if not value.strip():
+        raise ConfigurationError("Ollama base URL must be a non-empty string")
+
     if any(character.isspace() for character in value):
         raise ConfigurationError("Ollama base URL must not contain whitespace")
-    base_url = value
+
     try:
-        parsed = urlsplit(base_url)
+        parsed = urlsplit(value)
         port = parsed.port
     except ValueError:
         raise ConfigurationError("Ollama base URL is invalid") from None
 
     if parsed.scheme.lower() not in {"http", "https"}:
         raise ConfigurationError("Ollama base URL must use HTTP or HTTPS")
+
     if not parsed.hostname:
         raise ConfigurationError("Ollama base URL must include a host")
+
     if parsed.username is not None or parsed.password is not None:
         raise ConfigurationError("Ollama base URL must not contain credentials")
+
     if port is not None and not 1 <= port <= 65535:
         raise ConfigurationError("Ollama base URL contains an invalid port")
+
     if parsed.query or parsed.fragment:
         raise ConfigurationError("Ollama base URL must not contain a query or fragment")
+
     if not _is_loopback_host(parsed.hostname):
         raise ConfigurationError("Ollama base URL host must be a loopback address")
-    return base_url
+
+    return value
 
 
 def _is_loopback_host(host: str) -> bool:
     if host.lower() == "localhost":
         return True
+
     try:
         return ip_address(host).is_loopback
     except ValueError:

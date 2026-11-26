@@ -61,4 +61,7 @@ Ollama adapter, HTTP client, streaming, model availability checks, generation pa
 embeddings, images, tool calls, conversation engine, persistence, CLI, or graphical interface.
 
 The next substage may implement the Ollama HTTP adapter and define concrete timeout and response
-handling behavior, but that work is outside Stage 01.1 and requires separate approval.
+handling behavior, but that work is outside Stage 01.1 and requires separate approval. The planned
+provider and model decisions are documented in the
+[Intelligence Architecture](INTELLIGENCE-ARCHITECTURE.md); they do not change the current
+provider-independent contract or select a model at runtime.

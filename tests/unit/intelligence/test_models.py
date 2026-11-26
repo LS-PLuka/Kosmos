@@ -33,6 +33,7 @@ def test_rejects_requests_without_a_model(model: str) -> None:
 def test_rejects_empty_or_invalid_message_collections() -> None:
     with pytest.raises(ValueError, match="messages"):
         InferenceRequest("test-model", ())
+
     with pytest.raises(TypeError, match="Message"):
         InferenceRequest("test-model", ("not-a-message",))  # type: ignore[arg-type]
 
@@ -55,8 +56,10 @@ def test_models_are_immutable() -> None:
 
     with pytest.raises(FrozenInstanceError):
         message.content = "Changed"  # type: ignore[misc]
+
     with pytest.raises(FrozenInstanceError):
         request.model = "changed"  # type: ignore[misc]
+
     with pytest.raises(FrozenInstanceError):
         response.content = "Changed"  # type: ignore[misc]
 
@@ -65,5 +68,6 @@ def test_models_are_immutable() -> None:
 def test_rejects_empty_text_content(content: str) -> None:
     with pytest.raises(ValueError, match="content"):
         Message(MessageRole.USER, content)
+
     with pytest.raises(ValueError, match="content"):
         InferenceResponse("test-model", content)

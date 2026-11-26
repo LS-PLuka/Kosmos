@@ -22,10 +22,12 @@ force and no automated acceptance is configured. See the non-binding
 4. Run the required checks:
 
    ```bash
+   uv lock --check
    uv sync --frozen --dev
    uv run ruff check .
    uv run ruff format --check .
    uv run pytest
+   git diff --check
    ```
 
 5. Use English Conventional Commits and open a pull request to `develop`.
@@ -48,7 +50,12 @@ merge-commit strategy; do not squash or rebase a pull request during integration
 
 - Use English throughout new project material.
 - Target Python 3.12 and the configured 100-character line limit.
-- Prefer clear code and concrete boundaries over speculative abstractions.
+- Follow PEP 8 and the configured double quotes, four-space indentation, UTF-8, LF line endings,
+  import grouping, and final-newline rules.
+- Prefer clear English names, cohesive control flow, useful type hints, and concrete boundaries
+  over compressed code or speculative abstractions.
+- Review responsibility, complexity, duplication, coupling, exception handling, test quality, and
+  maintainability. Passing Ruff does not replace structural and readability review.
 - Never claim roadmap functionality is implemented before validation.
 - Never include credentials, private data, model files, recordings, or generated local state.
 - Do not modify approved visual identity artifacts without explicit approval and hash validation.

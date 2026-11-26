@@ -2,6 +2,9 @@
 
 This file records third-party components incorporated into or required to develop the current
 repository. Planned technologies are not current dependencies and are not listed as incorporated.
+This includes Ollama, Qwen model weights, external intelligence providers, and planned web, voice,
+and desktop technologies. Their upstream terms require review at the stage where they are actually
+incorporated or distributed.
 
 ## Python development tooling
 
