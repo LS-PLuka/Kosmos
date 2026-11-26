@@ -5,9 +5,11 @@
 This document records the intelligence architecture beyond the completed Stage 01.1 Core
 Foundation. The Stage 01.2 Ollama HTTP adapter is implemented and automatically tested with
 simulated transports, but real inference on the target Ubuntu host remains pending. Stage 01.3
-in-memory conversation management is implemented and automatically tested on its feature branch,
-with maintainer integration pending. Tools, effort levels, external agents, and web intelligence
-still require their corresponding roadmap stages and separate approval.
+in-memory conversation management is integrated. Stage 01.4 personality representation and
+deterministic system-instruction construction are implemented and automatically tested on their
+feature branch; integration and real model behavior validation remain pending. Tools, effort
+levels, external agents, and web intelligence still require their corresponding roadmap stages
+and separate approval.
 
 ## Hybrid local-first orchestration
 
@@ -68,6 +70,19 @@ reliable tool calling:
 These observations reinforce deterministic execution and validation; they do not establish model
 reliability.
 
+## Conversational personality boundary
+
+The Stage 01.4 Personality Engine owns Kosmos's conversational identity, validated communication
+preferences, permanent behavioral principles, and deterministic system-instruction construction.
+It is independent of providers and model identifiers. Application code may pass its output through
+the Conversation Engine's existing explicit system-instruction boundary; the personality is not a
+global requirement for every internal inference task.
+
+Personality instructions influence model behavior but do not grant authority or provide a security
+boundary. They cannot replace deterministic validation, authorization, execution policy, or
+evidence of completed work. Real response quality and instruction adherence remain pending for
+Stage 01.8 validation.
+
 ## Planned effort levels
 
 Effort levels are future Kosmos Core Engine abstractions, not native Qwen levels. The installed
@@ -101,6 +116,14 @@ Remote intelligence must remain optional, replaceable, explicitly authorized, an
 Kosmos must not assume unlimited free access, permanent model availability, or programmatic rights
 based only on an application subscription. It must use authorized provider mechanisms and must not
 send local data without appropriate authorization.
+
+## Cost and dependency policy
+
+Kosmos must remain usable without paid APIs, subscriptions, credits, per-request charges, or
+silent paid fallbacks. Free, local, and offline technologies are preferred. A free external
+service still requires explicit approval, a concrete need, transparent data boundaries, and legal
+compatibility; its availability or limits must never be assumed permanent. Hardware, electricity,
+and operator-managed infrastructure costs are distinct from service usage fees.
 
 ## Planned web intelligence
 
