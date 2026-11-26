@@ -20,6 +20,7 @@ dependencies = [
 
 [project.scripts]
 kosmos = "kosmos.cli.main:main"
+kosmos-benchmark = "kosmos.benchmarking.main:main"
 
 [dependency-groups]
 dev = [
