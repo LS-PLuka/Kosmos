@@ -26,7 +26,7 @@ but only after implemented behavior demonstrates the need. Empty architectural l
 | Module | Responsibility and current status |
 | --- | --- |
 | `core` | Application foundations are implemented; orchestration and lifecycle remain planned |
-| `intelligence` | Text inference models, streaming port, and Ollama adapter are implemented; real Ubuntu inference validation, conversation, reasoning, and tool calling remain pending or planned |
+| `intelligence` | Text inference models, streaming port, Ollama adapter, and in-memory Conversation Engine are implemented; Stage 01.3 integration and real Ubuntu inference validation remain pending, while reasoning and tool calling are planned |
 | `voice` | Activation, capture, recognition, and speech synthesis |
 | `system` | Operating system, applications, files, and processes |
 | `developer` | Development agents, projects, sessions, and tasks |
@@ -39,8 +39,7 @@ but only after implemented behavior demonstrates the need. Empty architectural l
 | `vision` | Computer vision and multimodal processing |
 | `plugins` | Kosmos extension mechanisms |
 
-Directories other than `core` and `intelligence` still describe planned boundaries only. Stage
-01.1 does not implement their roadmap capabilities. See the
+Directories other than `core` and `intelligence` still describe planned boundaries only. See the
 [Core Foundation specification](core-foundation.md) for the behavior currently available.
 
 ## Architectural rules
@@ -66,6 +65,8 @@ Tests and future integrations can substitute implementations without changing th
 
 - [Core Foundation](core-foundation.md): implemented Stage 01.1 behavior
 - [Ollama Provider](ollama-provider.md): implemented Stage 01.2 adapter and pending real validation
+- [Conversation Engine](conversation-engine.md): implemented Stage 01.3 in-memory conversation
+  management pending maintainer integration
 - [Intelligence Architecture](INTELLIGENCE-ARCHITECTURE.md): planned hybrid intelligence,
   providers, effort levels, and web research
 - [Security and Privacy Principles](SECURITY-AND-PRIVACY.md): trust and authorization constraints
