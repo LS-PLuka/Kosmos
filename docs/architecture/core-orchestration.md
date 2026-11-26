@@ -117,6 +117,12 @@ tools preserve proposal order. Empty authorization omits the definition and invo
 oversized batch returns `TOOL_LIMIT`; required context overflow returns `CONTEXT_LIMIT`. These are
 deterministic simulations, not validation of real Qwen selection or response quality.
 
+Stage 01.8 applies the same integrated orchestration context budget to complete and streaming text
+requests before provider inference. The CLI recovers from streaming context-limit errors without
+discarding confirmed history and presents statuses only from real `ToolResult` evidence. The
+benchmark reuses this public orchestration boundary; it does not duplicate session or execution
+logic.
+
 ## Security, lifecycle, and limitations
 
 The permanent rule remains: **The AI interprets intent. The software validates and executes

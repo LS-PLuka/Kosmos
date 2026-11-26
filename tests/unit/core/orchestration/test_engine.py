@@ -6,7 +6,11 @@ from dataclasses import dataclass, field
 
 import pytest
 
-from kosmos.core.exceptions import SessionBusyError, ToolCapabilityUnavailableError
+from kosmos.core.exceptions import (
+    ContextLimitExceededError,
+    SessionBusyError,
+    ToolCapabilityUnavailableError,
+)
 from kosmos.core.orchestration import (
     CoreOrchestrator,
     EffortLevel,
@@ -314,6 +318,26 @@ def test_stream_preserves_chunks_and_commits_only_on_completion() -> None:
 
     assert chunks == ["Olá, ", "senhor."]
     assert orchestrator.get_session(session.session_id).messages[-1].content == "Olá, senhor."
+
+
+def test_stream_rejects_integrated_context_before_provider_inference() -> None:
+    provider = ScriptedProvider(chunks=(InferenceChunk("test-model", "unused", done=True),))
+    orchestrator = CoreOrchestrator(
+        provider,
+        orchestration_context_policy=OrchestrationContextPolicy(100, 10),
+    )
+    session = orchestrator.create_session()
+
+    with pytest.raises(ContextLimitExceededError):
+        orchestrator.stream(
+            session.session_id,
+            "x" * 100,
+            model="test-model",
+            effort=EffortLevel.INSTANT,
+        )
+
+    assert provider.text_requests == []
+    assert orchestrator.get_session(session.session_id).is_busy is False
 
 
 def test_stream_rejects_selected_authorized_tools() -> None:

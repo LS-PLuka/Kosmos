@@ -5,10 +5,12 @@ from kosmos.cli.rendering import (
     render_banner,
     render_metrics,
     render_stream_metrics,
+    render_tool_results,
     sanitize_terminal_text,
 )
 from kosmos.core.orchestration import EffortLevel, OrchestrationMetrics
 from kosmos.intelligence.models import InferenceMetrics
+from kosmos.intelligence.tools import ToolResult, ToolResultStatus
 
 
 def test_sanitization_preserves_unicode_whitespace_and_tabs() -> None:
@@ -104,3 +106,35 @@ def test_tokens_per_second_requires_positive_generation_duration() -> None:
     )
 
     assert "Tokens per second" not in rendered
+
+
+def test_tool_results_render_trusted_status_and_compact_pure_value() -> None:
+    result = ToolResult(
+        "call-1",
+        "calculate",
+        ToolResultStatus.SUCCESS,
+        {"result": 4_000},
+    )
+
+    assert render_tool_results((result,)) == "[calculate: success]\nResult: 4000"
+
+
+def test_tool_results_distinguish_rejected_and_failed_execution() -> None:
+    rejected = ToolResult(
+        "call-1",
+        "calculate",
+        ToolResultStatus.UNAUTHORIZED,
+        error_code="unauthorized",
+        message="Denied",
+    )
+    failed = ToolResult(
+        "call-2",
+        "calculate",
+        ToolResultStatus.EXECUTION_FAILED,
+        error_code="execution_failed",
+        message="Failed",
+    )
+
+    assert render_tool_results((rejected, failed)) == (
+        "[calculate: unauthorized]\n[calculate: execution_failed]"
+    )

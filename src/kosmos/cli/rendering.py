@@ -5,7 +5,7 @@ from collections.abc import Iterable
 
 from kosmos.core.orchestration import OrchestrationMetrics, OrchestrationResult
 from kosmos.intelligence.models import InferenceMetrics
-from kosmos.intelligence.tools import ToolDefinition
+from kosmos.intelligence.tools import ToolDefinition, ToolResult, ToolResultStatus
 
 _CONTROL_SEQUENCE = re.compile(
     r"\x1b(?:\[[0-?]*[ -/]*[@-~]|\][^\x07\x1b]*(?:\x07|\x1b\\)|[PX^_].*?\x1b\\)",
@@ -87,6 +87,21 @@ def render_tools(definitions: Iterable[ToolDefinition], authorized: frozenset[st
     for definition in definitions:
         status = "authorized" if definition.name in authorized else "disabled"
         lines.append(f"  {definition.name}: {definition.description} ({status})")
+
+    return "\n".join(lines)
+
+
+def render_tool_results(results: Iterable[ToolResult]) -> str:
+    """Render only trusted execution evidence and compact pure-tool values."""
+
+    lines: list[str] = []
+    for result in results:
+        label = sanitize_terminal_text(result.tool_name)
+        lines.append(f"[{label}: {result.status.value}]")
+
+        value = _compact_tool_value(result)
+        if value is not None:
+            lines.append(f"Result: {sanitize_terminal_text(value)}")
 
     return "\n".join(lines)
 
@@ -173,6 +188,21 @@ def _provider_metric_lines(metrics: InferenceMetrics) -> list[str]:
 
 def _seconds(nanoseconds: int | None) -> float | None:
     return None if nanoseconds is None else nanoseconds / 1_000_000_000
+
+
+def _compact_tool_value(result: ToolResult) -> str | None:
+    if result.status is not ToolResultStatus.SUCCESS or result.tool_name not in {
+        "calculate",
+        "count_items",
+    }:
+        return None
+
+    data = result.data
+    if not hasattr(data, "get"):
+        return None
+
+    value = data.get("result") if result.tool_name == "calculate" else data.get("count")
+    return str(value) if isinstance(value, int | float) and not isinstance(value, bool) else None
 
 
 def _enabled(value: bool) -> str:

@@ -299,6 +299,7 @@ class CoreOrchestrator:
             content,
             model=model,
             thinking=policy.thinking,
+            request_validator=self._context.ensure_text_fits,
         )
         return OrchestrationStream(upstream, policy.deadline_seconds)
 

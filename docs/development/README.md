@@ -69,6 +69,11 @@ resource release, and local-endpoint constraints without requiring Ollama, a GPU
 Stage 01.7 development CLI usage, local configuration, commands, and Ubuntu validation steps are
 documented in [Development CLI](development-cli.md).
 
+Stage 01.8 benchmark architecture, suites, evidence rules, metrics, and reports are documented in
+[Model Benchmark and Validation](model-benchmark.md). The maintainer procedure and promotion
+checklist are in [Ubuntu Core Engine Validation](ubuntu-validation.md). Automated benchmark tests
+use fake providers and HTTPX `MockTransport`; they never require Ollama, a GPU, or a model.
+
 ## Package layout
 
 Importable code lives under `src/kosmos`. Unit tests belong in `tests/unit`; tests exercising real

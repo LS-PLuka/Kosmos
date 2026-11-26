@@ -30,9 +30,10 @@ Stage 01.4 provides an integrated provider-independent Personality Engine, with 
 validation pending. Stage 01.5 integrates provider-independent tool contracts, deterministic
 validation and authorization, two pure tools, and native non-streaming Ollama tool calling.
 Stage 01.6 integrates bounded core orchestration and effort policies. Stage 01.7 provides an
-automatically tested development CLI for later real Ubuntu and Qwen validation. Real model
-validation remains pending. Kosmos does not provide voice, system control, persistent memory,
-automation, or a desktop application.
+automatically tested development CLI. Stage 01.8 provides reproducible benchmark infrastructure,
+evidence-based reports, and a maintainer-run Ubuntu checklist. Real Ubuntu, Qwen, performance, and
+offline validation remain pending. Kosmos does not provide voice, system control, persistent
+memory, automation, or a desktop application.
 
 Capabilities explicitly described below as planned belong to the roadmap and must not be
 interpreted as implemented.
@@ -115,9 +116,10 @@ implemented and automatically tested; real Ubuntu inference validation remains p
 Stage 01.3 — Conversation Engine, Stage 01.4 — Personality Engine, and Stage 01.5 — Tool Calling &
 Tool Registry are integrated, with real personality and Qwen validation pending. Stage 01.6 — Core
 Orchestration & Effort Levels is integrated and automatically tested. Stage 01.7 adds the
-development CLI; real model validation follows as the separate Stage 01.8 substage. Later stages cover
-voice, authorized system control, developer agents, memory, proactive intelligence, desktop,
-web/external integrations, multimodal intelligence, and cross-platform ecosystem expansion.
+development CLI. Stage 01.8 benchmark infrastructure is implemented, while real model validation
+remains pending. Later stages cover voice, authorized system control, developer agents, memory,
+proactive intelligence, desktop, web/external integrations, multimodal intelligence, and
+cross-platform ecosystem expansion.
 
 See the [official roadmap](docs/architecture/ROADMAP.md) for the complete staged plan and status.
 
@@ -137,6 +139,14 @@ Run the development CLI after configuring a local Ollama installation and model:
 uv run kosmos --help
 uv run kosmos --list-models
 uv run kosmos
+```
+
+Inspect the benchmark without starting inference, then explicitly authorize a live local run:
+
+```bash
+uv run kosmos-benchmark --help
+uv run kosmos-benchmark --list-scenarios
+uv run kosmos-benchmark --suite quick --live
 ```
 
 Real Qwen validation on the target Ubuntu host remains pending.
