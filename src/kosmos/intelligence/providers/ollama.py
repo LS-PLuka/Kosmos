@@ -4,6 +4,7 @@ import json
 import logging
 from collections.abc import AsyncIterator, Mapping
 from dataclasses import dataclass
+from uuid import uuid4
 
 import httpx
 
@@ -21,6 +22,14 @@ from kosmos.intelligence.models import (
     InferenceRequest,
     InferenceResponse,
 )
+from kosmos.intelligence.tools.models import (
+    ToolCall,
+    ToolInferenceRequest,
+    ToolInferenceResponse,
+    ToolMessage,
+    ToolMessageRole,
+    thaw_json,
+)
 
 _LOGGER = logging.getLogger("kosmos.intelligence.providers.ollama")
 _CHAT_ENDPOINT = "/api/chat"
@@ -34,6 +43,8 @@ _METRIC_FIELDS = {
     "eval_count": "eval_count",
     "eval_duration": "eval_duration_ns",
 }
+_MAX_TOOL_CALLS = 8
+_MAX_TOOL_ARGUMENT_BYTES = 8_192
 
 
 @dataclass(frozen=True, slots=True)
@@ -119,6 +130,38 @@ class OllamaProvider:
         return InferenceResponse(
             model=model,
             content=content,
+            metrics=_parse_metrics(document),
+        )
+
+    async def generate_with_tools(self, request: ToolInferenceRequest) -> ToolInferenceResponse:
+        """Generate structured tool proposals without authorizing or executing them."""
+
+        self._ensure_open()
+        payload = self._build_tool_chat_payload(request)
+
+        response = await self._request("POST", _CHAT_ENDPOINT, json_payload=payload)
+        document = self._decode_document(response)
+        self._raise_embedded_error(document)
+
+        if document.get("done") is not True:
+            raise InvalidProviderResponseError("Ollama returned an incomplete response")
+
+        model = _require_non_empty_string(document, "model")
+        message = _require_mapping(document, "message")
+
+        if message.get("role") != "assistant":
+            raise InvalidProviderResponseError("Ollama response message has an invalid role")
+
+        content = _require_string(message, "content")
+        calls = _parse_tool_calls(message)
+
+        if not content.strip() and not calls:
+            raise InvalidProviderResponseError("Ollama returned an empty response")
+
+        return ToolInferenceResponse(
+            model=model,
+            content=content,
+            tool_calls=calls,
             metrics=_parse_metrics(document),
         )
 
@@ -211,6 +254,22 @@ class OllamaProvider:
             "options": {"num_ctx": self._settings.ollama_context_length},
         }
 
+    def _build_tool_chat_payload(self, request: ToolInferenceRequest) -> dict[str, object]:
+        if not isinstance(request, ToolInferenceRequest):
+            raise TypeError("request must be a ToolInferenceRequest")
+
+        thinking = self._settings.ollama_thinking if request.thinking is None else request.thinking
+
+        return {
+            "model": request.model,
+            "messages": [_serialize_tool_message(message) for message in request.messages],
+            "tools": [definition.to_provider_schema() for definition in request.tools],
+            "stream": False,
+            "think": thinking,
+            "keep_alive": self._settings.ollama_keep_alive,
+            "options": {"num_ctx": self._settings.ollama_context_length},
+        }
+
     async def _request(
         self,
         method: str,
@@ -297,6 +356,73 @@ def _parse_stream_chunk(document: Mapping[str, object]) -> InferenceChunk:
         done=done,
         metrics=_parse_metrics(document) if done else None,
     )
+
+
+def _serialize_tool_message(message: ToolMessage) -> dict[str, object]:
+    serialized: dict[str, object] = {
+        "role": message.role.value,
+        "content": message.content,
+    }
+
+    if message.role is ToolMessageRole.TOOL:
+        serialized["tool_name"] = message.tool_name
+
+    if message.tool_calls:
+        serialized["tool_calls"] = [
+            {
+                "function": {
+                    "name": call.name,
+                    "arguments": thaw_json(call.arguments),
+                }
+            }
+            for call in message.tool_calls
+        ]
+
+    return serialized
+
+
+def _parse_tool_calls(message: Mapping[str, object]) -> tuple[ToolCall, ...]:
+    raw_calls = message.get("tool_calls", [])
+
+    if not isinstance(raw_calls, list):
+        raise InvalidProviderResponseError("Ollama tool_calls must be an array")
+    if len(raw_calls) > _MAX_TOOL_CALLS:
+        raise InvalidProviderResponseError("Ollama returned too many tool calls")
+
+    calls: list[ToolCall] = []
+
+    for raw_call in raw_calls:
+        if not isinstance(raw_call, dict):
+            raise InvalidProviderResponseError("Ollama tool call must be an object")
+
+        function = _require_mapping(raw_call, "function")
+        name = _require_non_empty_string(function, "name")
+        arguments = function.get("arguments")
+
+        if not isinstance(arguments, dict):
+            raise InvalidProviderResponseError("Ollama tool arguments must be an object")
+
+        try:
+            encoded = json.dumps(
+                arguments,
+                ensure_ascii=False,
+                allow_nan=False,
+                separators=(",", ":"),
+            )
+        except (TypeError, ValueError) as error:
+            raise InvalidProviderResponseError("Ollama tool arguments are invalid") from error
+
+        if len(encoded.encode("utf-8")) > _MAX_TOOL_ARGUMENT_BYTES:
+            raise InvalidProviderResponseError("Ollama tool arguments exceed the size limit")
+
+        try:
+            call = ToolCall(f"tool_call_{uuid4().hex}", name, arguments)
+        except (TypeError, ValueError) as error:
+            raise InvalidProviderResponseError("Ollama tool call is invalid") from error
+
+        calls.append(call)
+
+    return tuple(calls)
 
 
 def _parse_metrics(document: Mapping[str, object]) -> InferenceMetrics | None:
