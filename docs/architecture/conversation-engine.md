@@ -2,10 +2,9 @@
 
 ## Implementation status
 
-Stage 01.3 implements and automatically tests provider-independent, in-memory conversation
-management. The work is present on the `feature/conversation-engine` branch and is not integrated
-into `develop` until maintainer review and merge. Real Ollama inference on Ubuntu remains pending
-and is not validated by the deterministic test suite.
+Stage 01.3 implements, automatically tests, and integrates provider-independent, in-memory
+conversation management. Real Ollama inference on Ubuntu remains pending and is not validated by
+the deterministic test suite.
 
 ## Objective and responsibilities
 
@@ -15,8 +14,9 @@ cooperative asynchronous concurrency per session. It delegates text generation t
 `LLMProvider` and does not know about Ollama, HTTPX, model installations, GPUs, or endpoints.
 
 The engine does not define a personality, execute tools, persist memory, select a model implicitly,
-or own the provider lifecycle. The caller must select a model for every turn and close any
-provider it created.
+or own the provider lifecycle. Stage 01.4 supplies personality through the existing explicit
+system-instruction boundary. The caller must select a model for every turn and close any provider
+it created.
 
 ```text
 Caller
@@ -202,8 +202,9 @@ additional pair only after its final event.
 
 ## Future integration and current limitations
 
-Stage 01.4 may supply an explicit system instruction through the existing session boundary; it must
-not move personality rules into this engine. A future Memory Engine may provide separately approved
-context, but persistent storage, retrieval, summaries, and retention policy are not implemented
-here. Tool calling, orchestration, effort levels, automatic model routing, and real Ubuntu model
-validation also remain separate roadmap work.
+Stage 01.4 supplies an explicit, deterministic personality instruction through the existing session
+boundary without moving personality rules into this engine. The selected instruction is preserved
+between turns and after history clearing, while different sessions remain isolated. A future Memory
+Engine may provide separately approved context, but persistent storage, retrieval, summaries, and
+retention policy are not implemented here. Tool calling, orchestration, effort levels, automatic
+model routing, and real Ubuntu model validation also remain separate roadmap work.

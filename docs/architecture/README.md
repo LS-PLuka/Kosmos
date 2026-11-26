@@ -26,7 +26,7 @@ but only after implemented behavior demonstrates the need. Empty architectural l
 | Module | Responsibility and current status |
 | --- | --- |
 | `core` | Application foundations are implemented; orchestration and lifecycle remain planned |
-| `intelligence` | Text inference models, streaming port, Ollama adapter, and in-memory Conversation Engine are implemented; Stage 01.3 integration and real Ubuntu inference validation remain pending, while reasoning and tool calling are planned |
+| `intelligence` | Text inference models, streaming port, Ollama adapter, in-memory Conversation Engine, and provider-independent Personality Engine are implemented; Stage 01.4 integration and real model validation remain pending, while reasoning and tool calling are planned |
 | `voice` | Activation, capture, recognition, and speech synthesis |
 | `system` | Operating system, applications, files, and processes |
 | `developer` | Development agents, projects, sessions, and tasks |
@@ -66,7 +66,11 @@ Tests and future integrations can substitute implementations without changing th
 - [Core Foundation](core-foundation.md): implemented Stage 01.1 behavior
 - [Ollama Provider](ollama-provider.md): implemented Stage 01.2 adapter and pending real validation
 - [Conversation Engine](conversation-engine.md): implemented Stage 01.3 in-memory conversation
-  management pending maintainer integration
+  management
+- [Personality Specification](PERSONALITY-SPECIFICATION.md): official Kosmos behavioral and
+  future voice identity
+- [Personality Engine](personality-engine.md): implemented Stage 01.4 personality representation
+  pending maintainer integration and real behavioral validation
 - [Intelligence Architecture](INTELLIGENCE-ARCHITECTURE.md): planned hybrid intelligence,
   providers, effort levels, and web research
 - [Security and Privacy Principles](SECURITY-AND-PRIVACY.md): trust and authorization constraints

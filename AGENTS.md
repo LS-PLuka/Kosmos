@@ -10,8 +10,9 @@ then this guide. Do not advance to another roadmap stage unless the user explici
 
 Kosmos is a source-available, local-first personal AI assistant. Stage 00 is complete and Stage 01
 is in development. Stage 01.1 is complete, the Stage 01.2 adapter is implemented with real Ubuntu
-inference validation pending, and Stage 01.3 is implemented on its feature branch pending
-maintainer integration. Do not claim that later roadmap capabilities are available.
+inference validation pending, Stage 01.3 is integrated, and Stage 01.4 is implemented on its
+feature branch pending maintainer integration and real behavioral validation. Do not claim that
+later roadmap capabilities are available.
 
 ## Engineering principles
 
@@ -110,6 +111,12 @@ transitive or model terms before adding one, record incorporated components in
 `THIRD_PARTY_NOTICES.md`, and regenerate the lockfile. Do not install AI models, Ollama, or planned
 runtime technologies without explicit authorization. Give PySide6/Qt, AI and speech models, fonts,
 graphics, and proprietary services an explicit licensing review.
+
+Kosmos runtime technologies must be free to use: prioritize local and offline operation, and do
+not require paid APIs, subscriptions, credits, per-request charges, or silent paid fallbacks.
+External free services still require concrete need, approval, transparency, and licensing review;
+never assume that a free tier is unlimited or permanent. Local hardware, electricity, and
+infrastructure costs are separate from service usage charges.
 
 Kosmos is licensed under `PolyForm-Noncommercial-1.0.0` and must be described as source-available,
 not OSI open source. Do not replace or modify the license. Software licensing, asset copyright, and

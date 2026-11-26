@@ -38,6 +38,18 @@ provider call. Clearing or deleting a session removes managed references but doe
 physical memory erasure. The engine is not a complete retention, secure-erasure, or multi-process
 isolation system.
 
+## Personality instruction boundary
+
+The Stage 01.4 Personality Engine builds instructions only from validated structured configuration.
+It does not accept conversation messages, retrieved content, tool results, or other untrusted text
+as system instructions. It performs no persistence, logging, network access, tool execution,
+authorization, or command execution.
+
+Behavioral instructions are guidance to a language model, not an enforcement boundary. They do
+not establish prompt-injection resistance or guarantee that a small model will comply. Kosmos
+must continue to validate and authorize operations in deterministic software and may claim an
+action or result only when reliable evidence is available.
+
 ## Local Ollama boundary
 
 The Stage 01.2 adapter accepts only HTTP(S) loopback endpoints without credentials, queries,

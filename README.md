@@ -24,10 +24,12 @@ requirements.
 **Stage 00 — Project Foundation is complete. Stage 01 — Core Engine is in development.** The
 repository includes the Stage 01.1 foundations and the Stage 01.2 Ollama HTTP adapter for complete
 and streaming text inference. The adapter is automatically tested, but real inference on the
-target Ubuntu host remains pending. The Stage 01.3 feature branch also includes automatically
-tested, in-memory conversation sessions and context continuity; maintainer integration into
-`develop` remains pending. Kosmos is not yet an operational AI assistant and does not provide
-personality, voice, system control, persistent memory, automation, or a desktop application.
+target Ubuntu host remains pending. Stage 01.3 provides automatically tested, in-memory
+conversation sessions and context continuity and is integrated into `develop`.
+Stage 01.4 provides a provider-independent Personality Engine on its feature branch, pending
+maintainer integration and real model validation. Kosmos is not yet an operational AI assistant
+and does not provide voice, system control, persistent memory, automation, or a desktop
+application.
 
 Capabilities explicitly described below as planned belong to the roadmap and must not be
 interpreted as implemented.
@@ -77,7 +79,8 @@ The intelligence design is hybrid and local-first: a local model interprets inte
 workflows, while deterministic software validates, authorizes, and executes operations. The
 Ollama HTTP adapter is implemented with Qwen 3.5 4B as the initial external runtime model; real
 inference validation on the target Ubuntu host remains pending. Remote providers and specialized
-agents remain optional.
+agents remain optional. Conversational sessions can receive deterministic Kosmos personality
+instructions without coupling identity or behavior to a provider or model.
 
 The planned top-level domains are documented in
 [the architecture overview](docs/architecture/README.md), with details in the
@@ -98,16 +101,18 @@ Currently configured:
 Ollama and Qwen 3.5 4B are external local-inference requirements and are not incorporated into the
 repository. Other planned technologies, subject to their applicable evaluation and licensing
 review, include Pydantic, SQLite, openWakeWord, Silero VAD, faster-whisper, SoundDevice, Kokoro or
-Piper, psutil, Docker SDK, Codex and Claude Code integrations, PySide6, Qt Quick/QML, SearXNG,
+Piper with the provisional Razo Brazilian Portuguese voice candidate, psutil, Docker SDK, Codex
+and Claude Code integrations, PySide6, Qt Quick/QML, SearXNG,
 Trafilatura, Beautiful Soup, Playwright, and the Google Gemini API.
 
 ## Roadmap
 
 Stage 00 and Stage 01.1 — Core Foundation are complete. The Stage 01.2 — Ollama Provider adapter is
 implemented and automatically tested; real Ubuntu inference validation remains pending.
-Stage 01.3 — Conversation Engine is implemented and automatically tested on its feature branch,
-with maintainer integration pending. Personality, tool calling, orchestration, effort levels, the
-development CLI, and model validation follow as separate Stage 01 substages. Later stages cover
+Stage 01.3 — Conversation Engine is integrated. Stage 01.4 — Personality Engine is implemented and
+automatically tested on its feature branch, with maintainer integration and real behavioral
+validation pending. Tool calling, orchestration, effort levels, the development CLI, and model
+validation follow as separate Stage 01 substages. Later stages cover
 voice, authorized system control, developer agents, memory, proactive intelligence, desktop,
 web/external integrations, multimodal intelligence, and cross-platform ecosystem expansion.
 
