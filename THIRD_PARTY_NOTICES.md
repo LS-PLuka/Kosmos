@@ -1,10 +1,33 @@
 # Third-Party Notices
 
 This file records third-party components incorporated into or required to develop the current
-repository. Planned technologies are not current dependencies and are not listed as incorporated.
-This includes Ollama, Qwen model weights, external intelligence providers, and planned web, voice,
-and desktop technologies. Their upstream terms require review at the stage where they are actually
-incorporated or distributed.
+repository. External runtime software and model weights are listed separately and are not
+incorporated into Kosmos. Planned external intelligence providers and web, voice, and desktop
+technologies remain excluded until their corresponding implementation and licensing review.
+
+## Python runtime dependencies
+
+| Component | Resolved version | Purpose | License |
+| --- | --- | --- | --- |
+| HTTPX | 0.28.1 | Asynchronous Ollama HTTP client | BSD-3-Clause |
+| HTTPCore | 1.0.9 | HTTPX transport layer | BSD-3-Clause |
+| AnyIO | 4.16.0 | HTTPX asynchronous compatibility layer | MIT |
+| Certifi | 2026.11.20 | TLS certificate authority bundle | MPL-2.0 |
+| h11 | 0.16.0 | HTTP/1.1 protocol implementation | MIT |
+| idna | 3.20 | Internationalized domain name handling | BSD-3-Clause |
+| typing-extensions | 4.16.0 | Compatibility typing primitives | PSF-2.0 |
+
+HTTPX is constrained to `>=0.28,<0.29` and supports Python 3.12. Versions above are the exact
+resolution currently recorded in `uv.lock`. License expressions were checked against installed
+package metadata and upstream project metadata on November 26, 2026.
+
+## External local-inference requirements
+
+Ollama 0.40.18 and Qwen 3.5 4B Q4_K_M are target-host runtime requirements. Neither the Ollama
+binary nor model weights are distributed, downloaded, or installed by this repository. Ollama is
+upstream MIT-licensed software. The exact license and acceptable-use terms for the selected Qwen
+artifact must be verified by the maintainer before any redistribution; upstream presentation as
+Apache-2.0 does not replace artifact-specific verification.
 
 ## Python development tooling
 

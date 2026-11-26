@@ -7,6 +7,7 @@ from tests.fakes.llm_provider import FakeLLMProvider
 
 from kosmos.core.exceptions import InferenceError
 from kosmos.intelligence.models import (
+    InferenceChunk,
     InferenceRequest,
     InferenceResponse,
     Message,
@@ -23,6 +24,10 @@ async def _generate(provider: LLMProvider, request: InferenceRequest) -> Inferen
     return await provider.generate(request)
 
 
+async def _stream(provider: LLMProvider, request: InferenceRequest) -> list[InferenceChunk]:
+    return [chunk async for chunk in provider.stream(request)]
+
+
 def test_uses_contract_with_a_deterministic_fake() -> None:
     request = _request()
     response = InferenceResponse("test-model", "Configured answer")
@@ -31,6 +36,20 @@ def test_uses_contract_with_a_deterministic_fake() -> None:
     result = asyncio.run(_generate(provider, request))
 
     assert result is response
+    assert provider.requests == [request]
+
+
+def test_uses_streaming_contract_with_a_deterministic_fake() -> None:
+    request = _request()
+    chunks = (
+        InferenceChunk("test-model", "Configured "),
+        InferenceChunk("test-model", "answer", done=True),
+    )
+    provider = FakeLLMProvider(chunks=chunks)
+
+    result = asyncio.run(_stream(provider, request))
+
+    assert result == list(chunks)
     assert provider.requests == [request]
 
 
