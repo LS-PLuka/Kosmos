@@ -11,9 +11,9 @@ then this guide. Do not advance to another roadmap stage unless the user explici
 Kosmos is a source-available, local-first personal AI assistant. Stage 00 is complete and Stage 01
 is in development. Stage 01.1 is complete, the Stage 01.2 adapter is implemented with real Ubuntu
 inference validation pending, Stage 01.3 and Stage 01.4 are integrated, and Stage 01.4 real
-behavioral validation remains pending. Stage 01.5 is integrated, with real Qwen validation
-pending. Stage 01.6 is implemented on its feature branch pending maintainer integration and real
-Qwen validation. Do not claim that later roadmap capabilities are available.
+behavioral validation remains pending. Stage 01.5 and Stage 01.6 are integrated, with real Qwen
+validation pending. Stage 01.7 is in development. Do not claim that later roadmap capabilities are
+available.
 
 ## Engineering principles
 

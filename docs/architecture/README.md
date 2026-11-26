@@ -25,7 +25,7 @@ but only after implemented behavior demonstrates the need. Empty architectural l
 
 | Module | Responsibility and current status |
 | --- | --- |
-| `core` | Foundations and Stage 01.6 bounded orchestration are implemented on the feature branch; maintainer integration remains pending |
+| `core` | Foundations and Stage 01.6 bounded orchestration are integrated |
 | `intelligence` | Text inference, Ollama, conversation, personality, and Stage 01.5 tool calling are integrated; real model behavior remains pending |
 | `voice` | Activation, capture, recognition, and speech synthesis |
 | `system` | Operating system, applications, files, and processes |
@@ -74,6 +74,7 @@ Tests and future integrations can substitute implementations without changing th
 - [Tool Calling and Tool Registry](tool-calling.md): Stage 01.5 contracts, validation,
   authorization, execution, pure tools, and native Ollama integration
 - [Core Orchestration](core-orchestration.md): Stage 01.6 coordination, limits, context, and metrics
+- [Development CLI](../development/development-cli.md): Stage 01.7 terminal composition and usage
 - [Effort Levels](effort-levels.md): supported and reserved Kosmos effort policies
 - [Intelligence Architecture](INTELLIGENCE-ARCHITECTURE.md): hybrid intelligence, providers,
   effort levels, and planned web research

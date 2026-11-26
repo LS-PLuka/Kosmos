@@ -29,10 +29,10 @@ conversation sessions and context continuity and is integrated into `develop`.
 Stage 01.4 provides an integrated provider-independent Personality Engine, with real behavioral
 validation pending. Stage 01.5 integrates provider-independent tool contracts, deterministic
 validation and authorization, two pure tools, and native non-streaming Ollama tool calling.
-Stage 01.6 implements bounded core orchestration and effort policies on its feature branch;
-maintainer integration and real Qwen validation remain pending. Kosmos is not yet an operational AI assistant
-and does not provide voice, system control, persistent memory, automation, or a desktop
-application.
+Stage 01.6 integrates bounded core orchestration and effort policies. Stage 01.7 provides an
+automatically tested development CLI for later real Ubuntu and Qwen validation. Real model
+validation remains pending. Kosmos does not provide voice, system control, persistent memory,
+automation, or a desktop application.
 
 Capabilities explicitly described below as planned belong to the roadmap and must not be
 interpreted as implemented.
@@ -114,9 +114,8 @@ Stage 00 and Stage 01.1 — Core Foundation are complete. The Stage 01.2 — Oll
 implemented and automatically tested; real Ubuntu inference validation remains pending.
 Stage 01.3 — Conversation Engine, Stage 01.4 — Personality Engine, and Stage 01.5 — Tool Calling &
 Tool Registry are integrated, with real personality and Qwen validation pending. Stage 01.6 — Core
-Orchestration & Effort Levels is implemented and automatically tested on its feature branch;
-maintainer integration remains pending. The development CLI and model validation follow as
-separate Stage 01 substages. Later stages cover
+Orchestration & Effort Levels is integrated and automatically tested. Stage 01.7 adds the
+development CLI; real model validation follows as the separate Stage 01.8 substage. Later stages cover
 voice, authorized system control, developer agents, memory, proactive intelligence, desktop,
 web/external integrations, multimodal intelligence, and cross-platform ecosystem expansion.
 
@@ -132,7 +131,15 @@ uv sync --frozen --dev
 uv run python -c "import kosmos; print(kosmos.__version__)"
 ```
 
-No application entry point or real model validation is provided by the current stages.
+Run the development CLI after configuring a local Ollama installation and model:
+
+```bash
+uv run kosmos --help
+uv run kosmos --list-models
+uv run kosmos
+```
+
+Real Qwen validation on the target Ubuntu host remains pending.
 
 ## Development
 
