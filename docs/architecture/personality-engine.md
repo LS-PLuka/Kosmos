@@ -15,6 +15,7 @@ The official direction is defined in
 The package `kosmos.intelligence.personality`:
 
 - exposes the immutable `AssistantIdentity` and `KOSMOS_IDENTITY`;
+- exposes immutable institutional facts without duplicating the official identity;
 - validates immutable `PersonalityProfile` values;
 - translates qualitative trait ranges into distinct instructions;
 - preserves `PERMANENT_PRINCIPLES` for every profile; and
@@ -31,21 +32,25 @@ src/kosmos/intelligence/personality/
 ├── __init__.py
 ├── engine.py
 ├── identity.py
+├── knowledge.py
 ├── models.py
 └── principles.py
 ```
 
-`identity.py` owns the official identity, `models.py` owns validated configuration,
-`principles.py` owns permanent and contextual guidance, and `engine.py` owns deterministic trait
-translation and assembly. No additional interface, factory, repository, or service layer is
-needed.
+`identity.py` owns the official identity, `knowledge.py` references that identity and owns trusted
+institutional facts, `models.py` owns validated configuration, `principles.py` owns permanent and
+contextual guidance, and `engine.py` owns deterministic trait translation and assembly. No
+additional interface, factory, repository, or service layer is needed.
 
 ## Public contracts
 
 ```python
 from kosmos.intelligence.personality import (
     AssistantIdentity,
+    CapabilityFact,
+    InstitutionalKnowledge,
     KOSMOS_IDENTITY,
+    KOSMOS_INSTITUTIONAL_KNOWLEDGE,
     PERMANENT_PRINCIPLES,
     PersonalityEngine,
     PersonalityProfile,
@@ -106,15 +111,17 @@ The builder emits six stable sections:
 Equal profiles produce equal strings. The builder uses no random values, timestamps, provider
 state, external templates, or caller-provided instruction fragments.
 
-The previous default instruction contained **1,990 characters**. The R1 instruction contains
-**1,982 characters**, a reduction of 8 characters (about 0.40%). The largest behavioral changes
+The previous default instruction contained **1,990 characters**. The unchanged R1 personality
+component contains **1,982 characters**, a reduction of 8 characters (about 0.40%). The largest
+behavioral changes
 are selective proactivity, concise-by-default detail, natural language, rare low-risk dry irony,
 contextual handling of shared information, and explicit prohibition of unsupported operational
 claims. These changes reuse the existing budget instead of increasing it.
 
-`ContextPolicy` still provides a 6,000-character default budget. The R1 instruction leaves 4,018
-characters for the current message and eligible history. Character counts are deterministic
-engineering measures, not exact token counts.
+The R2 institutional component contains **611 characters**. The newline-composed system instruction
+contains **2,594 characters**, 612 more than R1 alone, and leaves **3,406 characters** of the
+6,000-character `ContextPolicy` budget for the current message and eligible history. Character
+counts are deterministic engineering measures, not exact token counts.
 
 ## Conversation integration
 
@@ -125,12 +132,14 @@ boundary. Neither `ConversationEngine`, `ContextPolicy`, nor `LLMProvider` chang
 from kosmos.intelligence.conversation import ConversationEngine
 from kosmos.intelligence.personality import PersonalityEngine
 
-instruction = PersonalityEngine().build_system_instruction()
+personality = PersonalityEngine().build_system_instruction()
+knowledge = KOSMOS_INSTITUTIONAL_KNOWLEDGE.build_instruction()
+instruction = "\n".join((personality, knowledge))
 conversation = ConversationEngine(provider)
 session = conversation.create_session(system_instruction=instruction)
 ```
 
-The system instruction remains first in complete, streaming, and tool-calling requests. It is
+The composed system instruction remains first in complete, streaming, and tool-calling requests. It is
 stored separately from confirmed history, survives `clear_session()`, and remains isolated between
 sessions. Building it performs no inference, so a user turn still produces only the inference calls
 defined by the existing conversation and orchestration flows.

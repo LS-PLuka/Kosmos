@@ -38,7 +38,7 @@ from kosmos.intelligence.models import (
     InferenceResponse,
     Message,
 )
-from kosmos.intelligence.personality import PersonalityEngine
+from kosmos.intelligence.personality import KOSMOS_INSTITUTIONAL_KNOWLEDGE, PersonalityEngine
 from kosmos.intelligence.providers.base import LLMProvider, ToolCallingProvider
 from kosmos.intelligence.tools import (
     ToolAuthorization,
@@ -132,9 +132,11 @@ class CoreOrchestrator:
         resolve_effort_policy(default_effort, self._policies)
 
     def create_session(self) -> ConversationSession:
-        """Create a session with one deterministic personality instruction."""
+        """Create a session with deterministic behavioral and institutional instructions."""
 
-        instruction = self._personality.build_system_instruction()
+        personality = self._personality.build_system_instruction()
+        knowledge = KOSMOS_INSTITUTIONAL_KNOWLEDGE.build_instruction()
+        instruction = "\n".join((personality, knowledge))
         return self._conversation.create_session(system_instruction=instruction)
 
     def get_session(self, session_id: UUID) -> ConversationSession:

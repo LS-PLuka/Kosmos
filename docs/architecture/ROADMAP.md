@@ -24,6 +24,13 @@ Complete.
 - **01.8 — Model Benchmark & Validation:** benchmark infrastructure implemented and automatically
   tested; real model and offline validation on the target Ubuntu host remain pending
 
+Core runtime refinement status:
+
+- **R1 — Personality & Communication:** implemented; renewed real behavioral validation pending
+- **R2 — Institutional Knowledge:** implemented in the current refinement branch; renewed real
+  behavioral validation pending
+- **R3–R6:** planned separate refinements; not implemented by R2
+
 ## Stage 02 — Voice Engine
 
 Planned voice activation, capture, recognition, and synthesis. Candidate technologies are

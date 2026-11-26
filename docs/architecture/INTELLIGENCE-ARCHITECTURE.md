@@ -10,8 +10,9 @@ personality behavior validation remains pending. Stage 01.5 tool-calling foundat
 integrated, with real Qwen behavior validation pending. Stage 01.6 core orchestration and effort
 policies are integrated and automatically tested. Stage 01.7 provides the development CLI. Stage
 01.8 provides benchmark infrastructure and a maintainer-run Ubuntu validation procedure; real Qwen
-behavior, performance, and offline validation remain pending. External agents and web intelligence
-still require separate roadmap stages.
+behavior, performance, and offline validation remain pending. R2 adds deterministic institutional
+knowledge to the session instruction without changing these operational capabilities. External
+agents and web intelligence still require separate roadmap stages.
 
 ## Hybrid local-first orchestration
 
@@ -84,6 +85,20 @@ Personality instructions influence model behavior but do not grant authority or 
 boundary. They cannot replace deterministic validation, authorization, execution policy, or
 evidence of completed work. Real response quality and instruction adherence remain pending for
 real Stage 01.8 validation.
+
+## Institutional knowledge boundary
+
+R2 adds one frozen, provider-independent source for approved project facts: official identity,
+developer and name origin, architectural principles, implemented capability categories, and future
+roadmap categories. `CoreOrchestrator.create_session()` composes its compact instruction after the
+R1 personality instruction. The same stored system instruction reaches complete generation,
+streaming, and structured tool requests and survives `clear_session()`.
+
+Institutional knowledge is not memory, retrieval, authentication, authorization, or evidence that
+a capability is available or an action was executed. A name supplied in conversation remains
+temporary unverified context and never identifies the user as the developer. Runtime policy,
+selected tools, authorization, provider capability, and configuration remain authoritative. See
+[Institutional Knowledge](institutional-knowledge.md).
 
 ## Effort levels
 

@@ -11,10 +11,10 @@ then this guide. Do not advance to another roadmap stage unless the user explici
 Kosmos is a source-available, local-first personal AI assistant. Stage 00 is complete and the
 Stage 01 Core Engine is integrated. The first real Ubuntu validation covered local inference,
 conversation, tools, effort levels, and the quick benchmark, but exposed personality, context, and
-tool-selection issues. R1 refines personality and communication; renewed real Qwen behavioral
-validation on Ubuntu remains pending. R2 through R6 are separate refinement stages and must not be
-treated as implemented without explicit scope. Do not claim that Stage 01 is definitively validated
-or that later roadmap capabilities are available.
+tool-selection issues. R1 refines personality and communication, and R2 adds trusted institutional
+knowledge; renewed real Qwen behavioral validation on Ubuntu remains pending. R3 through R6 are
+separate refinement stages and must not be treated as implemented without explicit scope. Do not
+claim that Stage 01 is definitively validated or that later roadmap capabilities are available.
 
 ## Engineering principles
 

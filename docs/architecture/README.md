@@ -26,7 +26,7 @@ but only after implemented behavior demonstrates the need. Empty architectural l
 | Module | Responsibility and current status |
 | --- | --- |
 | `core` | Foundations and Stage 01.6 bounded orchestration are integrated |
-| `intelligence` | Text inference, Ollama, conversation, personality, and Stage 01.5 tool calling are integrated; real model behavior remains pending |
+| `intelligence` | Text inference, Ollama, conversation, personality, institutional knowledge, and Stage 01.5 tool calling are integrated; real model behavior remains pending |
 | `benchmarking` | Stage 01.8 scenario, evaluation, runner, and reporting infrastructure is implemented; real validation remains pending |
 | `voice` | Activation, capture, recognition, and speech synthesis |
 | `system` | Operating system, applications, files, and processes |
@@ -72,6 +72,8 @@ Tests and future integrations can substitute implementations without changing th
   future voice identity
 - [Personality Engine](personality-engine.md): implemented Stage 01.4 personality representation
   pending real behavioral validation
+- [Institutional Knowledge](institutional-knowledge.md): trusted product facts, capability states,
+  roadmap boundary, and system-instruction composition
 - [Tool Calling and Tool Registry](tool-calling.md): Stage 01.5 contracts, validation,
   authorization, execution, pure tools, and native Ollama integration
 - [Core Orchestration](core-orchestration.md): Stage 01.6 coordination, limits, context, and metrics

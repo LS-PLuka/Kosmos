@@ -24,6 +24,11 @@ from kosmos.intelligence.models import (
     InferenceResponse,
     MessageRole,
 )
+from kosmos.intelligence.personality import (
+    KOSMOS_INSTITUTIONAL_KNOWLEDGE,
+    PersonalityEngine,
+    PersonalityProfile,
+)
 from kosmos.intelligence.tools import (
     ToolAuthorization,
     ToolCall,
@@ -70,6 +75,9 @@ def test_default_low_direct_response_uses_text_inference_and_commits_turn() -> N
     assert result.content == "Olá, senhor."
     assert result.metrics.inferences_started == 1
     assert provider.text_requests[0].thinking is False
+    assert KOSMOS_INSTITUTIONAL_KNOWLEDGE.build_instruction() in (
+        provider.text_requests[0].messages[0].content
+    )
     assert [message.role for message in confirmed.messages] == [
         MessageRole.USER,
         MessageRole.ASSISTANT,
@@ -111,6 +119,9 @@ def test_calculate_flow_executes_and_continues_with_structured_result() -> None:
     assert result.metrics.handlers_invoked == 1
     assert result.metrics.tools_succeeded == 1
     assert provider.tool_requests[0].tools[0].name == "calculate"
+    assert KOSMOS_INSTITUTIONAL_KNOWLEDGE.build_instruction() in (
+        provider.tool_requests[0].messages[0].content
+    )
     continuation = provider.tool_requests[1].messages
     assert continuation[-2].tool_calls == (call,)
     assert '"result":4000' in continuation[-1].content
@@ -317,7 +328,84 @@ def test_stream_preserves_chunks_and_commits_only_on_completion() -> None:
     chunks = asyncio.run(consume())
 
     assert chunks == ["Olá, ", "senhor."]
+    assert KOSMOS_INSTITUTIONAL_KNOWLEDGE.build_instruction() in (
+        provider.text_requests[0].messages[0].content
+    )
     assert orchestrator.get_session(session.session_id).messages[-1].content == "Olá, senhor."
+
+
+def test_institutional_instruction_survives_clear_without_personal_user_memory() -> None:
+    provider = ScriptedProvider(
+        text_responses=[
+            InferenceResponse("test-model", "first"),
+            InferenceResponse("test-model", "second"),
+        ]
+    )
+    orchestrator = CoreOrchestrator(provider)
+    session = orchestrator.create_session()
+
+    asyncio.run(orchestrator.generate(session.session_id, "Meu nome é Pedro", model="test-model"))
+    cleared = orchestrator.clear_session(session.session_id)
+    asyncio.run(orchestrator.generate(session.session_id, "Quem criou você?", model="test-model"))
+
+    knowledge = KOSMOS_INSTITUTIONAL_KNOWLEDGE.build_instruction()
+    assert cleared.messages == ()
+    assert knowledge in cleared.system_instruction
+    assert provider.text_requests[1].messages[0].content == cleared.system_instruction
+    second_request = provider.text_requests[1]
+    assert all("Meu nome é Pedro" not in message.content for message in second_request.messages)
+
+
+@pytest.mark.parametrize(
+    "effort",
+    [EffortLevel.INSTANT, EffortLevel.LOW, EffortLevel.MEDIUM, EffortLevel.HIGH],
+)
+def test_institutional_instruction_is_available_at_every_supported_effort(
+    effort: EffortLevel,
+) -> None:
+    provider = ScriptedProvider(text_responses=[InferenceResponse("test-model", "done")])
+    orchestrator = CoreOrchestrator(provider)
+    session = orchestrator.create_session()
+
+    result = asyncio.run(
+        orchestrator.generate(session.session_id, "request", model="test-model", effort=effort)
+    )
+
+    assert result.status is OrchestrationStatus.COMPLETED
+    assert KOSMOS_INSTITUTIONAL_KNOWLEDGE.build_instruction() in (
+        provider.text_requests[0].messages[0].content
+    )
+
+
+def test_custom_personalities_keep_shared_knowledge_and_session_isolation() -> None:
+    provider = ScriptedProvider(
+        text_responses=[
+            InferenceResponse("test-model", "formal"),
+            InferenceResponse("test-model", "relaxed"),
+        ]
+    )
+    formal = CoreOrchestrator(
+        provider,
+        personality=PersonalityEngine(PersonalityProfile(formality=100)),
+    )
+    relaxed = CoreOrchestrator(
+        provider,
+        personality=PersonalityEngine(PersonalityProfile(formality=0)),
+    )
+    formal_session = formal.create_session()
+    relaxed_session = relaxed.create_session()
+
+    asyncio.run(formal.generate(formal_session.session_id, "one", model="test-model"))
+    asyncio.run(relaxed.generate(relaxed_session.session_id, "two", model="test-model"))
+
+    knowledge = KOSMOS_INSTITUTIONAL_KNOWLEDGE.build_instruction()
+    formal_instruction = provider.text_requests[0].messages[0].content
+    relaxed_instruction = provider.text_requests[1].messages[0].content
+    assert formal_instruction != relaxed_instruction
+    assert knowledge in formal_instruction
+    assert knowledge in relaxed_instruction
+    assert formal.get_session(formal_session.session_id).messages[0].content == "one"
+    assert relaxed.get_session(relaxed_session.session_id).messages[0].content == "two"
 
 
 def test_stream_rejects_integrated_context_before_provider_inference() -> None:
