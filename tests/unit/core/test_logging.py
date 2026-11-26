@@ -4,6 +4,7 @@ import importlib
 import io
 import logging
 import re
+from collections.abc import Iterator
 
 import pytest
 
@@ -11,12 +12,14 @@ import kosmos.core.logging as kosmos_logging
 
 
 @pytest.fixture(autouse=True)
-def restore_kosmos_logger() -> None:
+def restore_kosmos_logger() -> Iterator[None]:
     logger = logging.getLogger(kosmos_logging.LOGGER_NAME)
     original_handlers = logger.handlers[:]
     original_level = logger.level
     original_propagate = logger.propagate
+
     yield
+
     logger.handlers = original_handlers
     logger.setLevel(original_level)
     logger.propagate = original_propagate
@@ -65,6 +68,7 @@ def test_preserves_external_handlers_and_root_configuration() -> None:
     logger = logging.getLogger(kosmos_logging.LOGGER_NAME)
     external_handler = logging.NullHandler()
     logger.addHandler(external_handler)
+
     root = logging.getLogger()
     root_handlers = root.handlers[:]
     root_level = root.level
@@ -79,6 +83,7 @@ def test_preserves_external_handlers_and_root_configuration() -> None:
 def test_import_has_no_logging_side_effects() -> None:
     logger = logging.getLogger(kosmos_logging.LOGGER_NAME)
     logger.handlers.clear()
+
     root = logging.getLogger()
     root_handlers = root.handlers[:]
     root_level = root.level

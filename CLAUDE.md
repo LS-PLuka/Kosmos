@@ -6,6 +6,8 @@ Claude Code must also:
 
 - inspect the repository and relevant files before proposing edits;
 - review structure and readability in addition to running automated formatters and tests;
+- follow the `AGENTS.md` code-paragraph standard by using intentional blank lines between distinct
+  validation, initialization, transformation, conditional, and return stages;
 - preserve the documented domain boundaries, provider independence, and modular-monolith
   dependency direction;
 - keep local processing primary and require explicit authorization for external data transfer;

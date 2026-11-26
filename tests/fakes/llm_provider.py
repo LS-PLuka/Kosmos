@@ -16,13 +16,17 @@ class FakeLLMProvider:
     def __post_init__(self) -> None:
         if self.response is None and self.error is None:
             raise ValueError("a fake response or error must be configured")
+
         if self.response is not None and self.error is not None:
             raise ValueError("configure either a fake response or an error, not both")
 
     async def generate(self, request: InferenceRequest) -> InferenceResponse:
         self.requests.append(request)
+
         if self.error is not None:
             raise self.error
+
         if self.response is None:  # Guarded by __post_init__; retained for type narrowing.
             raise AssertionError("fake provider has no configured response")
+
         return self.response

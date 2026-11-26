@@ -63,6 +63,10 @@ internationalization.
 - Optimize for readability beyond formatter compliance. Use clear English names, cohesive
   functions, predictable control flow, useful type hints, and visual separation between logical
   blocks. Prefer guard clauses when they reduce nesting; do not fragment code artificially.
+- Treat each logical block as a paragraph of code. Use one intentional blank line to separate
+  independent validations, initialization from transformation, distinct processing stages,
+  unrelated conditional blocks, and completed work from the final return. Keep statements that
+  form one operation together, and avoid both compressed code and excessive vertical whitespace.
 - Review every change structurally for responsibility, complexity, duplication, coupling,
   exception handling, and maintainability. Automated checks complement this review; they do not
   replace it.
