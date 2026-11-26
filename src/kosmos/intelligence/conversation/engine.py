@@ -1,7 +1,7 @@
 """In-memory conversation orchestration over the provider-independent inference port."""
 
 import asyncio
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Awaitable, Callable
 from dataclasses import dataclass, field
 from uuid import UUID, uuid4
 
@@ -220,6 +220,36 @@ class ConversationEngine:
             )
 
             return response
+        finally:
+            session.is_busy = False
+
+    async def run_turn(
+        self,
+        session_id: UUID,
+        content: str,
+        operation: Callable[[tuple[Message, ...]], Awaitable[str]],
+    ) -> str:
+        """Reserve one turn while a caller coordinates work and atomically commit its result."""
+
+        if not callable(operation):
+            raise TypeError("operation must be callable")
+
+        session = self._get_managed_session(session_id)
+        user_message = Message(MessageRole.USER, content)
+        self._require_available(session)
+        session.is_busy = True
+
+        try:
+            messages = self._context_policy.select(
+                system_instruction=session.system_instruction,
+                history=session.messages,
+                current_message=user_message,
+            )
+            response_content = await operation(messages)
+            assistant_message = Message(MessageRole.ASSISTANT, response_content)
+            session.messages.extend((user_message, assistant_message))
+
+            return response_content
         finally:
             session.is_busy = False
 
