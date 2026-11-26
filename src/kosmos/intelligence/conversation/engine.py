@@ -260,6 +260,7 @@ class ConversationEngine:
         *,
         model: str,
         thinking: bool | None = None,
+        request_validator: Callable[[tuple[Message, ...]], None] | None = None,
     ) -> ConversationStream:
         """Reserve a session and return an incrementally consumed inference stream."""
 
@@ -271,6 +272,9 @@ class ConversationEngine:
         )
 
         try:
+            if request_validator is not None:
+                request_validator(request.messages)
+
             upstream = self._provider.stream(request)
         except Exception:
             session.is_busy = False

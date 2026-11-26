@@ -24,12 +24,14 @@ from kosmos.cli.rendering import (
     render_metrics,
     render_result_error,
     render_stream_metrics,
+    render_tool_results,
     render_tools,
     sanitize_terminal_text,
 )
 from kosmos.core.config import DEFAULT_OLLAMA_MODEL, ApplicationSettings, load_settings
 from kosmos.core.exceptions import (
     ConfigurationError,
+    ContextLimitExceededError,
     InferenceError,
     InvalidProviderResponseError,
     ProviderHTTPError,
@@ -252,6 +254,12 @@ async def _conversation_loop(
             _write_line(error_output, f"Error: Ollama returned HTTP status {error.status_code}.")
         except InvalidProviderResponseError:
             _write_line(error_output, "Error: Ollama returned an invalid response.")
+        except ContextLimitExceededError:
+            _write_line(
+                error_output,
+                "Error: The request exceeds the configured context budget. "
+                "Try a shorter message or clear the conversation.",
+            )
         except InferenceError:
             _write_line(error_output, "Error: Ollama could not complete the inference.")
         except ToolCapabilityUnavailableError:
@@ -281,6 +289,10 @@ async def _run_turn(
         authorization=authorization,
         selected_tools=selected_tools,
     )
+    if result.tool_results:
+        _write_line(output, render_tool_results(result.tool_results))
+        _write_line(output, "")
+
     if result.status is OrchestrationStatus.COMPLETED:
         _write_line(output, f"Kosmos: {sanitize_terminal_text(result.content or '')}")
     else:

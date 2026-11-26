@@ -276,9 +276,26 @@ def test_calculate_is_explicitly_authorized_and_executed() -> None:
     code, output, _ = _run(provider, _arguments(), "calculate", "/exit")
 
     assert code == 0
+    assert "[calculate: success]\nResult: 4000" in output
     assert "Kosmos: The result is 4000." in output
     assert tuple(tool.name for tool in provider.tool_requests[0].tools) == APPROVED_TOOLS
     assert '"result":4000' in provider.tool_requests[1].messages[-1].content
+
+
+def test_streaming_context_limit_returns_to_interaction_without_inference() -> None:
+    provider = FakeRuntimeProvider(models=(_model(),))
+
+    code, output, error = _run(
+        provider,
+        _arguments("--effort", "instant"),
+        "x" * 12_000,
+        "/exit",
+    )
+
+    assert code == 0
+    assert "exceeds the configured context budget" in error
+    assert "Kosmos stopped." in output
+    assert provider.text_requests == []
 
 
 def test_count_items_is_explicitly_authorized_and_executed() -> None:
