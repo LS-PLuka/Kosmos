@@ -6,7 +6,7 @@ from dataclasses import dataclass
 
 from kosmos.benchmarking.models import BenchmarkScenario, BenchmarkStatus, EvaluationStrategy
 from kosmos.core.orchestration import OrchestrationStatus
-from kosmos.intelligence.tools import ToolResult, ToolResultStatus
+from kosmos.intelligence.tools import ToolCall, ToolResult, ToolResultStatus
 
 
 @dataclass(frozen=True, slots=True)
@@ -24,6 +24,7 @@ def evaluate(
     orchestration_status: OrchestrationStatus,
     response: str | None,
     tool_results: tuple[ToolResult, ...],
+    tool_calls: tuple[ToolCall, ...] = (),
 ) -> Evaluation:
     """Evaluate only evidence available from Core Engine public results."""
 
@@ -61,7 +62,7 @@ def evaluate(
     if scenario.strategy is EvaluationStrategy.TEXT_HEURISTIC:
         return _evaluate_text_heuristic(scenario, response)
 
-    return _evaluate_tool_result(scenario, response, tool_results)
+    return _evaluate_tool_result(scenario, response, tool_results, tool_calls)
 
 
 def _evaluate_text_heuristic(
@@ -89,21 +90,29 @@ def _evaluate_tool_result(
     scenario: BenchmarkScenario,
     response: str | None,
     tool_results: tuple[ToolResult, ...],
+    tool_calls: tuple[ToolCall, ...],
 ) -> Evaluation:
-    matching = tuple(
-        result for result in tool_results if result.tool_name == scenario.expected_tool
+    matching_calls = tuple(call for call in tool_calls if call.name == scenario.expected_tool)
+    correct_calls = tuple(
+        call for call in matching_calls if call.arguments == scenario.expected_arguments
     )
-    selected = bool(matching)
-    successful = tuple(result for result in matching if result.status is ToolResultStatus.SUCCESS)
+    correct_identifiers = {call.call_id for call in correct_calls}
+    matching_results = tuple(
+        result for result in tool_results if result.call_id in correct_identifiers
+    )
+    successful = tuple(
+        result for result in matching_results if result.status is ToolResultStatus.SUCCESS
+    )
     value_matches = any(_tool_value(result) == scenario.expected_value for result in successful)
     communicated = _response_contains_value(response or "", scenario.expected_value)
     checks = (
-        f"tool selected: {selected}",
-        f"deterministic execution matched: {value_matches}",
+        f"tool proposed: {bool(matching_calls)}",
+        f"arguments matched: {bool(correct_calls)}",
+        f"successful deterministic execution matched: {value_matches}",
         f"response communicated result: {communicated}",
     )
 
-    if selected and value_matches and communicated:
+    if matching_calls and correct_calls and value_matches and communicated:
         return Evaluation(BenchmarkStatus.PASS, "all tool-calling checks passed", checks)
 
     return Evaluation(BenchmarkStatus.FAIL, "one or more tool-calling checks failed", checks)

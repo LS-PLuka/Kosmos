@@ -279,7 +279,11 @@ def test_no_tools_uses_streaming_and_does_not_advertise_tools() -> None:
     )
 
     assert code == 0
-    assert "calculate: Perform one deterministic basic arithmetic operation. (disabled)" in output
+    assert (
+        "calculate: Use for one requested deterministic addition, subtraction, multiplication, "
+        "or division; not for conceptual explanations or expression evaluation. (disabled)"
+        in output
+    )
     assert len(provider.text_requests) == 1
     assert provider.tool_requests == []
 

@@ -12,7 +12,9 @@ policies are integrated and automatically tested. Stage 01.7 provides the develo
 01.8 provides benchmark infrastructure and a maintainer-run Ubuntu validation procedure; real Qwen
 behavior, performance, and offline validation remain pending. R2 adds deterministic institutional
 knowledge to the session instruction. R3 improves temporary session-context selection and
-observability without adding persistent memory. External
+observability without adding persistent memory. R4 adds turn-scoped effective-tool guidance and
+preserves structured proposals as evidence; its real effect on Qwen selection remains pending
+Ubuntu validation. External
 agents and web intelligence still require separate roadmap stages.
 
 ## Hybrid local-first orchestration
@@ -153,6 +155,12 @@ protection, atomic confirmation, timeout, cancellation, and metrics. It adds no 
 tools, cross-turn replay protection, or approval UI. See
 [Tool Calling and Tool Registry](tool-calling.md) and
 [Core Orchestration](core-orchestration.md).
+
+R4 keeps institutional capability knowledge separate from operational availability. The
+orchestrator derives a temporary instruction from trusted effort, selection, registration, risk,
+authorization, and provider capability. It neither changes the stored session instruction nor
+duplicates tool schemas. Deterministic software remains authoritative for arguments, execution,
+limits, and results; model prose is never execution evidence.
 
 ## Optional external intelligence
 

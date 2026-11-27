@@ -4,11 +4,30 @@
 
 Stage 01.5 implements provider-independent tool definitions, calls, results, deterministic argument
 validation, an explicit registry, execution-scoped authorization, sequential execution, two pure
-built-in tools, and native non-streaming Ollama tool calling. Automated tests use fakes and HTTPX
-`MockTransport`; real Qwen behavior on the target Ubuntu host remains pending.
+built-in tools, and native non-streaming Ollama tool calling. R4 refines model-visible definitions
+and composes trusted turn-scoped operational guidance from effective availability. Automated tests
+use fakes and HTTPX `MockTransport`; real Qwen behavior on the target Ubuntu host remains pending.
 
 Stage 01.6 composes these unchanged contracts into automatic bounded orchestration. Stage 01.5
 remains independently usable for explicit manual composition.
+
+## Effective availability and delegation
+
+Registry presence is not availability. The Core Orchestrator advertises only the intersection of
+registered, selected, execution-authorized, `PURE`, effort-enabled tools. A provider must also
+support structured tool calling or the selected tool flow is rejected before inference.
+
+For every request, R4 appends a compact trusted instruction to the system content sent to the
+provider. It states whether tools are disabled by effort, unavailable for the turn, or effectively
+available by name. When tools are available, it asks the model to prefer a matching deterministic
+tool for operational requests, avoid tools for conceptual or unrelated conversation, perform
+dependent operations sequentially from returned results, treat results as data, and communicate
+failures honestly. It does not duplicate schemas, grant permission, mutate the session instruction,
+or become user history. Complete text, streaming text, and structured requests all budget it before
+provider inference.
+
+This guidance improves the conditions for model selection but cannot guarantee compliance. Only a
+structured proposal followed by executor evidence proves that a tool was attempted or executed.
 
 ## Architectural boundaries
 
@@ -87,7 +106,8 @@ idempotency policy are deferred until tools with external effects have concrete 
 
 ## Built-in tools
 
-`create_builtin_registry()` returns a fresh registry with exactly two tools:
+`create_builtin_registry()` returns a fresh registry with exactly two tools. R4 descriptions state
+when each tool is appropriate and clarify operand or item meaning without embedding authorization:
 
 - `calculate` supports `add`, `subtract`, `multiply`, and `divide`. Inputs are finite integers or
   binary floating-point numbers from `-10^12` through `10^12`; booleans and implicit conversions
@@ -97,6 +117,10 @@ idempotency policy are deferred until tools with external effects have concrete 
   evaluation is used.
 - `count_items` counts zero through 1,000 strings, each no longer than 200 characters. It performs
   no external access.
+
+`calculate` uses ordinary Python integer and binary floating-point arithmetic. It does not promise
+arbitrary mathematical precision or freedom from floating-point representation and rounding
+limitations.
 
 ## Native Ollama integration
 

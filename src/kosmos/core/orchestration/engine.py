@@ -20,6 +20,7 @@ from kosmos.core.orchestration.effort import (
     default_effort_policies,
     resolve_effort_policy,
 )
+from kosmos.core.orchestration.guidance import build_tool_guidance
 from kosmos.core.orchestration.models import (
     ContextMetrics,
     ContextRequestMetrics,
@@ -40,11 +41,13 @@ from kosmos.intelligence.models import (
     InferenceRequest,
     InferenceResponse,
     Message,
+    MessageRole,
 )
 from kosmos.intelligence.personality import KOSMOS_INSTITUTIONAL_KNOWLEDGE, PersonalityEngine
 from kosmos.intelligence.providers.base import LLMProvider, ToolCallingProvider
 from kosmos.intelligence.tools import (
     ToolAuthorization,
+    ToolCall,
     ToolDefinition,
     ToolExecutor,
     ToolInferenceRequest,
@@ -67,6 +70,7 @@ class _MetricsState:
     tools_rejected_or_failed: int = 0
     inference_metrics: list[InferenceMetrics] = field(default_factory=list)
     tool_results: list[ToolResult] = field(default_factory=list)
+    tool_calls: list[ToolCall] = field(default_factory=list)
     conversation_context: ContextSelectionMetrics | None = None
     context_requests: list[ContextRequestMetrics] = field(default_factory=list)
 
@@ -191,6 +195,7 @@ class CoreOrchestrator:
             active_authorization,
             enabled=policy.tools_enabled,
         )
+        guidance = build_tool_guidance(tools, tools_enabled=policy.tools_enabled)
 
         if tools and self._tool_provider is None:
             raise ToolCapabilityUnavailableError(
@@ -204,6 +209,8 @@ class CoreOrchestrator:
             state.conversation_context = metrics
 
         async def operation(messages: tuple[Message, ...]) -> str:
+            messages = self._apply_operational_guidance(messages, guidance)
+
             if not tools:
                 return await self._generate_text(messages, model, policy, state)
 
@@ -311,6 +318,7 @@ class CoreOrchestrator:
             active_authorization,
             enabled=policy.tools_enabled,
         )
+        guidance = build_tool_guidance(tools, tools_enabled=policy.tools_enabled)
 
         if not policy.streaming_enabled:
             raise ValueError("streaming is disabled by the selected effort policy")
@@ -320,7 +328,8 @@ class CoreOrchestrator:
         request_metrics: list[ContextRequestMetrics] = []
 
         def fit_messages(messages: tuple[Message, ...]) -> tuple[Message, ...]:
-            fitted, metrics = self._context.fit_text_messages(messages)
+            guided = self._apply_operational_guidance(messages, guidance)
+            fitted, metrics = self._context.fit_text_messages(guided)
             request_metrics.append(metrics)
             return fitted
 
@@ -392,6 +401,7 @@ class CoreOrchestrator:
             self._record_provider_metrics(response.metrics, state)
             calls = response.tool_calls
             state.tool_proposals += len(calls)
+            state.tool_calls.extend(calls)
 
             duplicate = any(call.call_id in seen_call_ids for call in calls)
             if duplicate:
@@ -452,6 +462,17 @@ class CoreOrchestrator:
         )
         effective_authorization = ToolAuthorization(definition.name for definition in definitions)
         return definitions, effective_authorization
+
+    @staticmethod
+    def _apply_operational_guidance(
+        messages: tuple[Message, ...],
+        guidance: str,
+    ) -> tuple[Message, ...]:
+        if not messages or messages[0].role is not MessageRole.SYSTEM:
+            raise ValueError("orchestration requests require a leading system message")
+
+        system = Message(MessageRole.SYSTEM, f"{messages[0].content}\n{guidance}")
+        return (system, *messages[1:])
 
     @staticmethod
     def _detect_tool_provider(provider: LLMProvider) -> ToolCallingProvider | None:
@@ -533,4 +554,5 @@ class CoreOrchestrator:
             tool_results=tuple(state.tool_results),
             metrics=metrics,
             failure=failure,
+            tool_calls=tuple(state.tool_calls),
         )

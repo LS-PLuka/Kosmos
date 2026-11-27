@@ -47,6 +47,13 @@ uv run kosmos --effort high --metrics
 Verify text conversation, streaming, context continuity, `/clear`, timeout recovery, cancellation,
 and the visible distinction between successful, rejected, and failed tool results.
 
+For R4, repeat simple arithmetic and item-count prompts at `LOW`, `MEDIUM`, and `HIGH`. Record
+separately whether the expected tool was proposed, arguments matched, execution succeeded, and the
+final response communicated the returned value. Include conceptual questions that should not call
+a tool, `INSTANT` turns where tools are disabled, a proposed division by zero, and a dependent
+two-step calculation. Do not infer execution from prose or classify a correct mental calculation as
+full tool-calling success.
+
 ## Live benchmark
 
 Review the catalog before authorizing inference:
@@ -144,6 +151,8 @@ These are initial engineering targets, not statistical claims about the model.
 - [ ] Personality is recognizable and satisfactory.
 - [ ] Conversation history and correction work.
 - [ ] Pure tools execute and communicate correct results.
+- [ ] R4 delegation guidance improves repeated Low tool selection without unnecessary tool calls.
+- [ ] Proposal, argument, execution, success, and communication evidence were reviewed separately.
 - [ ] No unauthorized handler execution occurred.
 - [ ] Operational limits, timeout, and cancellation are safe.
 - [ ] Performance and hardware observations were recorded.

@@ -17,7 +17,7 @@ from kosmos.benchmarking.models import (
 )
 from kosmos.core.orchestration import CoreOrchestrator, OrchestrationStatus
 from kosmos.intelligence.models import InferenceMetrics
-from kosmos.intelligence.tools import ToolAuthorization, ToolResult
+from kosmos.intelligence.tools import ToolAuthorization, ToolCall, ToolResult
 
 
 async def run_benchmark(
@@ -116,6 +116,7 @@ async def _run_complete(
 ) -> ScenarioResult:
     authorization = ToolAuthorization(scenario.authorized_tools)
     tool_results: list[ToolResult] = []
+    tool_calls: list[ToolCall] = []
     metrics: list[InferenceMetrics] = []
     final_result = None
     started_at = time.monotonic()
@@ -130,6 +131,7 @@ async def _run_complete(
             selected_tools=scenario.selected_tools,
         )
         tool_results.extend(final_result.tool_results)
+        tool_calls.extend(final_result.tool_calls)
         metrics.extend(final_result.metrics.inference_metrics)
 
         if final_result.status is not OrchestrationStatus.COMPLETED:
@@ -143,6 +145,7 @@ async def _run_complete(
         orchestration_status=final_result.status,
         response=final_result.content,
         tool_results=tuple(tool_results),
+        tool_calls=tuple(tool_calls),
     )
     performance = PerformanceEvidence(
         time.monotonic() - started_at,
@@ -160,6 +163,7 @@ async def _run_complete(
         final_result.metrics,
         performance,
         tuple(tool_results),
+        tuple(tool_calls),
     )
 
 
@@ -198,6 +202,7 @@ async def _run_streaming(
         orchestration_status=OrchestrationStatus.COMPLETED,
         response=response,
         tool_results=(),
+        tool_calls=(),
     )
     performance = PerformanceEvidence(
         time.monotonic() - started_at,

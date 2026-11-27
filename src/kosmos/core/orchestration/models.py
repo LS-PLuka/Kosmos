@@ -7,7 +7,7 @@ from uuid import UUID
 from kosmos.core.orchestration.effort import EffortLevel
 from kosmos.intelligence.conversation import ContextSelectionMetrics
 from kosmos.intelligence.models import InferenceMetrics
-from kosmos.intelligence.tools.models import ToolResult
+from kosmos.intelligence.tools.models import ToolCall, ToolResult
 
 
 class OrchestrationStatus(str, Enum):
@@ -72,3 +72,4 @@ class OrchestrationResult:
     tool_results: tuple[ToolResult, ...]
     metrics: OrchestrationMetrics
     failure: str | None = None
+    tool_calls: tuple[ToolCall, ...] = ()

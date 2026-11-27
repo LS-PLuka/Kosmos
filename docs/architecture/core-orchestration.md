@@ -11,6 +11,7 @@ the existing Personality Engine, Conversation Engine, provider ports, Tool Regis
 trusted application request
   -> effort policy and explicit authorization
   -> reserved Conversation Engine turn
+  -> turn-scoped effective-tool guidance
   -> integrated context budget
   -> text inference, or bounded structured tool loop
   -> final validated text
@@ -34,6 +35,10 @@ Failure, timeout, or cancellation preserves prior history. Executed pure operati
 back. Clear, delete, and concurrent turns on a busy session remain rejected; different sessions are
 independent.
 
+The R4 operational instruction is composed anew for every turn and appended only to the transient
+provider request. It is never written into `ConversationSession.system_instruction` or confirmed
+history, so changing effort, selection, or authorization cannot leave stale capability claims.
+
 ## Provider and tool selection
 
 Without an effective tool selection, the orchestrator uses `LLMProvider.generate()` and preserves
@@ -49,6 +54,11 @@ cannot broaden permission by naming another registered tool.
 Calls execute sequentially in proposal order. Assistant call messages and correlated `TOOL`
 results precede continuation. Text accompanying calls is intermediate and is never committed as a
 final answer.
+
+Dependent operations are expected across successive inferences: the next proposal can then use the
+actual correlated result from the previous execution. The guidance explicitly prohibits treating
+an invented intermediate value as confirmed. Calls in one provider batch remain ordered; the
+software does not infer semantic dependencies from argument text.
 
 ## Limits, context, and failures
 
@@ -71,9 +81,10 @@ oldest complete confirmed turns when framing or tool schemas require space. Comp
 streaming use the same integrated fitting operation. Structured tool inference repeats it before
 every provider call because assistant calls and tool results enlarge the active turn.
 
-System instruction, current user message, selected schemas, assistant calls, and correlated tool
-results are mandatory. If they do not fit after all eligible prior history is removed, the next
-inference is not started. A tool already executed is not rolled back: its `ToolResult` remains in
+System instruction, transient operational guidance, current user message, selected schemas,
+assistant calls, and correlated tool results are mandatory. If they do not fit after all eligible
+prior history is removed, the next inference is not started. A tool already executed is not rolled
+back: its `ToolResult` remains in
 the controlled result as evidence, while the uncompleted conversational turn remains unconfirmed.
 
 The total effort deadline covers coordination, inference, and tools. External cancellation
@@ -92,6 +103,11 @@ Results include elapsed coordination seconds, started and completed inferences, 
 handlers invoked, successful tools, rejected or failed tools, effort, thinking, and the exact
 available per-inference `InferenceMetrics`. Missing provider metrics are omitted rather than
 invented or treated as zero. Provider nanosecond durations remain distinct from measured wall time.
+
+`OrchestrationResult.tool_calls` preserves immutable structured proposals, including rejected or
+over-budget proposals, separately from `tool_results`. Arguments are intentionally absent from
+content-free metrics. Callers can distinguish a textual mention, a proposal, a handler invocation,
+an execution failure, and a successful result without trusting final prose.
 
 R3 also exposes immutable, content-free context metrics. `ContextMetrics.conversation` records the
 initial content-only selection. Each `ContextRequestMetrics` entry records request kind, integrated

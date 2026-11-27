@@ -10,7 +10,8 @@ from types import MappingProxyType
 
 from kosmos.core.orchestration import EffortLevel, OrchestrationMetrics
 from kosmos.intelligence.models import InferenceMetrics
-from kosmos.intelligence.tools import ToolResult
+from kosmos.intelligence.tools import ToolCall, ToolResult
+from kosmos.intelligence.tools.models import FrozenJSON
 
 _IDENTIFIER_PATTERN = re.compile(r"[a-z][a-z0-9_]{0,63}\Z")
 _SUPPORTED_EFFORTS = frozenset(
@@ -76,6 +77,7 @@ class BenchmarkScenario:
     expected_value: int | float | None = None
     critical: bool = False
     streaming: bool = False
+    expected_arguments: Mapping[str, FrozenJSON] | None = None
 
     def __post_init__(self) -> None:
         _validate_identifier(self.identifier, "scenario identifier")
@@ -111,6 +113,18 @@ class BenchmarkScenario:
             self.expected_tool not in selected or self.expected_tool not in authorized
         ):
             raise ValueError("the expected tool must be selected and authorized")
+        if self.strategy is EvaluationStrategy.TOOL_RESULT and self.expected_arguments is None:
+            raise ValueError("tool-result scenarios require expected arguments")
+        if self.expected_arguments is not None:
+            if self.expected_tool is None:
+                raise ValueError("expected arguments require an expected tool")
+
+            expected_arguments = ToolCall(
+                "expected_call",
+                self.expected_tool,
+                self.expected_arguments,
+            ).arguments
+            object.__setattr__(self, "expected_arguments", expected_arguments)
         if self.strategy is EvaluationStrategy.TEXT_HEURISTIC and not terms:
             raise ValueError("text-heuristic scenarios require factual markers")
         if self.expected_value is not None and (
@@ -194,6 +208,7 @@ class ScenarioResult:
     orchestration_metrics: OrchestrationMetrics | None = None
     performance: PerformanceEvidence | None = None
     tool_results: tuple[ToolResult, ...] = ()
+    tool_calls: tuple[ToolCall, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)

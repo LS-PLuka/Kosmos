@@ -79,11 +79,92 @@ def test_default_low_direct_response_uses_text_inference_and_commits_turn() -> N
     assert KOSMOS_INSTITUTIONAL_KNOWLEDGE.build_instruction() in (
         provider.text_requests[0].messages[0].content
     )
+    assert "No structured tools are available for this turn." in (
+        provider.text_requests[0].messages[0].content
+    )
+    assert "Operational tool guidance" not in session.system_instruction
     assert [message.role for message in confirmed.messages] == [
         MessageRole.USER,
         MessageRole.ASSISTANT,
     ]
     assert confirmed.is_busy is False
+
+
+def test_turn_guidance_reflects_effective_tools_without_persisting_across_efforts() -> None:
+    provider = ScriptedProvider(
+        text_responses=[InferenceResponse("test-model", "instant")],
+        tool_responses=[ToolInferenceResponse("test-model", "low", ())],
+    )
+    orchestrator = CoreOrchestrator(provider, tool_registry=create_builtin_registry())
+    session = orchestrator.create_session()
+    authorization = ToolAuthorization(("calculate", "count_items"))
+
+    instant = asyncio.run(
+        orchestrator.generate(
+            session.session_id,
+            "first",
+            model="test-model",
+            effort=EffortLevel.INSTANT,
+            authorization=authorization,
+            selected_tools=("calculate", "count_items"),
+        )
+    )
+    low = asyncio.run(
+        orchestrator.generate(
+            session.session_id,
+            "second",
+            model="test-model",
+            effort=EffortLevel.LOW,
+            authorization=authorization,
+            selected_tools=("calculate", "count_items"),
+        )
+    )
+
+    instant_instruction = provider.text_requests[0].messages[0].content
+    low_instruction = provider.tool_requests[0].messages[0].content
+    assert instant.status is OrchestrationStatus.COMPLETED
+    assert low.status is OrchestrationStatus.COMPLETED
+    assert "disabled by the current effort policy" in instant_instruction
+    assert "Available and authorized tools: calculate, count_items." in low_instruction
+    assert "prefer a tool call over mental computation" in low_instruction
+    assert "disabled by the current effort policy" not in low_instruction
+    assert (
+        "Operational tool guidance"
+        not in orchestrator.get_session(session.session_id).system_instruction
+    )
+
+
+@pytest.mark.parametrize(
+    ("effort", "thinking"),
+    [(EffortLevel.LOW, False), (EffortLevel.MEDIUM, True), (EffortLevel.HIGH, True)],
+)
+def test_tool_guidance_preserves_enabled_effort_policies(
+    effort: EffortLevel,
+    thinking: bool,
+) -> None:
+    provider = ScriptedProvider(tool_responses=[ToolInferenceResponse("test-model", "done", ())])
+    orchestrator = CoreOrchestrator(provider, tool_registry=create_builtin_registry())
+    session = orchestrator.create_session()
+
+    result = asyncio.run(
+        orchestrator.generate(
+            session.session_id,
+            "request",
+            model="test-model",
+            effort=effort,
+            authorization=ToolAuthorization(("calculate",)),
+            selected_tools=("calculate",),
+        )
+    )
+
+    request = provider.tool_requests[0]
+    assert result.status is OrchestrationStatus.COMPLETED
+    assert request.thinking is thinking
+    assert request.tools[0].name == "calculate"
+    assert "Available and authorized tools: calculate." in request.messages[0].content
+    assert result.metrics.context.requests[0].serialized_request_characters > sum(
+        len(message.content) for message in request.messages
+    )
 
 
 def test_context_metrics_measure_selection_without_exposing_message_content() -> None:
@@ -163,7 +244,12 @@ def test_complete_and_streaming_apply_the_same_integrated_history_reduction() ->
         asyncio.run(streaming.generate(stream_session.session_id, message, model="test-model"))
 
     complete_result = asyncio.run(
-        complete.generate(complete_session.session_id, "current", model="test-model")
+        complete.generate(
+            complete_session.session_id,
+            "current",
+            model="test-model",
+            effort=EffortLevel.INSTANT,
+        )
     )
 
     async def consume_stream() -> None:
@@ -256,9 +342,85 @@ def test_calculate_flow_executes_and_continues_with_structured_result() -> None:
     assert KOSMOS_INSTITUTIONAL_KNOWLEDGE.build_instruction() in (
         provider.tool_requests[0].messages[0].content
     )
+    assert "prefer a tool call over mental computation" in (
+        provider.tool_requests[0].messages[0].content
+    )
     continuation = provider.tool_requests[1].messages
     assert continuation[-2].tool_calls == (call,)
     assert '"result":4000' in continuation[-1].content
+
+
+def test_dependent_calculations_use_confirmed_results_across_inferences() -> None:
+    first = ToolCall(
+        "call_1",
+        "calculate",
+        {"operation": "multiply", "a": 25, "b": 4},
+    )
+    second = ToolCall(
+        "call_2",
+        "calculate",
+        {"operation": "add", "a": 100, "b": 35},
+    )
+    provider = ScriptedProvider(
+        tool_responses=[
+            ToolInferenceResponse("test-model", "", (first,)),
+            ToolInferenceResponse("test-model", "", (second,)),
+            ToolInferenceResponse("test-model", "135, senhor.", ()),
+        ]
+    )
+    orchestrator = CoreOrchestrator(provider, tool_registry=create_builtin_registry())
+    session = orchestrator.create_session()
+
+    result = asyncio.run(
+        orchestrator.generate(
+            session.session_id,
+            "Multiplique 25 por 4 e depois some 35.",
+            model="test-model",
+            effort=EffortLevel.LOW,
+            authorization=ToolAuthorization(("calculate",)),
+            selected_tools=("calculate",),
+        )
+    )
+
+    assert result.status is OrchestrationStatus.COMPLETED
+    assert [item.data for item in result.tool_results] == [{"result": 100}, {"result": 135}]
+    assert result.tool_calls == (first, second)
+    assert '"result":100' in provider.tool_requests[1].messages[-1].content
+    assert '"result":135' in provider.tool_requests[2].messages[-1].content
+
+
+def test_proposed_division_by_zero_preserves_failure_evidence() -> None:
+    call = ToolCall(
+        "call_1",
+        "calculate",
+        {"operation": "divide", "a": 100, "b": 0},
+    )
+    provider = ScriptedProvider(
+        tool_responses=[
+            ToolInferenceResponse("test-model", "", (call,)),
+            ToolInferenceResponse("test-model", "Essa divisão é indefinida, senhor.", ()),
+        ]
+    )
+    orchestrator = CoreOrchestrator(provider, tool_registry=create_builtin_registry())
+    session = orchestrator.create_session()
+
+    result = asyncio.run(
+        orchestrator.generate(
+            session.session_id,
+            "Divida 100 por zero.",
+            model="test-model",
+            authorization=ToolAuthorization(("calculate",)),
+            selected_tools=("calculate",),
+        )
+    )
+
+    assert result.status is OrchestrationStatus.COMPLETED
+    assert result.tool_calls == (call,)
+    assert result.tool_results[0].status is ToolResultStatus.EXECUTION_FAILED
+    assert result.metrics.handlers_invoked == 1
+    assert result.metrics.tools_succeeded == 0
+    assert result.metrics.tools_rejected_or_failed == 1
+    assert result.content == "Essa divisão é indefinida, senhor."
 
 
 def test_multiple_tools_execute_sequentially_in_proposal_order() -> None:
@@ -487,7 +649,10 @@ def test_institutional_instruction_survives_clear_without_personal_user_memory()
     knowledge = KOSMOS_INSTITUTIONAL_KNOWLEDGE.build_instruction()
     assert cleared.messages == ()
     assert knowledge in cleared.system_instruction
-    assert provider.text_requests[1].messages[0].content == cleared.system_instruction
+    request_instruction = provider.text_requests[1].messages[0].content
+    assert request_instruction.startswith(cleared.system_instruction)
+    assert "No structured tools are available for this turn." in request_instruction
+    assert "Operational tool guidance" not in cleared.system_instruction
     second_request = provider.text_requests[1]
     assert all("André" not in message.content for message in second_request.messages)
 

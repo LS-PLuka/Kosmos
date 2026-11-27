@@ -70,10 +70,17 @@ state.
 
 Statuses are `PASS`, `FAIL`, `ERROR`, `SKIPPED`, and `MANUAL_REVIEW`.
 
-Deterministic tool scenarios evaluate three independent facts: the expected tool produced a real
-`ToolResult`, Python execution returned the expected value, and the final model response
-communicated that value. A numerically correct sentence without execution fails tool selection. A
-correct tool result with an incorrect sentence fails result communication.
+Scenario catalog `1.1` makes deterministic tool evaluation distinguish four independent facts: the
+expected tool was proposed, its structured arguments matched the scenario, successful Python
+execution returned the expected value, and the final model response communicated that value. A
+numerically correct sentence without execution fails, as does a coincidentally correct value from
+wrong arguments. A correct tool result with an incorrect sentence fails result communication.
+
+Proposal evidence is read from `OrchestrationResult.tool_calls`; execution evidence remains in
+correlated `ToolResult` values. Arguments are exported with scenario evidence but are not placed in
+content-free orchestration metrics. Catalog `1.1` results must not be compared as equivalent to
+catalog `1.0` tool-selection scores because the argument criterion is new. Quick scenario prompts
+remain unchanged, preserving the baseline prompts while versioning the evaluation contract.
 
 Conversation factual checks use documented, scenario-specific text heuristics. They are useful
 signals, not semantic proof. Naturalness, elegance, humor, sophistication, disagreement quality,
@@ -93,6 +100,10 @@ omissions caused by the turn and content-character limits from later omissions c
 serialized requests, tool schemas, calls, and results. They contain counts and sizes only. Existing
 terminal, JSON, and Markdown presentation remains unchanged for report comparability; visible
 context diagnostics are deferred to R5.
+
+R4 guidance and revised schemas are included in serialized request size and therefore in the same
+context metrics. The harness does not score a textual claim such as "I used calculate" as a
+proposal, execution, or success.
 
 Generation speed is calculated only for positive reported generation duration:
 
@@ -131,3 +142,7 @@ The existing full-suite `multiple_fact_recall`, `context_correction`, and `long_
 scenarios remain semantically unchanged, so historical catalogs are comparable. R3 automated
 regressions inspect fake-provider request messages directly; benchmark text heuristics remain model
 quality signals and are not treated as proof of software-side retention.
+
+R4 fake-provider tests prove deterministic composition, authorization, sequential result
+correlation, failure evidence, and benchmark classification. They do not prove that Qwen will obey
+delegation guidance or reproduce tool results faithfully in natural language.
