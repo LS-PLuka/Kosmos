@@ -118,3 +118,23 @@ SHA-256 is `1a153a22f4509e292a94e67d6f9b85e8deb25b4988682b7e174c65279d8788e3`, a
 mirrors report 2,327,524 bytes. Kosmos does not download, incorporate, or distribute the model;
 these values were not locally verified in this implementation. Any future distribution must
 preserve the Silero copyright and MIT permission notice and repeat exact-artifact review.
+
+## Wake word detection
+
+The optional `wakeword` extra directly resolves ONNX Runtime 1.32.0 (MIT) and NumPy 2.5.5
+(BSD-3-Clause), with the same flatbuffers, packaging, and protobuf transitive dependencies recorded
+for VAD in `uv.lock`. Exact native runtime notices and each distributed wheel still require
+artifact-specific review.
+
+Kosmos implements a minimal direct ONNX pipeline based on openWakeWord v0.6.0, commit `c8ef691`.
+The upstream code is Apache-2.0. Kosmos does not install the `openwakeword` package because its
+published Linux dependency on TFLite Runtime is incompatible with Python 3.12. No upstream source,
+pretrained classifier, auxiliary model, or training dataset is incorporated into this repository.
+
+The openWakeWord project documents its distributed pretrained wake-word classifiers under
+CC BY-NC-SA 4.0, separately from its code. The melspectrogram and Google speech-embedding ONNX
+artifacts require exact provenance and redistribution review before acquisition or distribution.
+A future Kosmos classifier's terms will depend on all training recordings, generated voices,
+datasets, features, and tools; it is not automatically Apache-2.0. No Kosmos classifier has been
+trained or approved, and this notice does not assert legal compatibility or replace artifact-level
+review.

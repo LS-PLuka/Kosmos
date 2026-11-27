@@ -30,6 +30,10 @@ vad = [
     "numpy>=2.0,<3",
     "onnxruntime==1.32.0",
 ]
+wakeword = [
+    "numpy>=2.0,<3",
+    "onnxruntime==1.32.0",
+]
 
 [project.scripts]
 kosmos = "kosmos.cli.main:main"
@@ -38,6 +42,7 @@ kosmos-audio = "kosmos.voice.cli:main"
 kosmos-tts = "kosmos.voice.tts_cli:main"
 kosmos-stt = "kosmos.voice.stt_cli:main"
 kosmos-vad = "kosmos.voice.vad_cli:main"
+kosmos-wakeword = "kosmos.voice.wakeword_cli:main"
 
 [dependency-groups]
 dev = [

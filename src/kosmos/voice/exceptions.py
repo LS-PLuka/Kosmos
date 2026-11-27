@@ -125,3 +125,35 @@ class VoiceActivityBusyError(VoiceActivityError):
 
 class InvalidSpeechSegmentError(VoiceActivityError):
     """Raised when segmentation state or output is inconsistent."""
+
+
+class WakeWordError(VoiceError):
+    """Base exception for expected wake-word failures."""
+
+
+class WakeWordDisabledError(WakeWordError):
+    """Raised when wake-word detection has not been explicitly enabled."""
+
+
+class WakeWordBackendUnavailableError(WakeWordError):
+    """Raised when the optional local wake-word runtime cannot be loaded."""
+
+
+class WakeWordModelUnavailableError(WakeWordError):
+    """Raised when a configured local wake-word artifact is unavailable."""
+
+
+class InvalidWakeWordModelError(WakeWordError):
+    """Raised when a local wake-word artifact fails validation."""
+
+
+class InvalidWakeWordInputError(WakeWordError):
+    """Raised when PCM or timeline input violates the wake-word contract."""
+
+
+class InvalidWakeWordResultError(WakeWordError):
+    """Raised when a backend returns an invalid wake-word score."""
+
+
+class WakeWordBusyError(WakeWordError):
+    """Raised when a detector already owns native inference work."""

@@ -52,7 +52,9 @@ automated suite.
 - **02.4 — Voice Activity Detection:** implemented on `feature/voice-foundation` with automated
   simulation; real Silero inference, microphone, offline, performance, threshold, Ubuntu, and Git
   validation remain pending
-- **02.5 — Wake Word Detection:** planned
+- **02.5 — Wake Word Detection:** implemented on `feature/voice-foundation` with automated
+  simulation; no trained Kosmos classifier exists, and real inference, microphone, offline,
+  performance, threshold, Ubuntu, licensing, and Git validation remain pending
 - **02.6 — Voice Orchestration:** planned
 - **02.7 — Real-Time Voice Interaction:** planned
 - **02.8 — Voice Benchmark & Validation:** planned
@@ -63,11 +65,14 @@ backend-independent synthesis contracts, deterministic text preparation, a bound
 independently installed Piper process, and explicit TTS diagnostics. Stage 02.3 adds bounded local
 Faster Whisper recognition, immutable results, and explicit diagnostics. Stage 02.4 adds independent
 Silero ONNX inference contracts, lossless framing, deterministic segmentation, and VAD diagnostics.
-It does not connect voice to Core or implement wake words, orchestration, or real-time interaction.
+Stage 02.5 adds an independent openWakeWord-compatible ONNX pipeline, lossless 80 ms framing,
+deterministic activation policy, and diagnostics. It does not connect voice to Core or implement
+orchestration or real-time interaction.
 SoundDevice is incorporated only in the optional `voice` extra. Piper and Razo are not distributed;
 Razo remains provisional because provenance, rights, real synthesis, and voice quality are not yet
-fully validated. Faster Whisper and ONNX Runtime are optional and model files are external;
-openWakeWord remains a planned candidate.
+fully validated. Faster Whisper and ONNX Runtime are optional and model files are external. The
+openWakeWord 0.6.0 package is not installed because its Linux TFLite dependency is incompatible
+with Python 3.12; Kosmos uses a minimal direct ONNX adapter based on its pinned pipeline revision.
 
 ## Stage 03 — System Control
 

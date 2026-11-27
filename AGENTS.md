@@ -20,12 +20,13 @@ hardware, and offline validation on Ubuntu remain pending. Do not claim that Sta
 behaviorally validated, that the refinement branch is already integrated, or that later roadmap
 capabilities are available.
 
-Stage 02.1 Voice Foundation, Stage 02.2 Text-to-Speech, Stage 02.3 Speech-to-Text, and Stage 02.4
-Voice Activity Detection are implemented on `feature/voice-foundation` with automated validation.
-Physical audio, real Piper/Razo synthesis, real Faster Whisper and Silero inference, voice quality,
-offline and Ubuntu validation, performance, model-selection and threshold validation, licensing
-promotion, and Git integration remain pending. Stages 02.5–02.8 remain planned; do not describe
-them as available.
+Stage 02.1 Voice Foundation, Stage 02.2 Text-to-Speech, Stage 02.3 Speech-to-Text, Stage 02.4 Voice
+Activity Detection, and Stage 02.5 Wake Word Detection are implemented on
+`feature/voice-foundation` with automated validation. The Stage 02.5 ONNX backend infrastructure is
+implemented, but no trained Kosmos classifier is available. Physical audio, real Piper/Razo
+synthesis, real Faster Whisper, Silero, and wake-word inference, voice quality, offline and Ubuntu
+validation, performance, model-selection and threshold validation, licensing promotion, and Git
+integration remain pending. Stages 02.6–02.8 remain planned; do not describe them as available.
 
 ## Engineering principles
 

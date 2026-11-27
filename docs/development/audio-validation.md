@@ -17,6 +17,11 @@ probabilities. Follow the pinned model, checksum, offline, threshold, and privac
 [Voice Activity Detection specification](../architecture/voice-activity-detection.md) before real
 detection. Automated simulation does not validate Silero behavior.
 
+Stage 02.5 wake-word automated tests use fake ONNX sessions, synthetic PCM, and controlled scores.
+Follow the three-artifact provenance, checksum, offline, threshold, and privacy procedure in the
+[Wake Word Detection specification](../architecture/wake-word-detection.md) before real detection.
+No trained Kosmos classifier is currently available.
+
 ## Install and inspect
 
 ```bash
@@ -26,6 +31,8 @@ uv run --no-sync kosmos-audio devices
 uv run --no-sync kosmos-audio status
 uv sync --frozen --dev --extra vad
 uv run --no-sync kosmos-vad status
+uv sync --frozen --dev --extra wakeword
+uv run --no-sync kosmos-wakeword status
 ```
 
 `devices` and `status` enumerate metadata but do not open input or output streams. Device indices
@@ -106,3 +113,14 @@ speech, playback, maximum-duration splitting, RTF, CPU, and memory. Do not commi
 probabilities, utterances, model files, device-private information, or local paths. Real Silero,
 physical microphone, offline, performance, threshold, Brazilian Portuguese, Windows, and Ubuntu
 validation remain pending.
+
+For wake word, first record independently reviewed melspectrogram, embedding, and genuinely trained
+Kosmos classifier artifacts, including immutable sources, licenses, sizes, and locally calculated
+hashes. Run `kosmos-wakeword status`, `models`, and an explicit reviewed WAV before considering a
+bounded `listen` command. Evaluate Brazilian Portuguese pronunciation, speech rate, distance,
+silence, conversations, television, music, keyboard and environmental noise, near-sounding words,
+repeated calls, continuous high scores, cooldown/rearm behavior, and assistant self-triggering.
+Record false acceptances, false rejections, timing, RTF, CPU, and memory without committing audio,
+scores, transcripts, model files, device-private information, or local paths. Real wake-word,
+physical microphone, offline, performance, threshold, licensing, Windows, and Ubuntu validation
+remain pending.

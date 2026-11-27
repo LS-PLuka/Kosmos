@@ -39,6 +39,9 @@ Voice activity and future transcripts are untrusted inputs, not authorization. S
 local VAD and deterministic segmentation outside the intelligence boundary and never invokes an
 LLM, tool, speech recognizer, or orchestrator automatically.
 
+Stage 02.5 likewise treats a wake-word event as an untrusted interaction trigger, never identity,
+authentication, authorization, intent recognition, or permission to execute a tool.
+
 ## Initial local intelligence
 
 The primary provider adapter is Ollama. The initial official runtime model selection is Qwen 3.5

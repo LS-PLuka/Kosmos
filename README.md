@@ -126,11 +126,12 @@ validation remain pending. Later stages cover voice, authorized system control, 
 memory, proactive intelligence, desktop, web/external integrations, multimodal intelligence, and
 cross-platform ecosystem expansion.
 
-Stage 02.1 Voice Foundation, Stage 02.2 Text-to-Speech, Stage 02.3 Speech-to-Text, and Stage 02.4
-Voice Activity Detection are implemented on the Stage 02 feature branch with automated validation.
-Physical audio, real Piper/Razo synthesis, real Faster Whisper and Silero inference, voice quality,
+Stage 02.1 Voice Foundation, Stage 02.2 Text-to-Speech, Stage 02.3 Speech-to-Text, Stage 02.4 Voice
+Activity Detection, and Stage 02.5 Wake Word Detection are implemented on the Stage 02 feature
+branch with automated validation. No trained Kosmos classifier exists. Physical audio, real
+Piper/Razo synthesis, real Faster Whisper, Silero, and wake-word inference, voice quality,
 offline/performance/model selection, threshold calibration, Ubuntu validation, and Git integration
-remain pending. Stages 02.5–02.8 remain planned.
+remain pending. Stages 02.6–02.8 remain planned.
 
 See the [official roadmap](docs/architecture/ROADMAP.md) for the complete staged plan and status.
 
@@ -189,6 +190,18 @@ uv run --no-sync kosmos-vad status
 The [Voice Activity Detection specification](docs/architecture/voice-activity-detection.md)
 documents the pinned external Silero model, checksum procedure, PCM contract, segmentation, and
 pending real validation. VAD never enables microphone capture or STT automatically.
+
+Install independent wake-word dependencies without downloading models and inspect disabled
+settings:
+
+```bash
+uv sync --frozen --dev --extra wakeword
+uv run --no-sync kosmos-wakeword status
+```
+
+The [Wake Word Detection specification](docs/architecture/wake-word-detection.md) documents the
+local ONNX pipeline, activation policy, and pending custom model and real validation. Wake-word
+detection never authorizes an operation or starts the Core automatically.
 
 Run the development CLI after configuring a local Ollama installation and model:
 

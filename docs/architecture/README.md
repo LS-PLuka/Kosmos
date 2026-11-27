@@ -29,7 +29,7 @@ but only after implemented behavior demonstrates the need. Empty architectural l
 | `intelligence` | Text inference, Ollama, conversation, personality, institutional knowledge, and Stage 01.5 tool calling are integrated; real model behavior remains pending |
 | `benchmarking` | Stage 01.8 scenario, evaluation, runner, and reporting infrastructure is implemented; real validation remains pending |
 | `cli` | Development-only runtime composition and terminal presentation are implemented |
-| `voice` | Stages 02.1 PCM, 02.2 TTS, 02.3 STT, and 02.4 VAD are implemented; physical and real voice validation remain pending |
+| `voice` | Stages 02.1 PCM, 02.2 TTS, 02.3 STT, 02.4 VAD, and 02.5 wake word are implemented; real voice validation remains pending |
 | `system` | Operating system, applications, files, and processes |
 | `developer` | Development agents, projects, sessions, and tasks |
 | `memory` | Context, persistent memory, and information retrieval |
@@ -47,7 +47,8 @@ The remaining business-capability entries describe planned boundaries only. `cli
 [Voice Foundation specification](voice-foundation.md) and
 [Text-to-Speech specification](text-to-speech.md), and
 [Speech-to-Text specification](speech-to-text.md), and
-[Voice Activity Detection specification](voice-activity-detection.md) for implemented behavior.
+[Voice Activity Detection specification](voice-activity-detection.md), and
+[Wake Word Detection specification](wake-word-detection.md) for implemented behavior.
 
 ## Architectural rules
 
@@ -90,6 +91,8 @@ Tests and future integrations can substitute implementations without changing th
   bounded PCM recognition, diagnostics, concurrency, and pending real validation
 - [Voice Activity Detection](voice-activity-detection.md): Stage 02.4 Silero ONNX adapter, framing,
   deterministic segmentation, diagnostics, and pending real validation
+- [Wake Word Detection](wake-word-detection.md): Stage 02.5 direct ONNX pipeline, deterministic
+  activation policy, diagnostics, and pending custom model and real validation
 - [Core Orchestration](core-orchestration.md): Stage 01.6 coordination, limits, context, and metrics
 - [Development CLI](../development/development-cli.md): Stage 01.7 terminal composition and usage
 - [Model Benchmark and Validation](../development/model-benchmark.md): Stage 01.8 suites, evidence,

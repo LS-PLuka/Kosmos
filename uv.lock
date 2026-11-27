@@ -290,6 +290,10 @@ vad = [
 voice = [
     { name = "sounddevice" },
 ]
+wakeword = [
+    { name = "numpy" },
+    { name = "onnxruntime" },
+]
 
 [package.dev-dependencies]
 dev = [
@@ -303,10 +307,12 @@ requires-dist = [
     { name = "httpx", specifier = ">=0.28,<0.29" },
     { name = "numpy", marker = "extra == 'stt'", specifier = ">=2.0,<3" },
     { name = "numpy", marker = "extra == 'vad'", specifier = ">=2.0,<3" },
+    { name = "numpy", marker = "extra == 'wakeword'", specifier = ">=2.0,<3" },
     { name = "onnxruntime", marker = "extra == 'vad'", specifier = "==1.32.0" },
+    { name = "onnxruntime", marker = "extra == 'wakeword'", specifier = "==1.32.0" },
     { name = "sounddevice", marker = "extra == 'voice'", specifier = ">=0.5.6,<0.6" },
 ]
-provides-extras = ["voice", "stt", "vad"]
+provides-extras = ["voice", "stt", "vad", "wakeword"]
 
 [package.metadata.requires-dev]
 dev = [
