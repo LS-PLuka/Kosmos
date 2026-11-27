@@ -8,12 +8,16 @@ from kosmos.core.orchestration.effort import (
 )
 from kosmos.core.orchestration.engine import CoreOrchestrator, OrchestrationStream
 from kosmos.core.orchestration.models import (
+    ContextMetrics,
+    ContextRequestMetrics,
     OrchestrationMetrics,
     OrchestrationResult,
     OrchestrationStatus,
 )
 
 __all__ = [
+    "ContextMetrics",
+    "ContextRequestMetrics",
     "CoreOrchestrator",
     "EffortLevel",
     "EffortPolicy",

@@ -20,6 +20,8 @@ def test_loads_defaults_without_selecting_a_model() -> None:
     assert settings.ollama_context_length == 4096
     assert settings.ollama_thinking is False
     assert settings.ollama_keep_alive == "5m"
+    assert settings.conversation_max_history_turns == 10
+    assert settings.conversation_max_context_characters == 8_000
 
 
 def test_environment_values_override_defaults() -> None:
@@ -32,6 +34,8 @@ def test_environment_values_override_defaults() -> None:
             "KOSMOS_OLLAMA_CONTEXT_LENGTH": "8192",
             "KOSMOS_OLLAMA_THINKING": "TRUE",
             "KOSMOS_OLLAMA_KEEP_ALIVE": "30s",
+            "KOSMOS_CONVERSATION_MAX_HISTORY_TURNS": "0",
+            "KOSMOS_CONVERSATION_MAX_CONTEXT_CHARACTERS": "9000",
         }
     )
 
@@ -42,6 +46,34 @@ def test_environment_values_override_defaults() -> None:
     assert settings.ollama_context_length == 8192
     assert settings.ollama_thinking is True
     assert settings.ollama_keep_alive == "30s"
+    assert settings.conversation_max_history_turns == 0
+    assert settings.conversation_max_context_characters == 9_000
+
+
+@pytest.mark.parametrize("value", ["-1", "1.5", "true", ""])
+def test_rejects_invalid_conversation_history_turn_limits(value: str) -> None:
+    with pytest.raises(ConfigurationError, match="MAX_HISTORY_TURNS"):
+        load_settings({"KOSMOS_CONVERSATION_MAX_HISTORY_TURNS": value})
+
+
+@pytest.mark.parametrize("value", ["0", "-1", "1.5", "true", ""])
+def test_rejects_invalid_conversation_character_limits(value: str) -> None:
+    with pytest.raises(ConfigurationError, match="MAX_CONTEXT_CHARACTERS"):
+        load_settings({"KOSMOS_CONVERSATION_MAX_CONTEXT_CHARACTERS": value})
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("conversation_max_history_turns", True),
+        ("conversation_max_history_turns", -1),
+        ("conversation_max_context_characters", True),
+        ("conversation_max_context_characters", 0),
+    ],
+)
+def test_direct_settings_reject_invalid_conversation_limits(field: str, value: object) -> None:
+    with pytest.raises(ConfigurationError, match="conversation"):
+        ApplicationSettings(**{field: value})  # type: ignore[arg-type]
 
 
 @pytest.mark.parametrize("level", ["TRACE", "", "verbose"])

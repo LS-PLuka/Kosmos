@@ -7,7 +7,8 @@ from pathlib import Path
 
 from kosmos.benchmarking.models import BenchmarkRun, BenchmarkStatus, ScenarioResult
 from kosmos.intelligence.models import InferenceMetrics
-from kosmos.intelligence.tools import ToolResult
+from kosmos.intelligence.tools import ToolCall, ToolResult
+from kosmos.intelligence.tools.models import thaw_json
 
 
 def render_terminal(run: BenchmarkRun) -> str:
@@ -176,6 +177,7 @@ def _result_document(result: ScenarioResult) -> dict[str, object]:
         "orchestration_metrics": _orchestration_document(result),
         "performance": _performance_document(result),
         "tool_results": [_tool_result_document(item) for item in result.tool_results],
+        "tool_calls": [_tool_call_document(item) for item in result.tool_calls],
     }
 
 
@@ -194,6 +196,7 @@ def _orchestration_document(result: ScenarioResult) -> dict[str, object] | None:
         "effort": metrics.effort.value,
         "thinking": metrics.thinking,
         "inference_metrics": [_inference_document(item) for item in metrics.inference_metrics],
+        "inference_metric_indices": list(metrics.inference_metric_indices),
     }
 
 
@@ -227,6 +230,14 @@ def _tool_result_document(result: ToolResult) -> dict[str, object]:
         "data": result.to_payload()["data"],
         "error_code": result.error_code,
         "message": result.message,
+    }
+
+
+def _tool_call_document(call: ToolCall) -> dict[str, object]:
+    return {
+        "call_id": call.call_id,
+        "tool_name": call.name,
+        "arguments": thaw_json(call.arguments),
     }
 
 

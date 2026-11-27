@@ -2,7 +2,7 @@
 
 [![Python 3.12](https://img.shields.io/badge/Python-3.12-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
 [![uv 0.13.10](https://img.shields.io/badge/uv-0.13.10-DE5FE9?style=flat-square&logo=uv&logoColor=white)](https://docs.astral.sh/uv/)
-[![Project status: Stage 01](https://img.shields.io/badge/Status-Stage%2001%20%7C%20In%20Development-683A79?style=flat-square)](#project-status)
+[![Project status: Stage 01](https://img.shields.io/badge/Status-Stage%2001%20%7C%20Validation%20Pending-683A79?style=flat-square)](#project-status)
 [![License: PolyForm Noncommercial 1.0.0](https://img.shields.io/badge/License-PolyForm%20Noncommercial%201.0.0-25192D?style=flat-square)](LICENSE.md)
 [![CI](https://img.shields.io/github/actions/workflow/status/LS-PLuka/Kosmos-AI/ci.yml?branch=develop&style=flat-square&label=CI)](https://github.com/LS-PLuka/Kosmos-AI/actions/workflows/ci.yml)
 
@@ -21,19 +21,19 @@ requirements.
 
 ## Project status
 
-**Stage 00 — Project Foundation is complete. Stage 01 — Core Engine is in development.** The
-repository includes the Stage 01.1 foundations and the Stage 01.2 Ollama HTTP adapter for complete
-and streaming text inference. The adapter is automatically tested, but real inference on the
-target Ubuntu host remains pending. Stage 01.3 provides automatically tested, in-memory
-conversation sessions and context continuity and is integrated into `develop`.
-Stage 01.4 provides an integrated provider-independent Personality Engine, with real behavioral
-validation pending. Stage 01.5 integrates provider-independent tool contracts, deterministic
-validation and authorization, two pure tools, and native non-streaming Ollama tool calling.
-Stage 01.6 integrates bounded core orchestration and effort policies. Stage 01.7 provides an
-automatically tested development CLI. Stage 01.8 provides reproducible benchmark infrastructure,
-evidence-based reports, and a maintainer-run Ubuntu checklist. Real Ubuntu, Qwen, performance, and
-offline validation remain pending. Kosmos does not provide voice, system control, persistent
-memory, automation, or a desktop application.
+**Stage 00 — Project Foundation is complete. Stage 01 — Core Engine implementation is complete on
+the current refinement branch, and automated regression validation has passed.** The refinement
+changes have not yet been integrated into `develop` or `main`. Live runtime, Qwen behavioral,
+performance, hardware, and offline validation on the target Ubuntu host remain pending. Automated
+tests prove deterministic software contracts with simulated providers; they do not validate real
+model behavior. Kosmos does not yet provide voice, system control, persistent memory, automation,
+or a desktop application.
+
+- Implementation: complete on `fix/core-runtime-validation`.
+- Automated regression validation: passed on Windows with simulated providers.
+- Live runtime validation: pending on the target Ubuntu host.
+- Behavioral validation: pending with the real Qwen model.
+- Offline validation: pending with the host manually disconnected.
 
 Capabilities explicitly described below as planned belong to the roadmap and must not be
 interpreted as implemented.
@@ -116,9 +116,10 @@ implemented and automatically tested; real Ubuntu inference validation remains p
 Stage 01.3 — Conversation Engine, Stage 01.4 — Personality Engine, and Stage 01.5 — Tool Calling &
 Tool Registry are integrated, with real personality and Qwen validation pending. Stage 01.6 — Core
 Orchestration & Effort Levels is integrated and automatically tested. Stage 01.7 adds the
-development CLI. Stage 01.8 benchmark infrastructure is implemented, while real model validation
-remains pending. Later stages cover voice, authorized system control, developer agents, memory,
-proactive intelligence, desktop, web/external integrations, multimodal intelligence, and
+development CLI. Stage 01.8 benchmark infrastructure is implemented. Refinements R1–R6 are
+complete on the current branch and automatically validated, while integration and real model
+validation remain pending. Later stages cover voice, authorized system control, developer agents,
+memory, proactive intelligence, desktop, web/external integrations, multimodal intelligence, and
 cross-platform ecosystem expansion.
 
 See the [official roadmap](docs/architecture/ROADMAP.md) for the complete staged plan and status.

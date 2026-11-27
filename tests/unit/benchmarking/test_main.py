@@ -45,6 +45,7 @@ def test_real_entrypoint_declares_live_provenance_independently_from_authorizati
 
 def test_quick_suite_runs_with_mock_transport_and_closes_provider() -> None:
     providers: list[OllamaProvider] = []
+    chat_payloads: list[dict[str, object]] = []
 
     def handler(request: httpx.Request) -> httpx.Response:
         if request.url.path == "/api/version":
@@ -66,6 +67,7 @@ def test_quick_suite_runs_with_mock_transport_and_closes_provider() -> None:
             )
 
         payload = json.loads(request.content)
+        chat_payloads.append(payload)
         messages = payload["messages"]
         last = messages[-1]
         if last["role"] == "tool":
@@ -101,7 +103,7 @@ def test_quick_suite_runs_with_mock_transport_and_closes_provider() -> None:
         run_cli(
             arguments,
             execution_mode=ExecutionMode.SIMULATED,
-            environment={},
+            environment={"KOSMOS_CONVERSATION_MAX_HISTORY_TURNS": "0"},
             provider_factory=factory,
             output=output,
             error_output=errors,
@@ -113,6 +115,12 @@ def test_quick_suite_runs_with_mock_transport_and_closes_provider() -> None:
     assert "Execution: SIMULATED" in output.getvalue()
     assert "Validation: PENDING MAINTAINER REVIEW" in output.getvalue()
     assert providers[0].is_closed is True
+    recall_request = next(
+        payload
+        for payload in chat_payloads
+        if "linguagem" in payload["messages"][-1]["content"].casefold()
+    )
+    assert len(recall_request["messages"]) == 2
 
 
 def test_initialization_failure_is_reported_and_provider_is_closed() -> None:

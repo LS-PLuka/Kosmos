@@ -12,10 +12,12 @@ from kosmos.benchmarking.models import (
     BenchmarkCategory,
     BenchmarkConfig,
     BenchmarkMetadata,
+    BenchmarkRun,
     BenchmarkScenario,
     BenchmarkStatus,
     EvaluationStrategy,
     ExecutionMode,
+    ScenarioResult,
 )
 from kosmos.benchmarking.reporting import export_reports, render_terminal
 from kosmos.benchmarking.runner import run_benchmark
@@ -26,6 +28,7 @@ from kosmos.intelligence.models import (
     InferenceRequest,
     InferenceResponse,
 )
+from kosmos.intelligence.tools import ToolCall, ToolResult, ToolResultStatus
 
 
 @dataclass(slots=True)
@@ -169,9 +172,50 @@ def test_reports_export_json_and_markdown_without_overwrite(tmp_path) -> None:
     assert document["execution"] == "SIMULATED"
     assert document["metadata"]["execution_mode"] == "SIMULATED"
     assert document["validation"] == "pending_maintainer_review"
+    assert document["results"][0]["orchestration_metrics"]["inference_metric_indices"] == [1]
     assert "PENDING MAINTAINER REVIEW" in markdown_path.read_text(encoding="utf-8")
     terminal = render_terminal(run)
     assert "Execution: SIMULATED" in terminal
     assert "Generation speed: 10.00 tokens/s" in terminal
     with pytest.raises(FileExistsError):
         export_reports(run, tmp_path / "benchmark-results" / "run")
+
+
+def test_explicit_json_export_preserves_synthetic_tool_audit_evidence(tmp_path) -> None:
+    config = BenchmarkConfig("quick", "test-model")
+    call = ToolCall(
+        "call-1",
+        "calculate",
+        {"operation": "multiply", "a": 125, "b": 32},
+    )
+    tool_result = ToolResult(
+        "call-1",
+        "calculate",
+        ToolResultStatus.SUCCESS,
+        {"result": 4_000},
+    )
+    result = ScenarioResult(
+        "multiplication",
+        BenchmarkCategory.TOOL_CALLING,
+        1,
+        False,
+        BenchmarkStatus.PASS,
+        "O resultado é 4.000.",
+        "all checks passed",
+        tool_results=(tool_result,),
+        tool_calls=(call,),
+    )
+    run = BenchmarkRun(config, _metadata(config), (result,))
+
+    json_path, markdown_path = export_reports(run, tmp_path / "benchmark-results" / "audit")
+    document = json.loads(json_path.read_text(encoding="utf-8"))
+    exported = document["results"][0]
+
+    assert exported["response"] == "O resultado é 4.000."
+    assert exported["tool_calls"][0]["arguments"] == {
+        "operation": "multiply",
+        "a": 125,
+        "b": 32,
+    }
+    assert exported["tool_results"][0]["data"] == {"result": 4_000}
+    assert "O resultado é 4.000." not in markdown_path.read_text(encoding="utf-8")

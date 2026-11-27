@@ -21,6 +21,73 @@ def _history(*contents: str) -> tuple[Message, ...]:
     return tuple(messages)
 
 
+def test_default_context_budget_is_eight_thousand_characters() -> None:
+    policy = ContextPolicy()
+
+    assert policy.max_history_turns == 10
+    assert policy.max_context_characters == 8_000
+
+
+def test_proposed_budget_retains_more_complete_turns_than_previous_budget() -> None:
+    history = tuple(
+        message
+        for turn in range(8)
+        for message in (
+            Message(MessageRole.USER, f"fact-{turn}:" + "u" * 293),
+            Message(MessageRole.ASSISTANT, "a" * 300),
+        )
+    )
+    current = Message(MessageRole.USER, "q" * 100)
+
+    previous = ContextPolicy(max_context_characters=6_000).select_with_metrics(
+        system_instruction="s" * 2_500,
+        history=history,
+        current_message=current,
+    )
+    proposed = ContextPolicy(max_context_characters=8_000).select_with_metrics(
+        system_instruction="s" * 2_500,
+        history=history,
+        current_message=current,
+    )
+
+    assert previous.metrics.total_confirmed_turns == 8
+    assert previous.metrics.selected_history_turns == 5
+    assert previous.metrics.omitted_by_character_limit == 3
+    assert previous.metrics.selected_message_characters == 5_600
+    assert all("fact-0:" not in message.content for message in previous.messages)
+    assert proposed.metrics.selected_history_turns == 8
+    assert proposed.metrics.omitted_history_turns == 0
+    assert proposed.metrics.selected_message_characters == 7_400
+    assert any("fact-0:" in message.content for message in proposed.messages)
+
+
+def test_selection_metrics_separate_turn_and_character_omissions_without_content() -> None:
+    history = tuple(
+        message
+        for turn in range(4)
+        for message in (
+            Message(MessageRole.USER, f"private-{turn}"),
+            Message(MessageRole.ASSISTANT, "response"),
+        )
+    )
+
+    selection = ContextPolicy(max_history_turns=3, max_context_characters=35).select_with_metrics(
+        system_instruction=None,
+        history=history,
+        current_message=Message(MessageRole.USER, "current"),
+    )
+    metrics = selection.metrics
+
+    assert metrics.total_confirmed_turns == 4
+    assert metrics.eligible_history_turns == 3
+    assert metrics.selected_history_turns == 1
+    assert metrics.omitted_history_turns == 3
+    assert metrics.omitted_by_turn_limit == 1
+    assert metrics.omitted_by_character_limit == 2
+    assert metrics.context_limit_reached is True
+    assert "private" not in repr(metrics)
+
+
 def test_context_contains_system_history_and_current_message_in_order() -> None:
     policy = ContextPolicy()
     history = _history("first question", "first answer")

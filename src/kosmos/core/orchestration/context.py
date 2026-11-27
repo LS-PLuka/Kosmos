@@ -4,7 +4,8 @@ import json
 from dataclasses import dataclass
 
 from kosmos.core.exceptions import ContextLimitExceededError
-from kosmos.intelligence.models import Message
+from kosmos.core.orchestration.models import ContextRequestMetrics
+from kosmos.intelligence.models import Message, MessageRole
 from kosmos.intelligence.tools.models import (
     ToolDefinition,
     ToolMessage,
@@ -43,16 +44,62 @@ class OrchestrationContextPolicy:
         payload = [{"role": message.role.value, "content": message.content} for message in messages]
         self._ensure_size(payload)
 
+    def fit_text_messages(
+        self,
+        messages: tuple[Message, ...],
+    ) -> tuple[tuple[Message, ...], ContextRequestMetrics]:
+        """Fit serialized text context by removing only oldest complete history turns."""
+
+        selected = list(messages)
+        omitted_turns = 0
+
+        while not self._text_payload_fits(tuple(selected)):
+            history_start = int(bool(selected) and selected[0].role is MessageRole.SYSTEM)
+
+            if history_start + 1 >= len(selected) - 1:
+                raise ContextLimitExceededError(
+                    "required messages exceed the orchestration context limit"
+                )
+
+            first = selected[history_start]
+            second = selected[history_start + 1]
+            if first.role is not MessageRole.USER or second.role is not MessageRole.ASSISTANT:
+                raise ValueError("confirmed history must contain complete ordered turns")
+
+            del selected[history_start : history_start + 2]
+            omitted_turns += 1
+
+        fitted = tuple(selected)
+        payload = self._text_payload(fitted)
+        metrics = self._metrics("text", fitted, payload, omitted_turns)
+        return fitted, metrics
+
     def fit_tool_messages(
         self,
         messages: tuple[ToolMessage, ...],
         tools: tuple[ToolDefinition, ...],
         active_user_index: int,
     ) -> tuple[tuple[ToolMessage, ...], int]:
+        """Fit structured context while preserving the original public return contract."""
+
+        fitted, current_index, _ = self.fit_tool_messages_with_metrics(
+            messages,
+            tools,
+            active_user_index,
+        )
+        return fitted, current_index
+
+    def fit_tool_messages_with_metrics(
+        self,
+        messages: tuple[ToolMessage, ...],
+        tools: tuple[ToolDefinition, ...],
+        active_user_index: int,
+    ) -> tuple[tuple[ToolMessage, ...], int, ContextRequestMetrics]:
         """Drop only the oldest complete confirmed turns until structured context fits."""
 
         selected = list(messages)
         current_index = active_user_index
+        omitted_turns = 0
 
         while not self._tool_payload_fits(tuple(selected), tools):
             history_start = int(bool(selected) and selected[0].role is ToolMessageRole.SYSTEM)
@@ -74,14 +121,32 @@ class OrchestrationContextPolicy:
 
             del selected[history_start : history_start + 2]
             current_index -= 2
+            omitted_turns += 1
 
-        return tuple(selected), current_index
+        fitted = tuple(selected)
+        payload = self._tool_payload(fitted, tools)
+        metrics = self._metrics("tools", fitted, payload, omitted_turns)
+        return fitted, current_index, metrics
+
+    def _text_payload_fits(self, messages: tuple[Message, ...]) -> bool:
+        return self._serialized_size(self._text_payload(messages)) <= self._input_limit
+
+    @staticmethod
+    def _text_payload(messages: tuple[Message, ...]) -> list[dict[str, str]]:
+        return [{"role": message.role.value, "content": message.content} for message in messages]
 
     def _tool_payload_fits(
         self,
         messages: tuple[ToolMessage, ...],
         tools: tuple[ToolDefinition, ...],
     ) -> bool:
+        return self._serialized_size(self._tool_payload(messages, tools)) <= self._input_limit
+
+    @staticmethod
+    def _tool_payload(
+        messages: tuple[ToolMessage, ...],
+        tools: tuple[ToolDefinition, ...],
+    ) -> dict[str, object]:
         message_payloads = []
 
         for message in messages:
@@ -103,11 +168,27 @@ class OrchestrationContextPolicy:
 
             message_payloads.append(payload)
 
-        payload = {
+        return {
             "messages": message_payloads,
             "tools": [tool.to_provider_schema() for tool in tools],
         }
-        return self._serialized_size(payload) <= self._input_limit
+
+    def _metrics(
+        self,
+        request_kind: str,
+        messages: tuple[Message, ...] | tuple[ToolMessage, ...],
+        payload: object,
+        omitted_turns: int,
+    ) -> ContextRequestMetrics:
+        return ContextRequestMetrics(
+            request_kind=request_kind,
+            character_budget=self._input_limit,
+            serialized_request_characters=self._serialized_size(payload),
+            selected_message_characters=sum(len(message.content) for message in messages),
+            response_reserve_characters=self.response_reserve_characters,
+            omitted_history_turns=omitted_turns,
+            context_limit_reached=omitted_turns > 0,
+        )
 
     def _ensure_size(self, payload: object) -> None:
         if self._serialized_size(payload) > self._input_limit:

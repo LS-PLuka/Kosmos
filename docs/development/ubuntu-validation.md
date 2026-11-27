@@ -1,21 +1,33 @@
 # Ubuntu Core Engine Validation
 
-This is the maintainer-run validation procedure for Stage 01.8. Run it only on the prepared personal
-Ubuntu host. Do not treat automated Windows or fake-provider results as real model evidence.
+This is the deferred maintainer-run live validation procedure. Run it only on the prepared personal
+Ubuntu host after reviewing the exact integrated commit. Stage 01 implementation and automated
+regression validation may be complete while live runtime, behavioral, performance, hardware, and
+offline validation remain pending. Do not treat Windows or fake-provider results as real model
+evidence.
 
 ## Preparation
 
 ```bash
 git switch develop
 git pull --ff-only origin develop
+git status --short
+git branch --show-current
+git rev-parse HEAD
+git log -1 --oneline
+
+python3 --version
+uv --version
 
 uv lock --check
 uv sync --frozen --dev
 
+ollama --version
 systemctl status ollama
 systemctl show ollama --property=Environment
 
 ollama list
+ollama ps
 curl http://127.0.0.1:11434/api/version
 ```
 
@@ -23,6 +35,13 @@ Confirm that the service environment includes `OLLAMA_NO_CLOUD=1`. A loopback en
 not prove that the daemon performs no external processing. Confirm that
 `qwen3.5:4b-q4_K_M` is installed and record its exact digest. Do not let the benchmark download a
 model; it refuses to run a missing selection.
+
+Record the effective values of `KOSMOS_OLLAMA_MODEL`, `KOSMOS_OLLAMA_BASE_URL`,
+`KOSMOS_OLLAMA_TIMEOUT_SECONDS`, `KOSMOS_OLLAMA_CONTEXT_LENGTH`, `KOSMOS_OLLAMA_THINKING`,
+`KOSMOS_OLLAMA_KEEP_ALIVE`, `KOSMOS_CONVERSATION_MAX_HISTORY_TURNS`,
+`KOSMOS_CONVERSATION_MAX_CONTEXT_CHARACTERS`, and `KOSMOS_LOG_LEVEL`. Do not record unrelated
+environment variables or secrets. Compare `/status` with these values and distinguish configured,
+selected, measured, verified, and unavailable information.
 
 ## Automated checks
 
@@ -44,8 +63,29 @@ uv run kosmos --effort medium --metrics
 uv run kosmos --effort high --metrics
 ```
 
+Verify the deterministic Portuguese startup greeting and confirm that it creates no conversation
+turn. Exercise `/status`, `/tools`, `/metrics`, and effort changes. Confirm that status distinguishes
+verified startup facts from configured limits and never claims that offline operation was verified.
+
 Verify text conversation, streaming, context continuity, `/clear`, timeout recovery, cancellation,
-and the visible distinction between successful, rejected, and failed tool results.
+and the visible distinction among proposals, successful execution, rejection, and execution
+failure. With metrics enabled, record complete, streaming, and multi-inference blocks; confirm that
+conversation and integrated context omissions remain separate, character and token units are
+explicit, and streaming time to first visible text excludes the fixed prefix and hidden thinking.
+Interrupt one stream after partial output and confirm the partial turn is not committed, the session
+returns to usable state, and no successful-completion metrics are printed.
+
+For R4, repeat simple arithmetic and item-count prompts at `LOW`, `MEDIUM`, and `HIGH`. Record
+separately whether the expected tool was proposed, arguments matched, execution succeeded, and the
+final response communicated the returned value. Include conceptual questions that should not call
+a tool, `INSTANT` turns where tools are disabled, a proposed division by zero, and a dependent
+two-step calculation. Do not infer execution from prose or classify a correct mental calculation as
+full tool-calling success.
+
+Explicitly review identity, natural pt-BR personality, developer-versus-user distinction, current
+versus planned capabilities, factual correction inside one session, and the removal of temporary
+personal context after `/clear`. Record repeated tool-selection outcomes independently for Low,
+Medium, and High; do not convert one successful sample into a reliability claim.
 
 ## Live benchmark
 
@@ -54,14 +94,19 @@ Review the catalog before authorizing inference:
 ```bash
 uv run kosmos-benchmark --help
 uv run kosmos-benchmark --list-scenarios
-uv run kosmos-benchmark --suite quick --live --output benchmark-results/quick
-uv run kosmos-benchmark --suite full --live --repetitions 3 --output benchmark-results/full
-uv run kosmos-benchmark --suite performance --live --repetitions 3 --warm-up-runs 1 --output benchmark-results/performance
+uv run kosmos-benchmark --suite quick --live --output benchmark-results/post-refinement-quick
+uv run kosmos-benchmark --suite full --live --repetitions 3 --output benchmark-results/full-01
+uv run kosmos-benchmark --suite performance --live --repetitions 3 --warm-up-runs 1 --output benchmark-results/performance-01
 uv run kosmos-benchmark --suite quick --live --model qwen3.5:4b-q4_K_M
 ```
 
 Review every `MANUAL_REVIEW` response. Record the number of samples alongside percentages. Do not
 adjust criteria after seeing the results merely to obtain approval.
+
+Preserve existing `baseline-quick` reports and use new output names. Before sharing JSON, review
+the full model responses, structured tool arguments, and result payloads it contains. Reports are
+local evidence, not telemetry, and the Git ignore rule is not an access-control or encryption
+mechanism.
 
 Confirm that reports from these commands say `Execution: LIVE`. `--live` is the required
 authorization switch, while report provenance comes independently from the real local Ollama
@@ -83,7 +128,29 @@ free -h
 Record total and used VRAM, Ollama process memory when available, GPU utilization, temperature,
 available RAM, loaded model, and GPU offload. Compare generation speed with the preliminary
 44–48 tokens/s observation only when the workload and conditions are described; do not assume
-equivalence. Never invent missing hardware measurements.
+equivalence. Record software latency, provider latency, generation speed, and CLI time to first
+visible text separately. Never invent missing hardware measurements.
+
+## Controlled 4,096 versus 8,192 context comparison
+
+Do not change the committed 4,096-token default. On the Ubuntu validation host, run two explicitly
+configured sessions against the same commit, model digest, scenario catalog, repetition count,
+effort levels, prompts, and otherwise unchanged Ollama service configuration:
+
+```bash
+KOSMOS_OLLAMA_CONTEXT_LENGTH=4096 uv run kosmos-benchmark --suite full --live \
+  --repetitions 3 --output benchmark-results/context-4096
+KOSMOS_OLLAMA_CONTEXT_LENGTH=8192 uv run kosmos-benchmark --suite full --live \
+  --repetitions 3 --output benchmark-results/context-8192
+```
+
+Before each run, record idle and loaded state. During each run, sample `nvidia-smi`, `ollama ps`,
+and `free -h` under the same observation cadence. Compare total and process VRAM, RAM, GPU offload,
+software and provider latency, generation tokens per second, contextual scenario outcomes,
+stability, timeouts, and any provider context-limit failure. Retain raw reports and hardware
+observations, and do not compare non-equivalent scenario catalogs or warmed and cold samples as if
+they were identical. An 8,192-token permanent default requires these real results and explicit
+maintainer approval.
 
 ## Offline validation
 
@@ -120,13 +187,18 @@ These are initial engineering targets, not statistical claims about the model.
 - [ ] Development CLI works on Ubuntu.
 - [ ] Local Ollama and selected model are available.
 - [ ] Complete inference and streaming work.
+- [ ] Startup, status, commands, context metrics, and interruption notice match the R5 contracts.
 - [ ] Personality is recognizable and satisfactory.
 - [ ] Conversation history and correction work.
 - [ ] Pure tools execute and communicate correct results.
+- [ ] R4 delegation guidance improves repeated Low tool selection without unnecessary tool calls.
+- [ ] Proposal, argument, execution, success, and communication evidence were reviewed separately.
 - [ ] No unauthorized handler execution occurred.
 - [ ] Operational limits, timeout, and cancellation are safe.
 - [ ] Performance and hardware observations were recorded.
 - [ ] Offline operation was confirmed while disconnected.
+- [ ] Live runtime validation was completed on the recorded commit and configuration.
+- [ ] Behavioral conclusions distinguish deterministic software guarantees from Qwen behavior.
 - [ ] No critical failures remain.
 - [ ] Problems identified: ________________________________________________
 - [ ] Maintainer decision: PROMOTE / DO NOT PROMOTE / REPEAT VALIDATION

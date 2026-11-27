@@ -3,11 +3,16 @@
 from collections.abc import Sequence
 from dataclasses import dataclass
 
+from kosmos.core.config import (
+    DEFAULT_CONVERSATION_MAX_CONTEXT_CHARACTERS,
+    DEFAULT_CONVERSATION_MAX_HISTORY_TURNS,
+)
 from kosmos.core.exceptions import ContextLimitExceededError
+from kosmos.intelligence.conversation.models import ContextSelection, ContextSelectionMetrics
 from kosmos.intelligence.models import Message, MessageRole
 
-DEFAULT_MAX_HISTORY_TURNS = 10
-DEFAULT_MAX_CONTEXT_CHARACTERS = 6000
+DEFAULT_MAX_HISTORY_TURNS = DEFAULT_CONVERSATION_MAX_HISTORY_TURNS
+DEFAULT_MAX_CONTEXT_CHARACTERS = DEFAULT_CONVERSATION_MAX_CONTEXT_CHARACTERS
 
 
 @dataclass(frozen=True, slots=True)
@@ -41,6 +46,21 @@ class ContextPolicy:
     ) -> tuple[Message, ...]:
         """Build context without modifying the complete confirmed history."""
 
+        return self.select_with_metrics(
+            system_instruction=system_instruction,
+            history=history,
+            current_message=current_message,
+        ).messages
+
+    def select_with_metrics(
+        self,
+        *,
+        system_instruction: str | None,
+        history: Sequence[Message],
+        current_message: Message,
+    ) -> ContextSelection:
+        """Build context and report content-only selection measurements."""
+
         system_message = self._create_system_message(system_instruction)
         self._validate_current_message(current_message)
         turns = self._validate_history(history)
@@ -73,10 +93,28 @@ class ContextPolicy:
             message for turn in reversed(selected_reversed) for message in turn
         )
 
-        if system_message is None:
-            return (*selected_messages, current_message)
-
-        return (system_message, *selected_messages, current_message)
+        messages = (
+            (*selected_messages, current_message)
+            if system_message is None
+            else (system_message, *selected_messages, current_message)
+        )
+        total_turns = len(turns)
+        eligible_count = len(eligible_turns)
+        selected_count = len(selected_reversed)
+        omitted_by_turn_limit = total_turns - eligible_count
+        omitted_by_character_limit = eligible_count - selected_count
+        metrics = ContextSelectionMetrics(
+            total_confirmed_turns=total_turns,
+            eligible_history_turns=eligible_count,
+            selected_history_turns=selected_count,
+            omitted_history_turns=total_turns - selected_count,
+            omitted_by_turn_limit=omitted_by_turn_limit,
+            omitted_by_character_limit=omitted_by_character_limit,
+            character_budget=self.max_context_characters,
+            selected_message_characters=used_characters,
+            context_limit_reached=omitted_by_character_limit > 0,
+        )
+        return ContextSelection(messages, metrics)
 
     @staticmethod
     def _create_system_message(system_instruction: str | None) -> Message | None:

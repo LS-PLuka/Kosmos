@@ -21,8 +21,9 @@ TRAIT_NAMES = (
 def test_official_identity_is_immutable_and_consistent() -> None:
     assert KOSMOS_IDENTITY.name == "Kosmos"
     assert KOSMOS_IDENTITY.slogan == "The intelligence orbiting your world."
-    assert "artificial personal assistant" in KOSMOS_IDENTITY.purpose
-    assert "intellectual partner" in KOSMOS_IDENTITY.purpose
+    assert KOSMOS_IDENTITY.purpose == (
+        "a personal AI assistant for activities, decisions, and projects"
+    )
 
     with pytest.raises(FrozenInstanceError):
         KOSMOS_IDENTITY.name = "Other"  # type: ignore[misc]
@@ -31,14 +32,14 @@ def test_official_identity_is_immutable_and_consistent() -> None:
 def test_profile_has_approved_defaults() -> None:
     profile = PersonalityProfile()
 
-    assert profile.formality == 65
-    assert profile.directness == 85
-    assert profile.humor == 40
+    assert profile.formality == 45
+    assert profile.directness == 90
+    assert profile.humor == 45
     assert profile.sarcasm == 25
     assert profile.proactivity == 85
     assert profile.assertiveness == 80
-    assert profile.emotional_expressiveness == 35
-    assert profile.detail_level == 60
+    assert profile.emotional_expressiveness == 45
+    assert profile.detail_level == 40
     assert profile.preferred_language == "pt-BR"
     assert profile.honorific == "senhor"
 
@@ -76,7 +77,7 @@ def test_profiles_are_independent_values() -> None:
     default = PersonalityProfile()
     custom = replace(default, humor=0, honorific=None)
 
-    assert default.humor == 40
+    assert default.humor == 45
     assert default.honorific == "senhor"
     assert custom.humor == 0
     assert custom.honorific is None

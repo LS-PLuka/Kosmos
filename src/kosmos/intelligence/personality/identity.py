@@ -15,8 +15,5 @@ class AssistantIdentity:
 KOSMOS_IDENTITY = AssistantIdentity(
     name="Kosmos",
     slogan="The intelligence orbiting your world.",
-    purpose=(
-        "a sophisticated artificial personal assistant, technological steward, and intellectual "
-        "partner"
-    ),
+    purpose="a personal AI assistant for activities, decisions, and projects",
 )
