@@ -29,7 +29,7 @@ but only after implemented behavior demonstrates the need. Empty architectural l
 | `intelligence` | Text inference, Ollama, conversation, personality, institutional knowledge, and Stage 01.5 tool calling are integrated; real model behavior remains pending |
 | `benchmarking` | Stage 01.8 scenario, evaluation, runner, and reporting infrastructure is implemented; real validation remains pending |
 | `cli` | Development-only runtime composition and terminal presentation are implemented |
-| `voice` | Stage 02.1 PCM audio and Stage 02.2 external-process TTS are implemented; physical and real synthesis validation remain pending |
+| `voice` | Stages 02.1 PCM, 02.2 TTS, and 02.3 STT are implemented; physical and real voice validation remain pending |
 | `system` | Operating system, applications, files, and processes |
 | `developer` | Development agents, projects, sessions, and tasks |
 | `memory` | Context, persistent memory, and information retrieval |
@@ -45,7 +45,8 @@ The remaining business-capability entries describe planned boundaries only. `cli
 `benchmarking` are implemented support packages rather than future business domains. See the
 [Core Foundation specification](core-foundation.md) and
 [Voice Foundation specification](voice-foundation.md) and
-[Text-to-Speech specification](text-to-speech.md) for currently implemented behavior.
+[Text-to-Speech specification](text-to-speech.md), and
+[Speech-to-Text specification](speech-to-text.md) for currently implemented behavior.
 
 ## Architectural rules
 
@@ -84,6 +85,8 @@ Tests and future integrations can substitute implementations without changing th
   explicit diagnostics, and pending physical validation
 - [Text-to-Speech](text-to-speech.md): Stage 02.2 contracts, deterministic text preparation,
   external Piper adapter, diagnostics, licensing review, and pending real validation
+- [Speech-to-Text](speech-to-text.md): Stage 02.3 local model validation, Faster Whisper adapter,
+  bounded PCM recognition, diagnostics, concurrency, and pending real validation
 - [Core Orchestration](core-orchestration.md): Stage 01.6 coordination, limits, context, and metrics
 - [Development CLI](../development/development-cli.md): Stage 01.7 terminal composition and usage
 - [Model Benchmark and Validation](../development/model-benchmark.md): Stage 01.8 suites, evidence,

@@ -8,6 +8,10 @@ Stage 02.2 TTS automated tests use a simulated Piper process. Follow the indepen
 configuration, hash, provenance, and licensing review in the
 [Text-to-Speech specification](../architecture/text-to-speech.md) before real synthesis.
 
+Stage 02.3 STT automated tests use fake models and synthetic PCM. Follow the manual model
+installation, pinned revision, hash, offline, and privacy procedure in the
+[Speech-to-Text specification](../architecture/speech-to-text.md) before real recognition.
+
 ## Install and inspect
 
 ```bash
@@ -77,3 +81,11 @@ with a reviewed output device. Record pronunciation and voice-quality findings s
 commit generated audio, model weights, local paths, or raw diagnostic output containing private
 device data. Real Windows and Ubuntu synthesis, physical playback, and Razo voice-quality
 validation remain pending.
+
+For STT, run `kosmos-stt status` and `kosmos-stt models` before enabling recognition. First use an
+explicit reviewed WAV with `kosmos-stt transcribe --file sample.wav`; only then enable voice capture
+and use `kosmos-stt listen --duration 5`. Record package and model revisions, local hashes,
+language, threads, durations, RTF, segment observations, false transcriptions, and errors. Do not
+commit recordings, transcripts, model files, device-private information, or local paths. Real
+recognition, physical microphone, offline, performance, and model-selection validation remain
+pending on Windows and Ubuntu.

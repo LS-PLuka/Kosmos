@@ -57,3 +57,35 @@ class SynthesisTimeoutError(SpeechSynthesisError):
 
 class InvalidSynthesizedAudioError(SpeechSynthesisError):
     """Raised when a backend returns empty, partial, or excessive PCM."""
+
+
+class SpeechRecognitionError(VoiceError):
+    """Base exception for expected speech-to-text failures."""
+
+
+class STTBackendUnavailableError(SpeechRecognitionError):
+    """Raised when the optional recognition backend cannot be loaded."""
+
+
+class SpeechRecognitionDisabledError(SpeechRecognitionError):
+    """Raised when recognition has not been explicitly enabled."""
+
+
+class SpeechModelUnavailableError(SpeechRecognitionError):
+    """Raised when configured local model files are unavailable."""
+
+
+class InvalidSpeechModelError(SpeechRecognitionError):
+    """Raised when local model files or metadata are invalid."""
+
+
+class InvalidRecognitionRequestError(SpeechRecognitionError):
+    """Raised when audio or recognition settings violate limits."""
+
+
+class SpeechRecognitionBusyError(SpeechRecognitionError):
+    """Raised when a recognizer already owns native inference work."""
+
+
+class InvalidTranscriptionResultError(SpeechRecognitionError):
+    """Raised when a backend returns inconsistent transcription data."""

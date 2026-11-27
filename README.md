@@ -126,9 +126,10 @@ validation remain pending. Later stages cover voice, authorized system control, 
 memory, proactive intelligence, desktop, web/external integrations, multimodal intelligence, and
 cross-platform ecosystem expansion.
 
-Stage 02.1 Voice Foundation and Stage 02.2 Text-to-Speech are implemented on the Stage 02 feature
-branch with automated validation. Physical capture and playback, real Piper/Razo synthesis, voice
-quality, Ubuntu validation, and Git integration remain pending. Stages 02.3–02.8 remain planned.
+Stage 02.1 Voice Foundation, Stage 02.2 Text-to-Speech, and Stage 02.3 Speech-to-Text are implemented
+on the Stage 02 feature branch with automated validation. Physical capture and playback, real
+Piper/Razo synthesis, real Faster Whisper recognition, voice quality, offline/performance/model
+selection, Ubuntu validation, and Git integration remain pending. Stages 02.4–02.8 remain planned.
 
 See the [official roadmap](docs/architecture/ROADMAP.md) for the complete staged plan and status.
 
@@ -165,6 +166,17 @@ uv run --no-sync kosmos-tts status
 Piper and Razo require independent manual installation and review. See the
 [Text-to-Speech specification](docs/architecture/text-to-speech.md); no model or external runtime is
 installed by Kosmos.
+
+Install local STT dependencies without downloading a model and inspect the disabled configuration:
+
+```bash
+uv sync --frozen --dev --extra voice --extra stt
+uv run --no-sync kosmos-stt status
+```
+
+Model acquisition is an explicit maintainer action documented in the
+[Speech-to-Text specification](docs/architecture/speech-to-text.md). Runtime recognition accepts
+only a validated local model directory and never downloads automatically.
 
 Run the development CLI after configuring a local Ollama installation and model:
 

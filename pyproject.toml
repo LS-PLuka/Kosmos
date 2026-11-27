@@ -22,12 +22,17 @@ dependencies = [
 voice = [
     "sounddevice>=0.5.6,<0.6",
 ]
+stt = [
+    "faster-whisper==1.2.1",
+    "numpy>=2.0,<3",
+]
 
 [project.scripts]
 kosmos = "kosmos.cli.main:main"
 kosmos-benchmark = "kosmos.benchmarking.main:main"
 kosmos-audio = "kosmos.voice.cli:main"
 kosmos-tts = "kosmos.voice.tts_cli:main"
+kosmos-stt = "kosmos.voice.stt_cli:main"
 
 [dependency-groups]
 dev = [

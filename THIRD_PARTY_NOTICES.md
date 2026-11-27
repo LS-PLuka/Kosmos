@@ -86,3 +86,19 @@ font files are incorporated. Space Grotesk, Inter, and JetBrains Mono are visual
 
 License identifiers above are informational and should be verified against the exact version and
 upstream notice before any distribution decision. This document is not legal advice.
+
+## Speech recognition
+
+The optional `stt` extra directly resolves Faster Whisper 1.2.1 (MIT) and NumPy 2.5.5
+(BSD-3-Clause). Faster Whisper resolves CTranslate2 4.9.1 (MIT), PyAV 19.0.2 (BSD-3-Clause),
+Hugging Face Hub 2.5.0 (Apache-2.0), Tokenizers 0.23.3 (Apache-2.0), ONNX Runtime 1.32.0 (MIT),
+tqdm 4.70.1 (MIT and MPL-2.0), PyYAML 6.0.4 (MIT), protobuf 7.36.2 (BSD-3-Clause), and flatbuffers
+25.12.19 (Apache-2.0), plus support packages recorded in `uv.lock`. PyAV wheels include FFmpeg
+libraries whose enabled components and licenses must be inspected for each distributed wheel; the
+PyAV license alone does not describe every native component.
+
+The external `Systran/faster-whisper-base` reference model at revision
+`ebe41f70d5b6dfa9166e2c581c45c9c0cfc57b66` declares MIT and is not downloaded, incorporated, or
+distributed by Kosmos. The original OpenAI Whisper model card and converted-model provenance remain
+part of the pre-distribution review. Local hashes demonstrate file identity only. These notices do
+not assert absolute legal compatibility with Kosmos or replace review of exact upstream artifacts.
