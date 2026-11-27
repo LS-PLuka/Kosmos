@@ -18,8 +18,11 @@ class OrchestrationStatus(str, Enum):
     TOOL_LIMIT = "tool_limit"
     CONTEXT_LIMIT = "context_limit"
     TIMEOUT = "timeout"
+    PROVIDER_TIMEOUT = "provider_timeout"
+    PROVIDER_HTTP_ERROR = "provider_http_error"
     PROVIDER_UNAVAILABLE = "provider_unavailable"
     INVALID_RESPONSE = "invalid_response"
+    INFERENCE_ERROR = "inference_error"
 
 
 @dataclass(frozen=True, slots=True)

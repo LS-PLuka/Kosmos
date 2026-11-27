@@ -1,6 +1,6 @@
 # Ubuntu Core Engine Validation
 
-This is the maintainer-run validation procedure for Stage 01.8. Run it only on the prepared personal
+This is the maintainer-run validation procedure for R6. Run it only on the prepared personal
 Ubuntu host. Do not treat automated Windows or fake-provider results as real model evidence.
 
 ## Preparation
@@ -44,8 +44,17 @@ uv run kosmos --effort medium --metrics
 uv run kosmos --effort high --metrics
 ```
 
+Verify the deterministic Portuguese startup greeting and confirm that it creates no conversation
+turn. Exercise `/status`, `/tools`, `/metrics`, and effort changes. Confirm that status distinguishes
+verified startup facts from configured limits and never claims that offline operation was verified.
+
 Verify text conversation, streaming, context continuity, `/clear`, timeout recovery, cancellation,
-and the visible distinction between successful, rejected, and failed tool results.
+and the visible distinction among proposals, successful execution, rejection, and execution
+failure. With metrics enabled, record complete, streaming, and multi-inference blocks; confirm that
+conversation and integrated context omissions remain separate, character and token units are
+explicit, and streaming time to first visible text excludes the fixed prefix and hidden thinking.
+Interrupt one stream after partial output and confirm the partial turn is not committed, the session
+returns to usable state, and no successful-completion metrics are printed.
 
 For R4, repeat simple arithmetic and item-count prompts at `LOW`, `MEDIUM`, and `HIGH`. Record
 separately whether the expected tool was proposed, arguments matched, execution succeeded, and the
@@ -148,6 +157,7 @@ These are initial engineering targets, not statistical claims about the model.
 - [ ] Development CLI works on Ubuntu.
 - [ ] Local Ollama and selected model are available.
 - [ ] Complete inference and streaming work.
+- [ ] Startup, status, commands, context metrics, and interruption notice match the R5 contracts.
 - [ ] Personality is recognizable and satisfactory.
 - [ ] Conversation history and correction work.
 - [ ] Pure tools execute and communicate correct results.

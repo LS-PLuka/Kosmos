@@ -93,9 +93,11 @@ synchronous handler or internal Ollama generation. No background task, thread, p
 is introduced.
 
 Controlled terminal statuses distinguish completion, inference limit, tool limit, context limit,
-timeout, provider unavailability, and invalid provider response. Provider-specific failures not
-mapped by this contract continue to propagate. Tool failures remain structured results and may be
-shown to the model for one bounded continuation; they are never changed into success.
+orchestration timeout, provider timeout, provider HTTP failure, provider unavailability, invalid
+provider response, and other inference failure. These controlled results preserve proposal and tool
+result evidence accumulated before a final inference failure. Tool failures remain structured
+results and may be shown to the model for one bounded continuation; they are never changed into
+success.
 
 ## Metrics and streaming
 
@@ -120,7 +122,8 @@ before failure; they never log prompts, message content, or personal data.
 the total deadline during consumption, and commits only on a valid final event. It rejects an
 effective structured-tool selection. Tool-call streaming is not implemented.
 The returned `OrchestrationStream.context_metrics` exposes the selection made synchronously before
-provider streaming begins; CLI presentation of those metrics remains deferred to R5.
+provider streaming begins. R5 consumes this public measurement in the CLI; the Core remains
+independent from terminal formatting, clocks used for presentation latency, `argparse`, and I/O.
 
 ## Example
 

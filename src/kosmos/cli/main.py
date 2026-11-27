@@ -21,10 +21,10 @@ from kosmos.cli.commands import (
 from kosmos.cli.rendering import (
     StreamSanitizer,
     render_banner,
+    render_execution_evidence,
     render_metrics,
     render_result_error,
     render_stream_metrics,
-    render_tool_results,
     render_tools,
     sanitize_terminal_text,
 )
@@ -43,6 +43,7 @@ from kosmos.core.orchestration import (
     CoreOrchestrator,
     EffortLevel,
     EffortPolicy,
+    OrchestrationContextPolicy,
     OrchestrationStatus,
     default_effort_policies,
 )
@@ -75,6 +76,18 @@ class CliState:
     effort: EffortLevel
     metrics_enabled: bool
     tools_enabled: bool
+
+
+@dataclass(frozen=True, slots=True)
+class RuntimeDetails:
+    """Verified and configured values retained for local status rendering."""
+
+    kosmos_version: str
+    provider_version: str
+    model: str
+    session_id: UUID
+    settings: ApplicationSettings
+    orchestration_context: OrchestrationContextPolicy
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -163,10 +176,12 @@ async def run_cli(
                 max_history_turns=settings.conversation_max_history_turns,
                 max_context_characters=settings.conversation_max_context_characters,
             )
+            orchestration_context = OrchestrationContextPolicy()
             orchestrator = CoreOrchestrator(
                 provider,
                 tool_registry=registry,
                 context_policy=context_policy,
+                orchestration_context_policy=orchestration_context,
             )
             session = orchestrator.create_session()
             state = CliState(
@@ -174,10 +189,18 @@ async def run_cli(
                 metrics_enabled=arguments.metrics,
                 tools_enabled=not arguments.no_tools,
             )
+            runtime = RuntimeDetails(
+                kosmos_version=version("kosmos"),
+                provider_version=ollama_version,
+                model=model,
+                session_id=session.session_id,
+                settings=settings,
+                orchestration_context=orchestration_context,
+            )
             _write_line(
                 output,
                 render_banner(
-                    version=version("kosmos"),
+                    version=runtime.kosmos_version,
                     ollama_version=ollama_version,
                     model=model,
                     effort=state.effort.value,
@@ -189,8 +212,7 @@ async def run_cli(
                 await _conversation_loop(
                     orchestrator,
                     registry,
-                    session.session_id,
-                    model,
+                    runtime,
                     state,
                     input_reader,
                     output,
@@ -222,8 +244,7 @@ async def run_cli(
 async def _conversation_loop(
     orchestrator: CoreOrchestrator,
     registry: ToolRegistry,
-    session_id: UUID,
-    model: str,
+    runtime: RuntimeDetails,
     state: CliState,
     input_reader: InputReader,
     output: Output,
@@ -246,15 +267,21 @@ async def _conversation_loop(
             continue
 
         if command is not None:
-            should_exit = _handle_command(
-                command, orchestrator, registry, session_id, model, state, output
-            )
+            should_exit = _handle_command(command, orchestrator, registry, runtime, state, output)
             if should_exit:
                 return
             continue
 
         try:
-            await _run_turn(orchestrator, session_id, model, content, state, output)
+            await _run_turn(
+                orchestrator,
+                runtime.session_id,
+                runtime.model,
+                content,
+                state,
+                output,
+                runtime.settings.ollama_context_length,
+            )
         except (ProviderTimeoutError, TimeoutError):
             _write_line(error_output, "Error: The request timed out.")
         except ProviderUnavailableError:
@@ -282,11 +309,19 @@ async def _run_turn(
     content: str,
     state: CliState,
     output: Output,
+    provider_context_tokens: int,
 ) -> None:
     authorization, selected_tools = _tool_access(state)
     if not selected_tools:
         await _run_streaming_turn(
-            orchestrator, session_id, model, content, state, authorization, output
+            orchestrator,
+            session_id,
+            model,
+            content,
+            state,
+            authorization,
+            output,
+            provider_context_tokens,
         )
         return
 
@@ -298,8 +333,9 @@ async def _run_turn(
         authorization=authorization,
         selected_tools=selected_tools,
     )
-    if result.tool_results:
-        _write_line(output, render_tool_results(result.tool_results))
+    evidence = render_execution_evidence(result)
+    if evidence:
+        _write_line(output, evidence)
         _write_line(output, "")
 
     if result.status is OrchestrationStatus.COMPLETED:
@@ -308,7 +344,10 @@ async def _run_turn(
         _write_line(output, render_result_error(result))
 
     if state.metrics_enabled:
-        _write_line(output, f"\n{render_metrics(result.metrics)}")
+        _write_line(
+            output,
+            f"\n{render_metrics(result.metrics, provider_context_tokens=provider_context_tokens)}",
+        )
 
 
 async def _run_streaming_turn(
@@ -319,6 +358,7 @@ async def _run_streaming_turn(
     state: CliState,
     authorization: ToolAuthorization,
     output: Output,
+    provider_context_tokens: int,
 ) -> None:
     stream = orchestrator.stream(
         session_id,
@@ -331,21 +371,33 @@ async def _run_streaming_turn(
     sanitizer = StreamSanitizer()
     started_at = time.monotonic()
     final_metrics = None
+    time_to_first_visible_text = None
+    content_emitted = False
+    completed = False
     output.write("Kosmos: ")
     output.flush()
 
     try:
         async for chunk in stream:
-            output.write(sanitizer.feed(chunk.content))
+            safe_content = sanitizer.feed(chunk.content)
+            output.write(safe_content)
             output.flush()
+            content_emitted = content_emitted or bool(safe_content)
+            if time_to_first_visible_text is None and any(
+                not character.isspace() for character in safe_content
+            ):
+                time_to_first_visible_text = time.monotonic() - started_at
             if chunk.done:
                 final_metrics = chunk.metrics
+                completed = True
     finally:
         sanitizer.finish()
         await stream.aclose()
+        if content_emitted and not completed:
+            _write_line(output, "\nResponse interrupted; partial content was not committed.")
 
     _write_line(output, "")
-    if state.metrics_enabled:
+    if state.metrics_enabled and completed:
         elapsed = time.monotonic() - started_at
         _write_line(
             output,
@@ -355,6 +407,9 @@ async def _run_streaming_turn(
                 thinking=_policy(state.effort).thinking,
                 elapsed_seconds=elapsed,
                 inference=final_metrics,
+                context=stream.context_metrics,
+                time_to_first_visible_text=time_to_first_visible_text,
+                provider_context_tokens=provider_context_tokens,
             ),
         )
 
@@ -363,8 +418,7 @@ def _handle_command(
     command: LocalCommand,
     orchestrator: CoreOrchestrator,
     registry: ToolRegistry,
-    session_id: UUID,
-    model: str,
+    runtime: RuntimeDetails,
     state: CliState,
     output: Output,
 ) -> bool:
@@ -374,12 +428,12 @@ def _handle_command(
     if command.name is CommandName.HELP:
         _write_line(output, _command_help())
     elif command.name is CommandName.STATUS:
-        _write_line(output, _status(model, session_id, state))
+        _write_line(output, _status(runtime, state))
     elif command.name is CommandName.TOOLS:
         authorized, _ = _tool_access(state)
         _write_line(output, render_tools(registry.definitions(), authorized.allowed_tools))
     elif command.name is CommandName.CLEAR:
-        orchestrator.clear_session(session_id)
+        orchestrator.clear_session(runtime.session_id)
         _write_line(output, "Conversation history cleared.")
     elif command.name is CommandName.EFFORT:
         if command.value is None:
@@ -425,19 +479,34 @@ def _render_model_list(models: Sequence[OllamaModel], output: Output) -> None:
         _write_line(output, f"  {sanitize_terminal_text(model.name)}")
 
 
-def _status(model: str, session_id: UUID, state: CliState) -> str:
+def _status(runtime: RuntimeDetails, state: CliState) -> str:
     policy = _policy(state.effort)
     tools = ", ".join(_effective_tool_names(state)) or "Disabled"
+    settings = runtime.settings
+    orchestration = runtime.orchestration_context
+    input_budget = orchestration.max_context_characters - orchestration.response_reserve_characters
     return (
         "Status\n"
-        f"  Session: {session_id}\n"
+        f"  Kosmos version: {sanitize_terminal_text(runtime.kosmos_version)}\n"
         "  Provider: Ollama\n"
+        f"  Provider version: {sanitize_terminal_text(runtime.provider_version)} (verified)\n"
         "  Connection: Local loopback (verified at startup)\n"
-        f"  Model: {sanitize_terminal_text(model)}\n"
+        f"  Model: {sanitize_terminal_text(runtime.model)} (selected)\n"
+        f"  Session: {runtime.session_id}\n"
         f"  Effort: {state.effort.value.upper()}\n"
         f"  Thinking: {'Enabled' if policy.thinking else 'Disabled'}\n"
-        f"  Tools: {tools}\n"
-        f"  Metrics: {_on_off(state.metrics_enabled).capitalize()}"
+        f"  Effective tools: {tools}\n"
+        f"  Metrics: {_on_off(state.metrics_enabled).capitalize()}\n"
+        f"  Provider context window: {settings.ollama_context_length} tokens (configured)\n"
+        "  Conversation history limit: "
+        f"{settings.conversation_max_history_turns} turns (configured)\n"
+        "  Conversation character budget: "
+        f"{settings.conversation_max_context_characters} characters (configured)\n"
+        "  Orchestration character budget: "
+        f"{orchestration.max_context_characters} characters (configured)\n"
+        f"  Integrated input budget: {input_budget} characters (configured)\n"
+        "  Response reserve: "
+        f"{orchestration.response_reserve_characters} characters (configured)"
     )
 
 

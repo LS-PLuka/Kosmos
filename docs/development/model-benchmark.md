@@ -98,8 +98,9 @@ that the provider does not supply remain unavailable.
 R3 adds internal `ContextMetrics` to orchestration results. They distinguish initial conversation
 omissions caused by the turn and content-character limits from later omissions caused by compact
 serialized requests, tool schemas, calls, and results. They contain counts and sizes only. Existing
-terminal, JSON, and Markdown presentation remains unchanged for report comparability; visible
-context diagnostics are deferred to R5.
+benchmark terminal, JSON, and Markdown presentation remains unchanged for report comparability. R5
+renders the same Core-produced measurements in the development CLI without changing benchmark
+results.
 
 R4 guidance and revised schemas are included in serialized request size and therefore in the same
 context metrics. The harness does not score a textual claim such as "I used calculate" as a
@@ -146,3 +147,7 @@ quality signals and are not treated as proof of software-side retention.
 R4 fake-provider tests prove deterministic composition, authorization, sequential result
 correlation, failure evidence, and benchmark classification. They do not prove that Qwen will obey
 delegation guidance or reproduce tool results faithfully in natural language.
+
+R6 must review exported tool arguments as potentially sensitive local data. R5 intentionally keeps
+arguments out of default CLI evidence, but it does not change the catalog 1.1 report schema or
+retroactively classify existing local reports.

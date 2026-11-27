@@ -8,6 +8,7 @@ import pytest
 
 from kosmos.core.exceptions import (
     ContextLimitExceededError,
+    ProviderTimeoutError,
     SessionBusyError,
     ToolCapabilityUnavailableError,
 )
@@ -43,7 +44,7 @@ from kosmos.intelligence.tools import (
 @dataclass(slots=True)
 class ScriptedProvider:
     text_responses: list[InferenceResponse] = field(default_factory=list)
-    tool_responses: list[ToolInferenceResponse] = field(default_factory=list)
+    tool_responses: list[ToolInferenceResponse | Exception] = field(default_factory=list)
     chunks: tuple[InferenceChunk, ...] = ()
     text_requests: list[InferenceRequest] = field(default_factory=list)
     tool_requests: list[ToolInferenceRequest] = field(default_factory=list)
@@ -54,7 +55,10 @@ class ScriptedProvider:
 
     async def generate_with_tools(self, request: ToolInferenceRequest) -> ToolInferenceResponse:
         self.tool_requests.append(request)
-        return self.tool_responses.pop(0)
+        response = self.tool_responses.pop(0)
+        if isinstance(response, Exception):
+            raise response
+        return response
 
     async def stream(self, request: InferenceRequest) -> AsyncIterator[InferenceChunk]:
         self.text_requests.append(request)
@@ -421,6 +425,39 @@ def test_proposed_division_by_zero_preserves_failure_evidence() -> None:
     assert result.metrics.tools_succeeded == 0
     assert result.metrics.tools_rejected_or_failed == 1
     assert result.content == "Essa divisão é indefinida, senhor."
+
+
+def test_provider_timeout_after_execution_preserves_tool_evidence() -> None:
+    call = ToolCall(
+        "call_1",
+        "calculate",
+        {"operation": "multiply", "a": 125, "b": 32},
+    )
+    provider = ScriptedProvider(
+        tool_responses=[
+            ToolInferenceResponse("test-model", "", (call,)),
+            ProviderTimeoutError("provider timed out"),
+        ]
+    )
+    orchestrator = CoreOrchestrator(provider, tool_registry=create_builtin_registry())
+    session = orchestrator.create_session()
+
+    result = asyncio.run(
+        orchestrator.generate(
+            session.session_id,
+            "Calcule.",
+            model="test-model",
+            authorization=ToolAuthorization(("calculate",)),
+            selected_tools=("calculate",),
+        )
+    )
+
+    assert result.status is OrchestrationStatus.PROVIDER_TIMEOUT
+    assert result.tool_calls == (call,)
+    assert result.tool_results[0].status is ToolResultStatus.SUCCESS
+    assert result.metrics.inferences_started == 2
+    assert result.metrics.inferences_completed == 1
+    assert orchestrator.get_session(session.session_id).messages == ()
 
 
 def test_multiple_tools_execute_sequentially_in_proposal_order() -> None:

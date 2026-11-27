@@ -2,8 +2,8 @@
 
 ## Purpose and architecture
 
-Stage 01.7 provides a temporary terminal interface for maintainers to exercise the integrated
-Kosmos intelligence path. The CLI is a presentation and composition layer: `CoreOrchestrator`
+R5 refines the temporary terminal interface used by maintainers to exercise the integrated Kosmos
+intelligence path. The CLI remains a presentation and composition layer: `CoreOrchestrator`
 continues to own conversation coordination, personality, effort policy, context limits, tool
 selection, authorization, execution, and controlled results. `OllamaProvider` remains the local
 HTTP adapter, and the Conversation Engine remains the sole owner of session history.
@@ -56,10 +56,13 @@ failures use exit code 1, normal termination uses 0, and top-level Ctrl+C uses 1
 ## Internal commands
 
 - `/help` lists local commands.
-- `/status` shows session configuration and the startup-verified connection state.
+- `/status` shows the Kosmos version, startup-verified provider version and loopback connection,
+  selected model, session identifier, effective effort, thinking, tools, metrics state, and the
+  configured provider, conversation, orchestration, integrated-input, and response-reserve limits.
 - `/effort [instant|low|medium|high]` shows or changes effort for subsequent turns.
 - `/metrics [on|off]` toggles or explicitly controls metrics.
-- `/tools` shows registered tool descriptions and current effective authorization.
+- `/tools` distinguishes tools effectively available for the current turn from tools that are only
+  registered and disabled. Registration alone never implies authorization.
 - `/clear` clears history through `CoreOrchestrator.clear_session()`.
 - `/exit` closes the session and provider.
 
@@ -73,7 +76,9 @@ uses real textual streaming and has no tools. Low, Medium, and High use complete
 tools are available. With `--no-tools`, those levels also use real textual streaming because no
 structured tool calling is active. Streaming writes fragments progressively, preserves Unicode
 and whitespace, closes the iterator in all paths, and commits a turn only after the final provider
-event.
+event. If the stream ends, fails, times out, or is cancelled after text has been displayed but
+before the required completion event, the CLI prints a separate interruption notice. The partial
+text is not added to confirmed history and completion metrics are not shown.
 
 The trusted application allowlist contains exactly `calculate` and `count_items`. The CLI never
 authorizes tools merely because they appear in a registry. `--no-tools` supplies both empty
@@ -82,17 +87,44 @@ initial allowlist.
 
 ## Metrics
 
-Complete orchestration reports software elapsed time, inference counts, tool proposals and
-executions, successful and failed or rejected tools, and provider metrics when present. Streaming
-reports locally measured elapsed time and final-event provider metrics when present. Provider
-durations are converted from nanoseconds to seconds. Tokens per second is calculated only with a
-valid generated-token count and a positive generation duration. Missing values are omitted.
+Complete orchestration reports software elapsed time, started and completed inference counts, tool
+proposals, handlers invoked, successful and failed or rejected tools, and provider metrics when
+present. Multiple inference blocks are numbered and never combined as if they were one provider
+window. Streaming reports locally measured elapsed time and final-event provider metrics when
+present.
+
+With metrics enabled, both paths render the content-free R3 context measurements produced by the
+Core Engine. Conversation selection separates omissions caused by the turn limit and conversation
+character budget. Every provider request then reports its request kind, selected message
+characters, compact serialized characters against the integrated input budget, response reserve,
+and any additional complete turns removed by integrated fitting. These omission counts describe
+different selection stages and are not added together as one total. Tool orchestration labels each
+request independently.
+The configured provider context window is shown in tokens alongside these character measurements;
+it is configuration evidence, not an independently measured capacity.
+
+Streaming also measures `Time to first visible text` with `time.monotonic()`, from immediately
+before the first stream event is requested until the first sanitized, non-whitespace text is
+written. The fixed `Kosmos:` prefix, empty chunks, discarded control sequences, and hidden thinking
+do not count. No value is emitted when visible text never arrives. This is presentation latency,
+not model-internal token TTFT, and it is not fabricated for complete or tool-calling generation.
+
+Provider durations are converted from nanoseconds to seconds. Tokens per second is calculated only
+with a valid generated-token count and a positive provider generation duration. The provider's
+generated-token count may include hidden thinking; it is not described as visible-only output.
+Missing values are omitted.
+
+Tool evidence correlates structured proposals and results without displaying arguments. A proposal
+that was never executed is shown as `proposed`; successful, rejected, and failed outcomes use the
+actual `ToolResult` status. Successful built-in pure tools may show their compact numeric result.
+Evidence from an already executed tool remains visible if the final response fails.
 
 ## Lifecycle, errors, and terminal security
 
 Startup verifies the Ollama version and installed model list before creating a session. An absent
 configured model is reported with a manual `ollama pull` instruction; no command is executed.
-Expected provider, timeout, invalid-response, context, inference, tool-limit, and capability
+Expected provider unavailability, provider timeout, provider HTTP failure, invalid response,
+inference failure, context, inference-limit, tool-limit, orchestration timeout, and capability
 failures are rendered without tracebacks. Recoverable conversation failures return to the prompt.
 
 EOF and `/exit` close normally. Ctrl+C cancels the active operation and exits safely. Active
@@ -100,13 +132,16 @@ streams close in `finally`, incomplete turns are not committed, the session is d
 it becomes idle, and the provider context always releases its HTTP client.
 
 User input, model text, tool results, model identifiers, and provider metadata are untrusted for
-presentation. The CLI strips ANSI, OSC, and unsafe control characters while preserving legitimate
-Unicode, newlines, carriage returns, and tabs. Streaming sanitization buffers incomplete escape
-sequences across fragments. Sanitization changes only displayed text, never conversation history.
+presentation. The CLI strips ANSI, OSC, C1 control sequences, carriage returns, and unsafe control
+characters while preserving legitimate Unicode, newlines, and tabs. Streaming sanitization buffers
+incomplete escape sequences across fragments. Sanitization changes only displayed text, never
+conversation history or structured results.
 
 The loopback restriction prevents accidental remote endpoint configuration, but it cannot inspect
 all daemon behavior. On Ubuntu, configure and verify `OLLAMA_NO_CLOUD=1` in the Ollama service
-environment and use only local models. Kosmos does not change daemon configuration.
+environment and use only local models. Kosmos does not change daemon configuration. Accordingly,
+`Connection: Local loopback (verified at startup)` is a narrow connection statement, not proof of
+offline operation, disabled cloud features, complete privacy, or zero external network activity.
 
 ## Ubuntu startup guide
 
@@ -156,9 +191,9 @@ uv run kosmos --no-tools
   `KOSMOS_OLLAMA_TIMEOUT_SECONDS` if required. The effort deadline remains independent.
 - For a context-limit error, shorten the request or use `/clear`; do not increase context
   automatically.
-- For inadequate responses, record the selected model, effort, prompt, and metrics for Stage 01.8
-  real behavioral validation. Do not treat automated fake-provider tests as real Qwen evidence.
+- For inadequate responses, record the selected model, effort, prompt, and metrics for R6 real
+  behavioral validation. Do not treat automated fake-provider tests as real Qwen evidence.
 
 The CLI has no persistent history, shell execution, file access, voice, GUI, remote fallback,
-telemetry, model download, streaming tool calls, or Stage 01.8 benchmark behavior. Real Ubuntu,
-Ollama, and Qwen validation remains pending.
+telemetry, model download, or streaming tool calls. Real Ubuntu, Ollama, Qwen, and offline
+validation remains pending for R6.

@@ -10,8 +10,13 @@ import pytest
 
 from kosmos.cli.main import APPROVED_TOOLS, build_parser, main, run_cli
 from kosmos.core.config import DEFAULT_OLLAMA_MODEL
-from kosmos.core.exceptions import ProviderUnavailableError
-from kosmos.intelligence.models import InferenceChunk, InferenceRequest, InferenceResponse
+from kosmos.core.exceptions import InvalidProviderResponseError, ProviderUnavailableError
+from kosmos.intelligence.models import (
+    InferenceChunk,
+    InferenceMetrics,
+    InferenceRequest,
+    InferenceResponse,
+)
 from kosmos.intelligence.providers.ollama import OllamaModel
 from kosmos.intelligence.tools import (
     ToolCall,
@@ -25,7 +30,7 @@ class FakeRuntimeProvider:
     models: tuple[OllamaModel, ...] = ()
     version: str = "0.12.0"
     chunks: tuple[InferenceChunk, ...] = ()
-    tool_responses: list[ToolInferenceResponse] = field(default_factory=list)
+    tool_responses: list[ToolInferenceResponse | Exception] = field(default_factory=list)
     startup_error: Exception | None = None
     text_requests: list[InferenceRequest] = field(default_factory=list)
     tool_requests: list[ToolInferenceRequest] = field(default_factory=list)
@@ -51,7 +56,10 @@ class FakeRuntimeProvider:
 
     async def generate_with_tools(self, request: ToolInferenceRequest) -> ToolInferenceResponse:
         self.tool_requests.append(request)
-        return self.tool_responses.pop(0)
+        response = self.tool_responses.pop(0)
+        if isinstance(response, Exception):
+            raise response
+        return response
 
     async def stream(self, request: InferenceRequest) -> AsyncIterator[InferenceChunk]:
         self.text_requests.append(request)
@@ -206,6 +214,19 @@ def test_official_model_is_used_as_final_fallback() -> None:
     assert f"Model:          {DEFAULT_OLLAMA_MODEL}" in output
 
 
+def test_startup_greeting_is_deterministic_and_does_not_run_inference() -> None:
+    provider = FakeRuntimeProvider(models=(_model(),))
+
+    code, output, error = _run(provider, _arguments(), "/exit")
+
+    assert code == 0
+    assert "Kosmos: À sua disposição, senhor." in output
+    assert "Offline verified" not in output
+    assert provider.text_requests == []
+    assert provider.tool_requests == []
+    assert error == ""
+
+
 def test_provider_unavailable_is_clear_and_provider_is_closed() -> None:
     provider = FakeRuntimeProvider(startup_error=ProviderUnavailableError("unavailable"))
 
@@ -281,8 +302,8 @@ def test_no_tools_uses_streaming_and_does_not_advertise_tools() -> None:
     assert code == 0
     assert (
         "calculate: Use for one requested deterministic addition, subtraction, multiplication, "
-        "or division; not for conceptual explanations or expression evaluation. (disabled)"
-        in output
+        "or division; not for conceptual explanations or expression evaluation. "
+        "(registered, disabled)" in output
     )
     assert len(provider.text_requests) == 1
     assert provider.tool_requests == []
@@ -309,6 +330,108 @@ def test_calculate_is_explicitly_authorized_and_executed() -> None:
     assert "Kosmos: The result is 4000." in output
     assert tuple(tool.name for tool in provider.tool_requests[0].tools) == APPROVED_TOOLS
     assert '"result":4000' in provider.tool_requests[1].messages[-1].content
+
+
+def test_status_reports_verified_and_configured_values_without_inference() -> None:
+    provider = FakeRuntimeProvider(models=(_model(),), version="0.12.3")
+
+    code, output, error = _run(
+        provider,
+        _arguments(),
+        "/status",
+        "/exit",
+        environment={
+            "KOSMOS_OLLAMA_CONTEXT_LENGTH": "4096",
+            "KOSMOS_CONVERSATION_MAX_HISTORY_TURNS": "7",
+            "KOSMOS_CONVERSATION_MAX_CONTEXT_CHARACTERS": "8000",
+        },
+    )
+
+    assert code == 0
+    assert "Provider version: 0.12.3 (verified)" in output
+    assert "Model: qwen3.5:4b-q4_K_M (selected)" in output
+    assert "Provider context window: 4096 tokens (configured)" in output
+    assert "Conversation history limit: 7 turns (configured)" in output
+    assert "Orchestration character budget: 12000 characters (configured)" in output
+    assert "Response reserve: 2000 characters (configured)" in output
+    assert provider.text_requests == []
+    assert provider.tool_requests == []
+    assert error == ""
+
+
+def test_stream_metrics_include_context_and_first_visible_text() -> None:
+    metrics = InferenceMetrics(
+        prompt_eval_count=10,
+        eval_count=4,
+        eval_duration_ns=1_000_000_000,
+    )
+    provider = FakeRuntimeProvider(
+        models=(_model(),),
+        chunks=(
+            InferenceChunk(DEFAULT_OLLAMA_MODEL, ""),
+            InferenceChunk(DEFAULT_OLLAMA_MODEL, "Visible", True, metrics),
+        ),
+    )
+
+    code, output, error = _run(
+        provider,
+        _arguments("--effort", "instant", "--metrics"),
+        "hello",
+        "/exit",
+    )
+
+    assert code == 0
+    assert "Time to first visible text:" in output
+    assert "Context" in output
+    assert "History selected: 0/0 turns" in output
+    assert "Final provider request (text)" in output
+    assert "Serialized input:" in output
+    assert "Provider context: 4096 configured tokens" in output
+    assert error == ""
+
+
+def test_interrupted_stream_marks_partial_text_and_keeps_session_usable() -> None:
+    provider = FakeRuntimeProvider(
+        models=(_model(),),
+        chunks=(InferenceChunk(DEFAULT_OLLAMA_MODEL, "Partial response"),),
+    )
+
+    code, output, error = _run(
+        provider,
+        _arguments("--effort", "instant", "--metrics"),
+        "hello",
+        "/exit",
+    )
+
+    assert code == 0
+    assert "Kosmos: Partial response" in output
+    assert "Response interrupted; partial content was not committed." in output
+    assert "Metrics\n" not in output
+    assert "invalid response" in error
+    assert "Kosmos stopped." in output
+
+
+def test_tool_evidence_survives_failure_of_final_response() -> None:
+    call = ToolCall(
+        "call_1",
+        "calculate",
+        {"operation": "multiply", "a": 125, "b": 32},
+    )
+    provider = FakeRuntimeProvider(
+        models=(_model(),),
+        tool_responses=[
+            ToolInferenceResponse(DEFAULT_OLLAMA_MODEL, "", (call,)),
+            InvalidProviderResponseError("invalid final response"),
+        ],
+    )
+
+    code, output, error = _run(provider, _arguments(), "calculate", "/exit")
+
+    assert code == 0
+    assert "[calculate: success]\nResult: 4000" in output
+    assert "Error: Ollama returned an invalid response." in output
+    assert "Kosmos stopped." in output
+    assert error == ""
 
 
 def test_streaming_context_limit_returns_to_interaction_without_inference() -> None:

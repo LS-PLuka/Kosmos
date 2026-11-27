@@ -9,7 +9,10 @@ from uuid import UUID
 
 from kosmos.core.exceptions import (
     ContextLimitExceededError,
+    InferenceError,
     InvalidProviderResponseError,
+    ProviderHTTPError,
+    ProviderTimeoutError,
     ProviderUnavailableError,
     ToolCapabilityUnavailableError,
 )
@@ -270,6 +273,39 @@ class CoreOrchestrator:
                 model,
                 policy,
                 OrchestrationStatus.PROVIDER_UNAVAILABLE,
+                None,
+                str(error),
+                state,
+                started_at,
+            )
+        except ProviderTimeoutError as error:
+            return self._result(
+                session_id,
+                model,
+                policy,
+                OrchestrationStatus.PROVIDER_TIMEOUT,
+                None,
+                str(error),
+                state,
+                started_at,
+            )
+        except ProviderHTTPError as error:
+            return self._result(
+                session_id,
+                model,
+                policy,
+                OrchestrationStatus.PROVIDER_HTTP_ERROR,
+                None,
+                str(error),
+                state,
+                started_at,
+            )
+        except InferenceError as error:
+            return self._result(
+                session_id,
+                model,
+                policy,
+                OrchestrationStatus.INFERENCE_ERROR,
                 None,
                 str(error),
                 state,
