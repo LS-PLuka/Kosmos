@@ -79,7 +79,12 @@ R3 keeps the 12,000-character integrated limit and 2,000-character response rese
 budget. The integrated text and tool paths then measure compact serialization and may remove more
 oldest complete confirmed turns when framing or tool schemas require space. Complete generation and
 streaming use the same integrated fitting operation. Structured tool inference repeats it before
-every provider call because assistant calls and tool results enlarge the active turn.
+every provider call because assistant calls and tool results enlarge the active turn. After each
+structured proposal, the orchestrator also performs a preflight before every handler invocation.
+This uses all arguments and earlier results already known in the batch, so a tool is not invoked
+when the required continuation has already become impossible within the declared budget. Unknown
+future result size cannot be predicted; a result that alone exhausts the budget remains preserved
+as execution evidence and prevents later calls or inference.
 
 System instruction, transient operational guidance, current user message, selected schemas,
 assistant calls, and correlated tool results are mandatory. If they do not fit after all eligible
@@ -104,7 +109,9 @@ success.
 Results include elapsed coordination seconds, started and completed inferences, proposals,
 handlers invoked, successful tools, rejected or failed tools, effort, thinking, and the exact
 available per-inference `InferenceMetrics`. Missing provider metrics are omitted rather than
-invented or treated as zero. Provider nanosecond durations remain distinct from measured wall time.
+invented or treated as zero. `inference_metric_indices` correlates every available optional metric
+with the inference that produced it, so an absent earlier value cannot shift later presentation or
+reporting. Provider nanosecond durations remain distinct from measured wall time.
 
 `OrchestrationResult.tool_calls` preserves immutable structured proposals, including rejected or
 over-budget proposals, separately from `tool_results`. Arguments are intentionally absent from
@@ -124,6 +131,19 @@ effective structured-tool selection. Tool-call streaming is not implemented.
 The returned `OrchestrationStream.context_metrics` exposes the selection made synchronously before
 provider streaming begins. R5 consumes this public measurement in the CLI; the Core remains
 independent from terminal formatting, clocks used for presentation latency, `argparse`, and I/O.
+
+## Interface readiness
+
+Future interfaces can create, inspect, clear, and delete sessions through the public orchestrator;
+await complete generation; consume textual streaming; cancel tasks; handle controlled statuses;
+and read content-free metrics without depending on the development CLI. This boundary is suitable
+for a future voice presentation layer and introduces no dependency from Core to audio, terminal, or
+GUI code.
+
+Stage 02 still needs its own capture, recognition, synthesis, VAD, wake-word, playback,
+backpressure, interruption, and capture-versus-playback coordination. Structured tool calling is
+non-streaming, and no current metric represents time to first audible output. These are planned
+voice concerns, not regressions or reasons to add audio contracts to Stage 01.
 
 ## Example
 

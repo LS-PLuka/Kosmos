@@ -111,6 +111,5 @@ Runtime YAML, JSON, databases, generic knowledge management, and dynamic loaders
 out of scope.
 
 R2 adds no memory, authentication, authorization, provider, tool, routing, effort-policy change,
-voice, system control, web access, GUI, or dependency. R3 changes context policy separately while
-preserving this institutional instruction byte-for-byte. R4–R6 remain separate future refinement
-work.
+voice, system control, web access, GUI, or dependency. Later R3–R6 refinements preserve the same
+institutional facts and their separation from temporary conversation context and runtime policy.

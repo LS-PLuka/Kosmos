@@ -28,6 +28,7 @@ but only after implemented behavior demonstrates the need. Empty architectural l
 | `core` | Foundations and Stage 01.6 bounded orchestration are integrated |
 | `intelligence` | Text inference, Ollama, conversation, personality, institutional knowledge, and Stage 01.5 tool calling are integrated; real model behavior remains pending |
 | `benchmarking` | Stage 01.8 scenario, evaluation, runner, and reporting infrastructure is implemented; real validation remains pending |
+| `cli` | Development-only runtime composition and terminal presentation are implemented |
 | `voice` | Activation, capture, recognition, and speech synthesis |
 | `system` | Operating system, applications, files, and processes |
 | `developer` | Development agents, projects, sessions, and tasks |
@@ -40,7 +41,8 @@ but only after implemented behavior demonstrates the need. Empty architectural l
 | `vision` | Computer vision and multimodal processing |
 | `plugins` | Kosmos extension mechanisms |
 
-Directories other than `core` and `intelligence` still describe planned boundaries only. See the
+The remaining business-capability entries describe planned boundaries only. `cli` and
+`benchmarking` are implemented support packages rather than future business domains. See the
 [Core Foundation specification](core-foundation.md) for the behavior currently available.
 
 ## Architectural rules

@@ -191,9 +191,9 @@ uv run kosmos --no-tools
   `KOSMOS_OLLAMA_TIMEOUT_SECONDS` if required. The effort deadline remains independent.
 - For a context-limit error, shorten the request or use `/clear`; do not increase context
   automatically.
-- For inadequate responses, record the selected model, effort, prompt, and metrics for R6 real
-  behavioral validation. Do not treat automated fake-provider tests as real Qwen evidence.
+- For inadequate responses, record the selected model, effort, prompt, and metrics for deferred
+  real behavioral validation. Do not treat automated fake-provider tests as real Qwen evidence.
 
 The CLI has no persistent history, shell execution, file access, voice, GUI, remote fallback,
 telemetry, model download, or streaming tool calls. Real Ubuntu, Ollama, Qwen, and offline
-validation remains pending for R6.
+validation remains pending after the automated R6 audit.

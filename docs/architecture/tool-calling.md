@@ -213,6 +213,12 @@ are sent to a provider. These are technical resource and context protections, no
 limits. Character and byte counts are not guaranteed token counts, and Stage 01.5 does not change
 the existing context policy or 4,096-token Ollama configuration.
 
+Core orchestration performs integrated-context preflight after receiving a proposal and before
+each handler in a batch. Proposal arguments and earlier results are then known and count toward the
+required active turn. If that known data cannot fit after eligible confirmed history is removed,
+remaining calls are not executed. The software cannot predict a handler result before execution;
+an already produced result is retained as evidence even when it prevents continuation.
+
 There is no shell, file, process, application, device, credential, network, remote, or arbitrary
 code tool. Results are untrusted data and do not become system instructions. Stage 01.6 owns
 integrated context budgeting and explicit orchestration without inferring authorization from

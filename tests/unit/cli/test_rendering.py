@@ -2,11 +2,14 @@
 
 from uuid import uuid4
 
+import pytest
+
 from kosmos.cli.rendering import (
     StreamSanitizer,
     render_banner,
     render_execution_evidence,
     render_metrics,
+    render_result_error,
     render_stream_metrics,
     render_tool_results,
     sanitize_terminal_text,
@@ -166,6 +169,42 @@ def test_tool_results_distinguish_rejected_and_failed_execution() -> None:
     )
 
 
+@pytest.mark.parametrize(
+    ("status", "message"),
+    [
+        (OrchestrationStatus.PROVIDER_TIMEOUT, "local Ollama request timed out"),
+        (OrchestrationStatus.PROVIDER_HTTP_ERROR, "unsuccessful HTTP response"),
+        (OrchestrationStatus.INFERENCE_ERROR, "could not complete the inference"),
+    ],
+)
+def test_controlled_provider_failures_have_specific_cli_messages(
+    status: OrchestrationStatus,
+    message: str,
+) -> None:
+    metrics = OrchestrationMetrics(
+        elapsed_seconds=0.1,
+        inferences_started=1,
+        inferences_completed=0,
+        tool_proposals=0,
+        handlers_invoked=0,
+        tools_succeeded=0,
+        tools_rejected_or_failed=0,
+        effort=EffortLevel.LOW,
+        thinking=False,
+    )
+    result = OrchestrationResult(
+        uuid4(),
+        "model",
+        EffortLevel.LOW,
+        status,
+        None,
+        (),
+        metrics,
+    )
+
+    assert message in render_result_error(result)
+
+
 def test_execution_evidence_shows_unexecuted_proposal_without_arguments() -> None:
     call = ToolCall("call_1", "calculate", {"a": 123, "b": 456, "operation": "add"})
     metrics = OrchestrationMetrics(
@@ -227,3 +266,25 @@ def test_metrics_identify_inferences_and_context_omission_causes() -> None:
     assert "Provider request 1 (tools)" in rendered
     assert "Additional history omitted by integrated budget: 1 turns" in rendered
     assert "characters" in rendered
+
+
+def test_metrics_keep_optional_provider_values_aligned_to_their_inference() -> None:
+    metrics = OrchestrationMetrics(
+        elapsed_seconds=1.0,
+        inferences_started=2,
+        inferences_completed=2,
+        tool_proposals=1,
+        handlers_invoked=1,
+        tools_succeeded=1,
+        tools_rejected_or_failed=0,
+        effort=EffortLevel.LOW,
+        thinking=False,
+        inference_metrics=(InferenceMetrics(eval_count=7),),
+        inference_metric_indices=(2,),
+    )
+
+    rendered = render_metrics(metrics)
+
+    first, second = rendered.split("  Inference 2")
+    assert "Inference 1\n    Provider metrics: unavailable" in first
+    assert "Generated tokens: 7" in second

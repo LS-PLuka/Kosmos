@@ -82,18 +82,28 @@ content-free orchestration metrics. Catalog `1.1` results must not be compared a
 catalog `1.0` tool-selection scores because the argument criterion is new. Quick scenario prompts
 remain unchanged, preserving the baseline prompts while versioning the evaluation contract.
 
+Catalog `1.2` preserves every `1.1` prompt, suite, and structured evidence field but tightens the
+textual evaluation contract. Required facts and numeric results in directly negated or superseded
+clauses no longer pass, and numeric result communication now requires concise output or nearby
+result context. Results from `1.2` must not be presented as directly equivalent to `1.0` or `1.1`.
+
 Conversation factual checks use documented, scenario-specific text heuristics. They are useful
 signals, not semantic proof. Naturalness, elegance, humor, sophistication, disagreement quality,
 and open-ended explanations always require human review. `MANUAL_REVIEW` is excluded from the
 deterministic pass count. No external LLM judge, API, general-intelligence score, or paid service is
-used.
+used. Heuristics reject required words or numeric results in directly negated or superseded
+clauses, and numeric communication requires a concise answer or nearby result context. They still
+cannot establish full semantic correctness. Ambiguous conclusions remain subject to maintainer
+review.
 
 ## Metrics
 
 Reports reuse `OrchestrationMetrics` and `InferenceMetrics` and include available elapsed time,
 first non-empty streaming text, provider durations, prompt tokens, generated tokens, inference
 counts, tool proposals, handler executions, successful tools, and rejected or failed tools. Values
-that the provider does not supply remain unavailable.
+that the provider does not supply remain unavailable. Optional provider metrics retain their real
+inference number through `inference_metric_indices`; a missing earlier metric cannot relabel a
+later one.
 
 R3 adds internal `ContextMetrics` to orchestration results. They distinguish initial conversation
 omissions caused by the turn and content-character limits from later omissions caused by compact
@@ -130,6 +140,21 @@ warm-ups, scenario version, and UTC start time. It does not collect complete env
 credentials, hostnames, or hardware identity. Model responses are not claimed to be bit-for-bit
 reproducible.
 
+JSON export also contains the complete final model response, evaluation checks, structured tool
+arguments, and structured tool result data for each synthetic scenario. These fields are required
+to audit proposal, argument, execution, and communication evidence, but may contain sensitive data
+if maintainers add non-synthetic prompts in the future. Export occurs only with an explicit
+`--output` path, remains on the local filesystem, refuses overwrite, and defaults under the
+Git-ignored `benchmark-results/` directory in documented commands. The files are not encrypted;
+maintainers must choose a private destination, review content before sharing, and never add secrets
+or personal production data to scenarios. Markdown and terminal summaries do not include full
+responses, arguments, or result payloads.
+
+R6 adds the optional `inference_metric_indices` array to orchestration metrics in newly exported
+schema-version-1 JSON. Existing structured evidence fields remain unchanged, catalog `1.2` records
+the stricter evaluator contract, and prior reports remain readable. Consumers must tolerate
+additive fields in the versioned object.
+
 ## Limitations
 
 Character budgets are conservative software limits, not a model-specific tokenizer guarantee.
@@ -148,6 +173,7 @@ R4 fake-provider tests prove deterministic composition, authorization, sequentia
 correlation, failure evidence, and benchmark classification. They do not prove that Qwen will obey
 delegation guidance or reproduce tool results faithfully in natural language.
 
-R6 must review exported tool arguments as potentially sensitive local data. R5 intentionally keeps
-arguments out of default CLI evidence, but it does not change the catalog 1.1 report schema or
-retroactively classify existing local reports.
+R6 reviewed exported responses, tool arguments, and results as potentially sensitive local data.
+The evidence is retained for synthetic scenario auditability because export is explicit and local;
+the CLI continues to omit arguments by default. This review does not retroactively classify prior
+reports or make them safe to publish without inspection.

@@ -71,12 +71,16 @@ def _evaluate_text_heuristic(
 ) -> Evaluation:
     normalized = _normalize(response or "")
     missing = tuple(term for term in scenario.required_terms if _normalize(term) not in normalized)
+    negated = tuple(
+        term for term in scenario.required_terms if _marker_is_negated(normalized, _normalize(term))
+    )
 
-    if missing:
+    if missing or negated:
         return Evaluation(
             BenchmarkStatus.FAIL,
-            "the documented text heuristic did not find all required facts",
-            tuple(f"missing fact: {term}" for term in missing),
+            "the documented text heuristic did not find uncontradicted required facts",
+            tuple(f"missing fact: {term}" for term in missing)
+            + tuple(f"negated fact: {term}" for term in negated),
         )
 
     return Evaluation(
@@ -137,10 +141,57 @@ def _response_contains_value(response: str, expected: int | float | None) -> boo
     if isinstance(expected, int):
         candidates.update({f"{expected:,}", f"{expected:,}".replace(",", ".")})
 
+    normalized = _normalize(response)
+    for candidate in candidates:
+        pattern = rf"(?<![\d+\-]){re.escape(candidate)}(?!\d)"
+        for match in re.finditer(pattern, normalized):
+            if not _match_is_negated(
+                normalized, match.start(), match.end()
+            ) and _match_has_result_context(normalized, match.start(), match.end()):
+                return True
+
+    return False
+
+
+def _marker_is_negated(text: str, marker: str) -> bool:
     return any(
-        re.search(rf"(?<!\d){re.escape(candidate)}(?!\d)", response) is not None
-        for candidate in candidates
+        _match_is_negated(text, match.start(), match.end())
+        for match in re.finditer(re.escape(marker), text)
     )
+
+
+def _match_is_negated(text: str, start: int, end: int) -> bool:
+    negation = r"\b(?:not|nao|never|wrong|incorrect|errad[oa]|incorret[oa])\b"
+    before = text[max(0, start - 32) : start]
+    after = text[end : min(len(text), end + 40)]
+    return (
+        re.search(rf"{negation}[^.!?\n]{{0,20}}$", before) is not None
+        or re.match(
+            rf"[^.!?\n]{{0,12}}{negation}",
+            after,
+        )
+        is not None
+        or re.match(
+            r"[^.!?\n]{0,24}\b(?:but|mas|however|porem)\b",
+            after,
+        )
+        is not None
+    )
+
+
+def _match_has_result_context(text: str, start: int, end: int) -> bool:
+    before = text[max(0, start - 48) : start]
+    after = text[end : min(len(text), end + 24)]
+    positive_before = (
+        r"\b(?:result|resultado|total|equals?|igual|sao|ha|there are)\b[^.!?\n]{0,24}$"
+    )
+    positive_after = r"^[^.!?\n]{0,12}\b(?:items?|itens?|is the result)\b"
+    if re.search(positive_before, before) is not None or re.match(positive_after, after):
+        return True
+
+    remainder = text[:start] + text[end:]
+    without_address = re.sub(r"\b(?:senhor|sir)\b", "", remainder)
+    return len(without_address.strip(" .,;:!?\t\n")) == 0
 
 
 def _normalize(value: str) -> str:

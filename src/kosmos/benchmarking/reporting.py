@@ -196,6 +196,7 @@ def _orchestration_document(result: ScenarioResult) -> dict[str, object] | None:
         "effort": metrics.effort.value,
         "thinking": metrics.thinking,
         "inference_metrics": [_inference_document(item) for item in metrics.inference_metrics],
+        "inference_metric_indices": list(metrics.inference_metric_indices),
     }
 
 

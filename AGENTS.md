@@ -14,9 +14,11 @@ conversation, tools, effort levels, and the quick benchmark, but exposed persona
 tool-selection issues. R1 refines personality and communication, R2 adds trusted institutional
 knowledge, R3 improves conversation context selection and observability, R4 adds turn-scoped tool
 awareness, delegation guidance, and auditable proposal evidence, and R5 refines runtime and CLI
-observability. Renewed real Qwen behavioral validation on Ubuntu remains pending. R6 remains a
-separate validation stage and must not be treated as implemented without explicit scope. Do not
-claim that Stage 01 is definitively validated or that later roadmap capabilities are available.
+observability. R6 consolidates these refinements with automated regression, security, privacy, and
+architecture review on the current refinement branch. Live runtime, Qwen behavioral, performance,
+hardware, and offline validation on Ubuntu remain pending. Do not claim that Stage 01 is
+behaviorally validated, that the refinement branch is already integrated, or that later roadmap
+capabilities are available.
 
 ## Engineering principles
 

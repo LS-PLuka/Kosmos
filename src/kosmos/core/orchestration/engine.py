@@ -72,6 +72,7 @@ class _MetricsState:
     tools_succeeded: int = 0
     tools_rejected_or_failed: int = 0
     inference_metrics: list[InferenceMetrics] = field(default_factory=list)
+    inference_metric_indices: list[int] = field(default_factory=list)
     tool_results: list[ToolResult] = field(default_factory=list)
     tool_calls: list[ToolCall] = field(default_factory=list)
     conversation_context: ContextSelectionMetrics | None = None
@@ -462,6 +463,11 @@ class CoreOrchestrator:
             operational = (*operational, response.as_message())
 
             for call in calls:
+                self._context.fit_tool_messages(
+                    operational,
+                    tools,
+                    active_user_index,
+                )
                 result = await executor.execute(call, authorization)
                 state.tool_results.append(result)
                 operational = (*operational, ToolMessage.from_result(result))
@@ -538,6 +544,7 @@ class CoreOrchestrator:
     ) -> None:
         if metrics is not None:
             state.inference_metrics.append(metrics)
+            state.inference_metric_indices.append(state.inferences_completed)
 
     @staticmethod
     def _record_tool_result(result: ToolResult, state: _MetricsState) -> None:
@@ -576,6 +583,7 @@ class CoreOrchestrator:
             effort=policy.level,
             thinking=policy.thinking,
             inference_metrics=tuple(state.inference_metrics),
+            inference_metric_indices=tuple(state.inference_metric_indices),
             context=ContextMetrics(
                 conversation=state.conversation_context,
                 requests=tuple(state.context_requests),

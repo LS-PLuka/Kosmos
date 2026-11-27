@@ -61,6 +61,7 @@ class OrchestrationMetrics:
     thinking: bool
     inference_metrics: tuple[InferenceMetrics, ...] = ()
     context: ContextMetrics = ContextMetrics()
+    inference_metric_indices: tuple[int, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)

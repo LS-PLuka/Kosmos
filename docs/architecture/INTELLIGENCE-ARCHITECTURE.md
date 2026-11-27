@@ -14,8 +14,10 @@ behavior, performance, and offline validation remain pending. R2 adds determinis
 knowledge to the session instruction. R3 improves temporary session-context selection and
 observability without adding persistent memory. R4 adds turn-scoped effective-tool guidance and
 preserves structured proposals as evidence; its real effect on Qwen selection remains pending
-Ubuntu validation. External
-agents and web intelligence still require separate roadmap stages.
+Ubuntu validation. R5 adds CLI runtime observability without moving business behavior into the
+presentation layer. R6 completes automated cross-component regression review on the refinement
+branch. Live runtime, behavioral, performance, hardware, and offline validation remain pending.
+External agents and web intelligence still require separate roadmap stages.
 
 ## Hybrid local-first orchestration
 

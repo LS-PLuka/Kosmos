@@ -152,12 +152,17 @@ def render_metrics(
         f"  Successful tools: {metrics.tools_succeeded}",
         f"  Failed or rejected tools: {metrics.tools_rejected_or_failed}",
     ]
-    for index, inference in enumerate(metrics.inference_metrics, start=1):
-        if metrics.inferences_started > 1:
+    indexed_metrics = _indexed_inference_metrics(metrics)
+    if metrics.inferences_started > 1:
+        for index in range(1, metrics.inferences_started + 1):
             lines.append(f"  Inference {index}")
-            lines.extend(_provider_metric_lines(inference, indent="    "))
-        else:
-            lines.extend(_provider_metric_lines(inference))
+            inference = indexed_metrics.get(index)
+            if inference is None:
+                lines.append("    Provider metrics: unavailable")
+            else:
+                lines.extend(_provider_metric_lines(inference, indent="    "))
+    elif indexed_metrics:
+        lines.extend(_provider_metric_lines(next(iter(indexed_metrics.values()))))
 
     lines.extend(_context_metric_lines(metrics.context, provider_context_tokens))
 
@@ -232,6 +237,16 @@ def _provider_metric_lines(metrics: InferenceMetrics, *, indent: str = "  ") -> 
         lines.append(f"{indent}Tokens per second: {tokens_per_second:.2f}")
 
     return lines
+
+
+def _indexed_inference_metrics(
+    metrics: OrchestrationMetrics,
+) -> dict[int, InferenceMetrics]:
+    indices = metrics.inference_metric_indices
+    if not indices:
+        indices = tuple(range(1, len(metrics.inference_metrics) + 1))
+
+    return dict(zip(indices, metrics.inference_metrics, strict=True))
 
 
 def _seconds(nanoseconds: int | None) -> float | None:

@@ -7,7 +7,7 @@ from kosmos.benchmarking.models import (
 )
 from kosmos.core.orchestration import EffortLevel
 
-SCENARIO_VERSION = "1.1"
+SCENARIO_VERSION = "1.2"
 
 
 def _scenario(

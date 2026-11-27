@@ -8,7 +8,11 @@ import pytest
 
 from kosmos.core.exceptions import (
     ContextLimitExceededError,
+    InferenceError,
+    InvalidProviderResponseError,
+    ProviderHTTPError,
     ProviderTimeoutError,
+    ProviderUnavailableError,
     SessionBusyError,
     ToolCapabilityUnavailableError,
 )
@@ -22,6 +26,7 @@ from kosmos.core.orchestration import (
 from kosmos.intelligence.conversation import ContextPolicy
 from kosmos.intelligence.models import (
     InferenceChunk,
+    InferenceMetrics,
     InferenceRequest,
     InferenceResponse,
     MessageRole,
@@ -34,8 +39,10 @@ from kosmos.intelligence.personality import (
 from kosmos.intelligence.tools import (
     ToolAuthorization,
     ToolCall,
+    ToolDefinition,
     ToolInferenceRequest,
     ToolInferenceResponse,
+    ToolRegistry,
     ToolResultStatus,
     create_builtin_registry,
 )
@@ -43,7 +50,7 @@ from kosmos.intelligence.tools import (
 
 @dataclass(slots=True)
 class ScriptedProvider:
-    text_responses: list[InferenceResponse] = field(default_factory=list)
+    text_responses: list[InferenceResponse | Exception] = field(default_factory=list)
     tool_responses: list[ToolInferenceResponse | Exception] = field(default_factory=list)
     chunks: tuple[InferenceChunk, ...] = ()
     text_requests: list[InferenceRequest] = field(default_factory=list)
@@ -51,7 +58,10 @@ class ScriptedProvider:
 
     async def generate(self, request: InferenceRequest) -> InferenceResponse:
         self.text_requests.append(request)
-        return self.text_responses.pop(0)
+        response = self.text_responses.pop(0)
+        if isinstance(response, Exception):
+            raise response
+        return response
 
     async def generate_with_tools(self, request: ToolInferenceRequest) -> ToolInferenceResponse:
         self.tool_requests.append(request)
@@ -92,6 +102,40 @@ def test_default_low_direct_response_uses_text_inference_and_commits_turn() -> N
         MessageRole.ASSISTANT,
     ]
     assert confirmed.is_busy is False
+
+
+@pytest.mark.parametrize(
+    ("error", "expected_status"),
+    [
+        (
+            InvalidProviderResponseError("invalid"),
+            OrchestrationStatus.INVALID_RESPONSE,
+        ),
+        (
+            ProviderUnavailableError("unavailable"),
+            OrchestrationStatus.PROVIDER_UNAVAILABLE,
+        ),
+        (ProviderTimeoutError("timeout"), OrchestrationStatus.PROVIDER_TIMEOUT),
+        (
+            ProviderHTTPError("http failure", 500),
+            OrchestrationStatus.PROVIDER_HTTP_ERROR,
+        ),
+        (InferenceError("inference failure"), OrchestrationStatus.INFERENCE_ERROR),
+    ],
+)
+def test_specific_inference_failures_map_to_their_controlled_status(
+    error: Exception,
+    expected_status: OrchestrationStatus,
+) -> None:
+    orchestrator = CoreOrchestrator(ScriptedProvider(text_responses=[error]))
+    session = orchestrator.create_session()
+
+    result = asyncio.run(orchestrator.generate(session.session_id, "request", model="test-model"))
+
+    assert result.status is expected_status
+    assert result.metrics.inferences_started == 1
+    assert result.metrics.inferences_completed == 0
+    assert orchestrator.get_session(session.session_id).messages == ()
 
 
 def test_turn_guidance_reflects_effective_tools_without_persisting_across_efforts() -> None:
@@ -278,7 +322,7 @@ def test_complete_and_streaming_apply_the_same_integrated_history_reduction() ->
     assert complete_result.metrics.context.requests[0].context_limit_reached is True
 
 
-def test_tool_context_counts_schemas_and_stops_after_executed_result_exceeds_budget() -> None:
+def test_tool_context_rejects_known_oversized_proposal_before_execution() -> None:
     call = ToolCall("call_1", "count_items", {"items": ["x" * 200] * 20})
     provider = ScriptedProvider(tool_responses=[ToolInferenceResponse("test-model", "", (call,))])
     orchestrator = CoreOrchestrator(
@@ -300,13 +344,86 @@ def test_tool_context_counts_schemas_and_stops_after_executed_result_exceeds_bud
 
     request_metrics = result.metrics.context.requests[0]
     assert result.status is OrchestrationStatus.CONTEXT_LIMIT
-    assert result.tool_results[0].status is ToolResultStatus.SUCCESS
-    assert result.tool_results[0].data == {"count": 20}
+    assert result.metrics.handlers_invoked == 0
+    assert result.tool_results == ()
     assert (
         request_metrics.serialized_request_characters > request_metrics.selected_message_characters
     )
     assert len(provider.tool_requests) == 1
     assert orchestrator.get_session(session.session_id).messages == ()
+
+
+def test_known_batch_context_exhaustion_stops_before_the_next_tool_execution() -> None:
+    invocations = 0
+
+    def large_result(_: object) -> dict[str, str]:
+        nonlocal invocations
+        invocations += 1
+        return {"payload": "x" * 2_000}
+
+    registry = ToolRegistry()
+    registry.register(
+        ToolDefinition("large_result", "Return a large test result.", ()),
+        large_result,
+    )
+    calls = (
+        ToolCall("call_1", "large_result", {}),
+        ToolCall("call_2", "large_result", {}),
+    )
+    provider = ScriptedProvider(tool_responses=[ToolInferenceResponse("test-model", "", calls)])
+    orchestrator = CoreOrchestrator(
+        provider,
+        tool_registry=registry,
+        orchestration_context_policy=OrchestrationContextPolicy(5_000, 500),
+    )
+    session = orchestrator.create_session()
+
+    result = asyncio.run(
+        orchestrator.generate(
+            session.session_id,
+            "run",
+            model="test-model",
+            authorization=ToolAuthorization(("large_result",)),
+            selected_tools=("large_result",),
+        )
+    )
+
+    assert result.status is OrchestrationStatus.CONTEXT_LIMIT
+    assert result.metrics.tool_proposals == 2
+    assert result.metrics.handlers_invoked == 1
+    assert len(result.tool_results) == 1
+    assert invocations == 1
+
+
+def test_provider_metric_indices_preserve_missing_optional_values() -> None:
+    call = ToolCall("call_1", "calculate", {"operation": "add", "a": 1, "b": 2})
+    provider = ScriptedProvider(
+        tool_responses=[
+            ToolInferenceResponse("test-model", "", (call,)),
+            ToolInferenceResponse(
+                "test-model",
+                "Three.",
+                (),
+                InferenceMetrics(eval_count=7),
+            ),
+        ]
+    )
+    orchestrator = CoreOrchestrator(provider, tool_registry=create_builtin_registry())
+    session = orchestrator.create_session()
+
+    result = asyncio.run(
+        orchestrator.generate(
+            session.session_id,
+            "add",
+            model="test-model",
+            authorization=ToolAuthorization(("calculate",)),
+            selected_tools=("calculate",),
+        )
+    )
+
+    assert result.status is OrchestrationStatus.COMPLETED
+    assert result.metrics.inference_metric_indices == (2,)
+    assert result.metrics.inference_metrics[0].eval_count == 7
 
 
 def test_calculate_flow_executes_and_continues_with_structured_result() -> None:
