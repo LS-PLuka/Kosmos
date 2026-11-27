@@ -1,8 +1,12 @@
-# Audio Validation
+# Audio and TTS Validation
 
 These checks are explicit physical diagnostics for Stage 02.1. Automated tests never open an audio
 device. Review the selected device before enabling capture; installation of the `voice` extra is not
 consent to use a microphone.
+
+Stage 02.2 TTS automated tests use a simulated Piper process. Follow the independent installation,
+configuration, hash, provenance, and licensing review in the
+[Text-to-Speech specification](../architecture/text-to-speech.md) before real synthesis.
 
 ## Install and inspect
 
@@ -65,3 +69,11 @@ Record operating system, Python and SoundDevice versions, host API, selected dev
 formats, success or failure, and any overflow, underflow, permission, disconnect, or latency
 observation. Do not commit recordings, device-private information, or raw PCM. Windows and Ubuntu
 physical validation remain pending until the maintainer performs and records these checks.
+
+For TTS, first run `kosmos-tts status` and `kosmos-tts voices`. Then run `synthesize` without
+playback and record Piper version, model repository revision, locally calculated hashes, sample
+rate, process duration, audio duration, bytes, frames, and real-time factor. Only then run `speak`
+with a reviewed output device. Record pronunciation and voice-quality findings separately. Do not
+commit generated audio, model weights, local paths, or raw diagnostic output containing private
+device data. Real Windows and Ubuntu synthesis, physical playback, and Razo voice-quality
+validation remain pending.

@@ -40,6 +40,20 @@ upstream MIT-licensed software. The exact license and acceptable-use terms for t
 artifact must be verified by the maintainer before any redistribution; upstream presentation as
 Apache-2.0 does not replace artifact-specific verification.
 
+## External optional text-to-speech components
+
+Piper 1.8.0 is an optional independently installed local runtime licensed GPL-3.0-or-later. Kosmos
+invokes its documented CLI through an external-process adapter but does not import, incorporate,
+download, or distribute Piper. The reviewed release supports Python 3.12 and publishes Windows
+x86-64 and Linux x86-64/aarch64 ABI3 wheels. The external-process boundary is not an automatic
+legal compatibility guarantee; joint distribution requires additional review.
+
+`Lucasllfs/Razo-piper-voice` is the provisional external Brazilian Portuguese voice. Its repository
+declares MIT and publishes an ONNX SHA-256, but does not fully document the dataset source,
+recording license, fine-tune ancestry, speaker consent, or voice rights. Kosmos does not download or
+distribute the model. Local testing does not establish redistribution rights. The model must remain
+external and provisional until provenance, rights, and distribution review is complete.
+
 ## Python development tooling
 
 | Component | Purpose | License |

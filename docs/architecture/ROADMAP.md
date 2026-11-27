@@ -43,7 +43,9 @@ automated suite.
 
 - **02.1 — Voice Foundation:** implemented on `feature/voice-foundation` with automated validation;
   physical Windows and Ubuntu audio validation and Git integration remain pending
-- **02.2 — Text-to-Speech:** planned
+- **02.2 — Text-to-Speech:** implemented on `feature/voice-foundation` with automated validation;
+  real Piper/Razo synthesis, physical playback, voice quality, licensing promotion, and Git
+  integration remain pending
 - **02.3 — Speech-to-Text:** planned
 - **02.4 — Voice Activity Detection:** planned
 - **02.5 — Wake Word Detection:** planned
@@ -52,11 +54,13 @@ automated suite.
 - **02.8 — Voice Benchmark & Validation:** planned
 
 Stage 02.1 provides backend-independent PCM models and ports, bounded capture and playback,
-SoundDevice/PortAudio discovery, optional installation, and explicit diagnostics. It does not
-implement speech synthesis, recognition, VAD, wake words, orchestration, or real-time interaction.
-SoundDevice is incorporated only in the optional `voice` extra. Piper, the provisional Razo voice,
-faster-whisper, Silero VAD, and openWakeWord remain candidates subject to their stage-specific
-technical, provenance, rights, distribution, and license reviews.
+SoundDevice/PortAudio discovery, optional installation, and explicit diagnostics. Stage 02.2 adds
+backend-independent synthesis contracts, deterministic text preparation, a bounded adapter for an
+independently installed Piper process, and explicit TTS diagnostics. It does not connect synthesis
+to Core or implement recognition, VAD, wake words, orchestration, or real-time interaction.
+SoundDevice is incorporated only in the optional `voice` extra. Piper and Razo are not distributed;
+Razo remains provisional because provenance, rights, real synthesis, and voice quality are not yet
+fully validated. Faster-whisper, Silero VAD, and openWakeWord remain planned candidates.
 
 ## Stage 03 — System Control
 

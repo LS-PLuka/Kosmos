@@ -27,6 +27,7 @@ voice = [
 kosmos = "kosmos.cli.main:main"
 kosmos-benchmark = "kosmos.benchmarking.main:main"
 kosmos-audio = "kosmos.voice.cli:main"
+kosmos-tts = "kosmos.voice.tts_cli:main"
 
 [dependency-groups]
 dev = [

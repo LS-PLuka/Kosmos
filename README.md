@@ -100,15 +100,16 @@ Currently configured:
 - Pytest for automated tests
 - HTTPX for asynchronous communication with the loopback-only Ollama API
 - optional SoundDevice/PortAudio support for explicit local PCM audio diagnostics
+- a standard-library external-process adapter for an independently installed Piper runtime
 - Python standard-library configuration, logging, dataclasses, and asynchronous provider contracts
 - GitHub Actions for continuous integration
 
 Ollama and Qwen 3.5 4B are external local-inference requirements and are not incorporated into the
 repository. SoundDevice is available only through the optional `voice` extra; it is not imported by
-the Core Engine and never opens a device during import. Other planned technologies, subject to
-their applicable evaluation and licensing review, include Pydantic, SQLite, openWakeWord, Silero
-VAD, faster-whisper, Kokoro or
-Piper with the provisional Razo Brazilian Portuguese voice candidate, psutil, Docker SDK, Codex
+the Core Engine and never opens a device during import. Piper and the provisional Razo voice are
+external, optional, and not incorporated or downloaded by Kosmos. Other planned technologies,
+subject to their applicable evaluation and licensing review, include Pydantic, SQLite,
+openWakeWord, Silero VAD, faster-whisper, psutil, Docker SDK, Codex
 and Claude Code integrations, PySide6, Qt Quick/QML, SearXNG,
 Trafilatura, Beautiful Soup, Playwright, and the Google Gemini API.
 
@@ -125,9 +126,9 @@ validation remain pending. Later stages cover voice, authorized system control, 
 memory, proactive intelligence, desktop, web/external integrations, multimodal intelligence, and
 cross-platform ecosystem expansion.
 
-Stage 02.1 Voice Foundation is implemented on its feature branch with automated validation.
-Physical capture and playback validation on Windows and Ubuntu and Git integration remain pending;
-Stages 02.2–02.8 remain planned.
+Stage 02.1 Voice Foundation and Stage 02.2 Text-to-Speech are implemented on the Stage 02 feature
+branch with automated validation. Physical capture and playback, real Piper/Razo synthesis, voice
+quality, Ubuntu validation, and Git integration remain pending. Stages 02.3–02.8 remain planned.
 
 See the [official roadmap](docs/architecture/ROADMAP.md) for the complete staged plan and status.
 
@@ -153,6 +154,17 @@ uv run --no-sync kosmos-audio status
 Microphone tests additionally require explicit `KOSMOS_VOICE_ENABLED=true`; see the
 [audio validation guide](docs/development/audio-validation.md). Installation alone is not consent
 to capture audio.
+
+Inspect the disabled-by-default TTS configuration without starting a process or device:
+
+```bash
+uv run --no-sync kosmos-tts --help
+uv run --no-sync kosmos-tts status
+```
+
+Piper and Razo require independent manual installation and review. See the
+[Text-to-Speech specification](docs/architecture/text-to-speech.md); no model or external runtime is
+installed by Kosmos.
 
 Run the development CLI after configuring a local Ollama installation and model:
 

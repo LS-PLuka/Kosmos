@@ -29,3 +29,31 @@ class AudioPlaybackError(VoiceError):
 
 class AudioBufferOverflowError(VoiceError):
     """Raised when appending PCM would exceed an explicit memory limit."""
+
+
+class SpeechSynthesisError(VoiceError):
+    """Base exception for expected text-to-speech failures."""
+
+
+class TTSBackendUnavailableError(SpeechSynthesisError):
+    """Raised when the configured local synthesis backend cannot be executed."""
+
+
+class VoiceModelUnavailableError(SpeechSynthesisError):
+    """Raised when configured voice files are missing or unavailable."""
+
+
+class InvalidVoiceConfigurationError(SpeechSynthesisError):
+    """Raised when synthesis or voice-model configuration is invalid."""
+
+
+class InvalidSynthesisRequestError(SpeechSynthesisError):
+    """Raised when text or request settings violate synthesis limits."""
+
+
+class SynthesisTimeoutError(SpeechSynthesisError):
+    """Raised when a synthesis process exceeds its configured deadline."""
+
+
+class InvalidSynthesizedAudioError(SpeechSynthesisError):
+    """Raised when a backend returns empty, partial, or excessive PCM."""

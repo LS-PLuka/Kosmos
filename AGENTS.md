@@ -20,6 +20,11 @@ hardware, and offline validation on Ubuntu remain pending. Do not claim that Sta
 behaviorally validated, that the refinement branch is already integrated, or that later roadmap
 capabilities are available.
 
+Stage 02.1 Voice Foundation and Stage 02.2 Text-to-Speech are implemented on
+`feature/voice-foundation` with automated validation. Physical audio, real Piper/Razo synthesis,
+voice quality, Ubuntu validation, licensing promotion, and Git integration remain pending. Stages
+02.3–02.8 remain planned; do not describe them as available.
+
 ## Engineering principles
 
 - Prefer simple, cohesive, testable code and incremental delivery.
