@@ -9,7 +9,10 @@ from uuid import UUID
 
 from kosmos.core.exceptions import (
     ContextLimitExceededError,
+    InferenceError,
     InvalidProviderResponseError,
+    ProviderHTTPError,
+    ProviderTimeoutError,
     ProviderUnavailableError,
     ToolCapabilityUnavailableError,
 )
@@ -20,13 +23,17 @@ from kosmos.core.orchestration.effort import (
     default_effort_policies,
     resolve_effort_policy,
 )
+from kosmos.core.orchestration.guidance import build_tool_guidance
 from kosmos.core.orchestration.models import (
+    ContextMetrics,
+    ContextRequestMetrics,
     OrchestrationMetrics,
     OrchestrationResult,
     OrchestrationStatus,
 )
 from kosmos.intelligence.conversation import (
     ContextPolicy,
+    ContextSelectionMetrics,
     ConversationEngine,
     ConversationSession,
     ConversationStream,
@@ -37,11 +44,13 @@ from kosmos.intelligence.models import (
     InferenceRequest,
     InferenceResponse,
     Message,
+    MessageRole,
 )
-from kosmos.intelligence.personality import PersonalityEngine
+from kosmos.intelligence.personality import KOSMOS_INSTITUTIONAL_KNOWLEDGE, PersonalityEngine
 from kosmos.intelligence.providers.base import LLMProvider, ToolCallingProvider
 from kosmos.intelligence.tools import (
     ToolAuthorization,
+    ToolCall,
     ToolDefinition,
     ToolExecutor,
     ToolInferenceRequest,
@@ -63,7 +72,11 @@ class _MetricsState:
     tools_succeeded: int = 0
     tools_rejected_or_failed: int = 0
     inference_metrics: list[InferenceMetrics] = field(default_factory=list)
+    inference_metric_indices: list[int] = field(default_factory=list)
     tool_results: list[ToolResult] = field(default_factory=list)
+    tool_calls: list[ToolCall] = field(default_factory=list)
+    conversation_context: ContextSelectionMetrics | None = None
+    context_requests: list[ContextRequestMetrics] = field(default_factory=list)
 
 
 class _TurnStopped(Exception):
@@ -76,12 +89,24 @@ class _TurnStopped(Exception):
 class OrchestrationStream(AsyncIterator[InferenceChunk]):
     """Deadline-aware wrapper around a real conversation provider stream."""
 
-    def __init__(self, upstream: ConversationStream, deadline_seconds: float) -> None:
+    def __init__(
+        self,
+        upstream: ConversationStream,
+        deadline_seconds: float,
+        context_metrics: ContextMetrics | None = None,
+    ) -> None:
         self._upstream = upstream
         self._deadline = time.monotonic() + deadline_seconds
+        self._context_metrics = context_metrics or ContextMetrics()
 
     def __aiter__(self) -> "OrchestrationStream":
         return self
+
+    @property
+    def context_metrics(self) -> ContextMetrics:
+        """Return immutable context measurements available before stream consumption."""
+
+        return self._context_metrics
 
     async def __anext__(self) -> InferenceChunk:
         remaining = self._deadline - time.monotonic()
@@ -132,9 +157,11 @@ class CoreOrchestrator:
         resolve_effort_policy(default_effort, self._policies)
 
     def create_session(self) -> ConversationSession:
-        """Create a session with one deterministic personality instruction."""
+        """Create a session with deterministic behavioral and institutional instructions."""
 
-        instruction = self._personality.build_system_instruction()
+        personality = self._personality.build_system_instruction()
+        knowledge = KOSMOS_INSTITUTIONAL_KNOWLEDGE.build_instruction()
+        instruction = "\n".join((personality, knowledge))
         return self._conversation.create_session(system_instruction=instruction)
 
     def get_session(self, session_id: UUID) -> ConversationSession:
@@ -172,6 +199,7 @@ class CoreOrchestrator:
             active_authorization,
             enabled=policy.tools_enabled,
         )
+        guidance = build_tool_guidance(tools, tools_enabled=policy.tools_enabled)
 
         if tools and self._tool_provider is None:
             raise ToolCapabilityUnavailableError(
@@ -181,7 +209,12 @@ class CoreOrchestrator:
         started_at = time.monotonic()
         state = _MetricsState()
 
+        def record_context_selection(metrics: ContextSelectionMetrics) -> None:
+            state.conversation_context = metrics
+
         async def operation(messages: tuple[Message, ...]) -> str:
+            messages = self._apply_operational_guidance(messages, guidance)
+
             if not tools:
                 return await self._generate_text(messages, model, policy, state)
 
@@ -200,6 +233,7 @@ class CoreOrchestrator:
                     session_id,
                     content,
                     operation,
+                    selection_observer=record_context_selection,
                 )
         except TimeoutError:
             return self._result(
@@ -240,6 +274,39 @@ class CoreOrchestrator:
                 model,
                 policy,
                 OrchestrationStatus.PROVIDER_UNAVAILABLE,
+                None,
+                str(error),
+                state,
+                started_at,
+            )
+        except ProviderTimeoutError as error:
+            return self._result(
+                session_id,
+                model,
+                policy,
+                OrchestrationStatus.PROVIDER_TIMEOUT,
+                None,
+                str(error),
+                state,
+                started_at,
+            )
+        except ProviderHTTPError as error:
+            return self._result(
+                session_id,
+                model,
+                policy,
+                OrchestrationStatus.PROVIDER_HTTP_ERROR,
+                None,
+                str(error),
+                state,
+                started_at,
+            )
+        except InferenceError as error:
+            return self._result(
+                session_id,
+                model,
+                policy,
+                OrchestrationStatus.INFERENCE_ERROR,
                 None,
                 str(error),
                 state,
@@ -288,20 +355,30 @@ class CoreOrchestrator:
             active_authorization,
             enabled=policy.tools_enabled,
         )
+        guidance = build_tool_guidance(tools, tools_enabled=policy.tools_enabled)
 
         if not policy.streaming_enabled:
             raise ValueError("streaming is disabled by the selected effort policy")
         if tools:
             raise ValueError("streaming cannot be combined with structured tool calling")
 
+        request_metrics: list[ContextRequestMetrics] = []
+
+        def fit_messages(messages: tuple[Message, ...]) -> tuple[Message, ...]:
+            guided = self._apply_operational_guidance(messages, guidance)
+            fitted, metrics = self._context.fit_text_messages(guided)
+            request_metrics.append(metrics)
+            return fitted
+
         upstream = self._conversation.stream(
             session_id,
             content,
             model=model,
             thinking=policy.thinking,
-            request_validator=self._context.ensure_text_fits,
+            request_transformer=fit_messages,
         )
-        return OrchestrationStream(upstream, policy.deadline_seconds)
+        context_metrics = ContextMetrics(upstream.context_metrics, tuple(request_metrics))
+        return OrchestrationStream(upstream, policy.deadline_seconds, context_metrics)
 
     async def _generate_text(
         self,
@@ -310,8 +387,9 @@ class CoreOrchestrator:
         policy: EffortPolicy,
         state: _MetricsState,
     ) -> str:
-        self._context.ensure_text_fits(messages)
-        request = InferenceRequest(model, messages, policy.thinking)
+        selected, context_metrics = self._context.fit_text_messages(messages)
+        state.context_requests.append(context_metrics)
+        request = InferenceRequest(model, selected, policy.thinking)
         state.inferences_started += 1
         response = await self._provider.generate(request)
 
@@ -341,11 +419,14 @@ class CoreOrchestrator:
         provider = cast(ToolCallingProvider, self._tool_provider)
 
         while state.inferences_started < policy.max_inferences:
-            operational, active_user_index = self._context.fit_tool_messages(
-                operational,
-                tools,
-                active_user_index,
+            operational, active_user_index, context_metrics = (
+                self._context.fit_tool_messages_with_metrics(
+                    operational,
+                    tools,
+                    active_user_index,
+                )
             )
+            state.context_requests.append(context_metrics)
             request = ToolInferenceRequest(model, operational, tools, policy.thinking)
             state.inferences_started += 1
             response = await provider.generate_with_tools(request)
@@ -357,6 +438,7 @@ class CoreOrchestrator:
             self._record_provider_metrics(response.metrics, state)
             calls = response.tool_calls
             state.tool_proposals += len(calls)
+            state.tool_calls.extend(calls)
 
             duplicate = any(call.call_id in seen_call_ids for call in calls)
             if duplicate:
@@ -381,6 +463,11 @@ class CoreOrchestrator:
             operational = (*operational, response.as_message())
 
             for call in calls:
+                self._context.fit_tool_messages(
+                    operational,
+                    tools,
+                    active_user_index,
+                )
                 result = await executor.execute(call, authorization)
                 state.tool_results.append(result)
                 operational = (*operational, ToolMessage.from_result(result))
@@ -419,6 +506,17 @@ class CoreOrchestrator:
         return definitions, effective_authorization
 
     @staticmethod
+    def _apply_operational_guidance(
+        messages: tuple[Message, ...],
+        guidance: str,
+    ) -> tuple[Message, ...]:
+        if not messages or messages[0].role is not MessageRole.SYSTEM:
+            raise ValueError("orchestration requests require a leading system message")
+
+        system = Message(MessageRole.SYSTEM, f"{messages[0].content}\n{guidance}")
+        return (system, *messages[1:])
+
+    @staticmethod
     def _detect_tool_provider(provider: LLMProvider) -> ToolCallingProvider | None:
         capability = getattr(provider, "generate_with_tools", None)
         return cast(ToolCallingProvider, provider) if callable(capability) else None
@@ -446,6 +544,7 @@ class CoreOrchestrator:
     ) -> None:
         if metrics is not None:
             state.inference_metrics.append(metrics)
+            state.inference_metric_indices.append(state.inferences_completed)
 
     @staticmethod
     def _record_tool_result(result: ToolResult, state: _MetricsState) -> None:
@@ -484,6 +583,11 @@ class CoreOrchestrator:
             effort=policy.level,
             thinking=policy.thinking,
             inference_metrics=tuple(state.inference_metrics),
+            inference_metric_indices=tuple(state.inference_metric_indices),
+            context=ContextMetrics(
+                conversation=state.conversation_context,
+                requests=tuple(state.context_requests),
+            ),
         )
         return OrchestrationResult(
             session_id=session_id,
@@ -494,4 +598,5 @@ class CoreOrchestrator:
             tool_results=tuple(state.tool_results),
             metrics=metrics,
             failure=failure,
+            tool_calls=tuple(state.tool_calls),
         )

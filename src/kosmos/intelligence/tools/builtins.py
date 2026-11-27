@@ -18,25 +18,28 @@ MAX_ITEM_LENGTH = 200
 
 CALCULATE_DEFINITION = ToolDefinition(
     name="calculate",
-    description="Perform one deterministic basic arithmetic operation.",
+    description=(
+        "Use for one requested deterministic addition, subtraction, multiplication, or division; "
+        "not for conceptual explanations or expression evaluation."
+    ),
     parameters=(
         ToolParameter(
             "operation",
             ParameterType.STRING,
-            "Arithmetic operation.",
+            "Operation to apply: add, subtract, multiply, or divide.",
             allowed_values=("add", "subtract", "multiply", "divide"),
         ),
         ToolParameter(
             "a",
             ParameterType.NUMBER,
-            "First finite operand.",
+            "Finite first operand; dividend for divide and left operand for subtract.",
             minimum=-MAX_OPERAND_ABS,
             maximum=MAX_OPERAND_ABS,
         ),
         ToolParameter(
             "b",
             ParameterType.NUMBER,
-            "Second finite operand.",
+            "Finite second operand; divisor for divide and right operand for subtract.",
             minimum=-MAX_OPERAND_ABS,
             maximum=MAX_OPERAND_ABS,
         ),
@@ -45,12 +48,15 @@ CALCULATE_DEFINITION = ToolDefinition(
 
 COUNT_ITEMS_DEFINITION = ToolDefinition(
     name="count_items",
-    description="Count strings in a bounded array.",
+    description=(
+        "Use to deterministically count a provided list of strings; not to estimate, interpret, "
+        "or generate list items."
+    ),
     parameters=(
         ToolParameter(
             "items",
             ParameterType.ARRAY,
-            "Strings to count.",
+            "Complete list of strings to count; each array element counts as one item.",
             min_items=0,
             max_items=MAX_COUNT_ITEMS,
             items=ToolParameter(

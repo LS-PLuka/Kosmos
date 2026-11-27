@@ -24,6 +24,12 @@ deterministic operations. `MEDIUM` supports bounded multi-step reasoning. `HIGH`
 local reasoning and tool budgets, but does not activate web access, external providers, delegation,
 or stronger authority.
 
+R4 does not change these defaults, enable thinking for `LOW`, escalate effort, retry inference, or
+increase any limit. Turn-scoped guidance reports the effective state to the model: `INSTANT`
+explicitly says tools are disabled, while enabled levels name only tools that survived selection
+and authorization. `MEDIUM` and `HIGH` both enable the same provider-facing thinking boolean; their
+bounded budgets differ, but no stronger internal thinking intensity is claimed.
+
 `EXPERT` and `AUTO` are recognized reserved values. They raise an explicit
 `UnsupportedEffortLevelError`; neither silently falls back to High. Expert delegation and automatic
 classification remain future work.

@@ -1,7 +1,8 @@
 # Official Roadmap
 
-Kosmos is delivered incrementally. Only validated, merged behavior is implemented; every other
-item below is planned or a candidate and requires approval before work begins.
+Kosmos is delivered incrementally. Integrated behavior, refinement-branch implementation, and
+pending validation are identified separately below. Every other item is planned or a candidate and
+requires approval before work begins.
 
 ## Stage 00 — Project Foundation
 
@@ -24,9 +25,25 @@ Complete.
 - **01.8 — Model Benchmark & Validation:** benchmark infrastructure implemented and automatically
   tested; real model and offline validation on the target Ubuntu host remain pending
 
+Core runtime refinement status:
+
+- **R1 — Personality & Communication:** implemented on the current refinement branch
+- **R2 — Institutional Knowledge:** implemented on the current refinement branch
+- **R3 — Conversation & Context:** implemented on the current refinement branch
+- **R4 — Tool Calling & Reasoning:** implemented on the current refinement branch
+- **R5 — Runtime & CLI Refinement:** implemented on the current refinement branch
+- **R6 — Regression & Final Validation:** automated regression review passed on the current
+  refinement branch; maintainer review and integration remain pending
+
+Stage 01 implementation is complete on the refinement branch. Live runtime, Qwen behavioral,
+performance, hardware, and offline validation remain pending and must not be inferred from the
+automated suite.
+
 ## Stage 02 — Voice Engine
 
-Planned voice activation, capture, recognition, and synthesis. Candidate technologies are
+Planned and ready to begin only after maintainer approval and refinement-branch integration. No
+Stage 02 implementation has started. Planned capabilities include voice activation, capture,
+recognition, and synthesis. Candidate technologies are
 openWakeWord, SoundDevice, Silero VAD, faster-whisper, Kokoro, and Piper. The Razo Brazilian
 Portuguese voice with Piper is the provisional priority for synthesis, subject to technical,
 provenance, rights, distribution, and license compatibility review. No voice runtime or model is

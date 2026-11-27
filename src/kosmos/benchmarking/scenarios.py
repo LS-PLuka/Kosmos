@@ -7,7 +7,7 @@ from kosmos.benchmarking.models import (
 )
 from kosmos.core.orchestration import EffortLevel
 
-SCENARIO_VERSION = "1.0"
+SCENARIO_VERSION = "1.2"
 
 
 def _scenario(
@@ -23,6 +23,7 @@ def _scenario(
     required_terms: tuple[str, ...] = (),
     expected_tool: str | None = None,
     expected_value: int | float | None = None,
+    expected_arguments: dict[str, object] | None = None,
     critical: bool = False,
     streaming: bool = False,
 ) -> BenchmarkScenario:
@@ -38,6 +39,7 @@ def _scenario(
         required_terms=required_terms,
         expected_tool=expected_tool,
         expected_value=expected_value,
+        expected_arguments=expected_arguments,
         critical=critical,
         streaming=streaming,
     )
@@ -123,6 +125,7 @@ def _tool_scenario(
     prompt: str,
     tool: str,
     value: int | float,
+    arguments: dict[str, object],
     *,
     effort: EffortLevel = EffortLevel.LOW,
 ) -> BenchmarkScenario:
@@ -137,26 +140,53 @@ def _tool_scenario(
         authorized_tools=(tool,),
         expected_tool=tool,
         expected_value=value,
+        expected_arguments=arguments,
         critical=True,
     )
 
 
 _TOOLS = (
-    _tool_scenario("multiplication", "Quanto é 125 multiplicado por 32?", "calculate", 4000),
-    _tool_scenario("addition", "Some 450 e 780.", "calculate", 1230),
-    _tool_scenario("subtraction", "Quanto é 1000 menos 275?", "calculate", 725),
-    _tool_scenario("division", "Divida 144 por 12.", "calculate", 12),
+    _tool_scenario(
+        "multiplication",
+        "Quanto é 125 multiplicado por 32?",
+        "calculate",
+        4000,
+        {"operation": "multiply", "a": 125, "b": 32},
+    ),
+    _tool_scenario(
+        "addition",
+        "Some 450 e 780.",
+        "calculate",
+        1230,
+        {"operation": "add", "a": 450, "b": 780},
+    ),
+    _tool_scenario(
+        "subtraction",
+        "Quanto é 1000 menos 275?",
+        "calculate",
+        725,
+        {"operation": "subtract", "a": 1000, "b": 275},
+    ),
+    _tool_scenario(
+        "division",
+        "Divida 144 por 12.",
+        "calculate",
+        12,
+        {"operation": "divide", "a": 144, "b": 12},
+    ),
     _tool_scenario(
         "item_count",
         "Quantos itens existem nesta lista: Java, Python, Go, Rust e Kotlin?",
         "count_items",
         5,
+        {"items": ["Java", "Python", "Go", "Rust", "Kotlin"]},
     ),
     _tool_scenario(
         "multi_step_arithmetic",
         "Multiplique 25 por 4 e depois some 35 ao resultado.",
         "calculate",
         135,
+        {"operation": "add", "a": 100, "b": 35},
         effort=EffortLevel.MEDIUM,
     ),
 )
@@ -243,6 +273,7 @@ _PERFORMANCE = (
         authorized_tools=("calculate",),
         expected_tool="calculate",
         expected_value=1230,
+        expected_arguments={"operation": "add", "a": 450, "b": 780},
     ),
     _scenario(
         "thinking_medium",

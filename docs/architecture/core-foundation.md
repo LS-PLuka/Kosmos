@@ -27,11 +27,17 @@ deterministic.
 | `KOSMOS_OLLAMA_CONTEXT_LENGTH` | `4096` | positive integer |
 | `KOSMOS_OLLAMA_THINKING` | `false` | explicit boolean text |
 | `KOSMOS_OLLAMA_KEEP_ALIVE` | `5m` | validated Ollama duration |
+| `KOSMOS_CONVERSATION_MAX_HISTORY_TURNS` | `10` | non-negative integer |
+| `KOSMOS_CONVERSATION_MAX_CONTEXT_CHARACTERS` | `8000` | positive integer |
 
 The final three settings were added by Stage 01.2 without changing the explicit loading contract.
 The model is never selected automatically. Loading settings performs no network operation and does
 not mutate the process environment. The HTTP adapter applies the timeout independently to connect,
 read, write, and pool waits; it is not an absolute inference deadline.
+
+R3 adds the two conversation settings through the same immutable loading contract. A zero history
+turn limit deliberately disables prior-turn selection. The character limit is a deterministic
+content budget, not a token count and not a replacement for the Ollama context setting.
 
 ## Intelligence responsibilities
 

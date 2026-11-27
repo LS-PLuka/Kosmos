@@ -35,6 +35,20 @@ def test_definition_builds_compact_schema_from_the_same_parameters() -> None:
     assert "handler" not in str(schema)
 
 
+def test_builtin_descriptions_explain_selection_without_duplicating_policy() -> None:
+    calculate_schema = CALCULATE_DEFINITION.to_provider_schema()["function"]
+    count_schema = COUNT_ITEMS_DEFINITION.to_provider_schema()["function"]
+
+    assert "deterministic" in calculate_schema["description"]
+    assert "conceptual explanations" in calculate_schema["description"]
+    assert "dividend" in calculate_schema["parameters"]["properties"]["a"]["description"]
+    assert (
+        "each array element counts as one item"
+        in (count_schema["parameters"]["properties"]["items"]["description"])
+    )
+    assert "authorized" not in str(calculate_schema).lower()
+
+
 @pytest.mark.parametrize("name", ["", "Calculate", "two-words", "_private", "with space"])
 def test_rejects_invalid_tool_and_parameter_names(name: str) -> None:
     with pytest.raises(ValueError):

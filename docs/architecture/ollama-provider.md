@@ -113,6 +113,10 @@ existing text generation and streaming behavior is unchanged. Native streaming t
 outside this stage. See [Tool Calling and Tool Registry](tool-calling.md) for schemas, limits, and
 the manual composition flow.
 
+R4 does not add `tool_choice`, change endpoints, enable retries, or alter `num_ctx`. Turn-scoped
+delegation guidance is composed above the provider and arrives as ordinary trusted system content;
+the adapter continues to serialize only the request it receives.
+
 ## Manual Ubuntu demonstration
 
 The following example requires the maintainer's Ubuntu installation, an already installed model,

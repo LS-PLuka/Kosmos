@@ -26,8 +26,9 @@ but only after implemented behavior demonstrates the need. Empty architectural l
 | Module | Responsibility and current status |
 | --- | --- |
 | `core` | Foundations and Stage 01.6 bounded orchestration are integrated |
-| `intelligence` | Text inference, Ollama, conversation, personality, and Stage 01.5 tool calling are integrated; real model behavior remains pending |
+| `intelligence` | Text inference, Ollama, conversation, personality, institutional knowledge, and Stage 01.5 tool calling are integrated; real model behavior remains pending |
 | `benchmarking` | Stage 01.8 scenario, evaluation, runner, and reporting infrastructure is implemented; real validation remains pending |
+| `cli` | Development-only runtime composition and terminal presentation are implemented |
 | `voice` | Activation, capture, recognition, and speech synthesis |
 | `system` | Operating system, applications, files, and processes |
 | `developer` | Development agents, projects, sessions, and tasks |
@@ -40,7 +41,8 @@ but only after implemented behavior demonstrates the need. Empty architectural l
 | `vision` | Computer vision and multimodal processing |
 | `plugins` | Kosmos extension mechanisms |
 
-Directories other than `core` and `intelligence` still describe planned boundaries only. See the
+The remaining business-capability entries describe planned boundaries only. `cli` and
+`benchmarking` are implemented support packages rather than future business domains. See the
 [Core Foundation specification](core-foundation.md) for the behavior currently available.
 
 ## Architectural rules
@@ -72,6 +74,8 @@ Tests and future integrations can substitute implementations without changing th
   future voice identity
 - [Personality Engine](personality-engine.md): implemented Stage 01.4 personality representation
   pending real behavioral validation
+- [Institutional Knowledge](institutional-knowledge.md): trusted product facts, capability states,
+  roadmap boundary, and system-instruction composition
 - [Tool Calling and Tool Registry](tool-calling.md): Stage 01.5 contracts, validation,
   authorization, execution, pure tools, and native Ollama integration
 - [Core Orchestration](core-orchestration.md): Stage 01.6 coordination, limits, context, and metrics

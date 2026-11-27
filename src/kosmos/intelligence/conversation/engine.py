@@ -11,7 +11,7 @@ from kosmos.core.exceptions import (
     SessionNotFoundError,
 )
 from kosmos.intelligence.conversation.context import ContextPolicy
-from kosmos.intelligence.conversation.models import ConversationSession
+from kosmos.intelligence.conversation.models import ContextSelectionMetrics, ConversationSession
 from kosmos.intelligence.models import (
     InferenceChunk,
     InferenceRequest,
@@ -47,15 +47,23 @@ class ConversationStream(AsyncIterator[InferenceChunk]):
         upstream: AsyncIterator[InferenceChunk],
         session: _ManagedSession,
         user_message: Message,
+        context_metrics: ContextSelectionMetrics | None = None,
     ) -> None:
         self._upstream = upstream
         self._session = session
         self._user_message = user_message
+        self._context_metrics = context_metrics
         self._content_parts: list[str] = []
         self._closed = False
 
     def __aiter__(self) -> "ConversationStream":
         return self
+
+    @property
+    def context_metrics(self) -> ContextSelectionMetrics | None:
+        """Return immutable measurements for the context selected before streaming."""
+
+        return self._context_metrics
 
     async def __anext__(self) -> InferenceChunk:
         if self._closed:
@@ -199,7 +207,7 @@ class ConversationEngine:
     ) -> InferenceResponse:
         """Run and atomically commit one complete inference turn."""
 
-        session, user_message, request = self._prepare_turn(
+        session, user_message, request, _ = self._prepare_turn(
             session_id,
             content,
             model=model,
@@ -228,6 +236,7 @@ class ConversationEngine:
         session_id: UUID,
         content: str,
         operation: Callable[[tuple[Message, ...]], Awaitable[str]],
+        selection_observer: Callable[[ContextSelectionMetrics], None] | None = None,
     ) -> str:
         """Reserve one turn while a caller coordinates work and atomically commit its result."""
 
@@ -240,12 +249,15 @@ class ConversationEngine:
         session.is_busy = True
 
         try:
-            messages = self._context_policy.select(
+            selection = self._context_policy.select_with_metrics(
                 system_instruction=session.system_instruction,
                 history=session.messages,
                 current_message=user_message,
             )
-            response_content = await operation(messages)
+            if selection_observer is not None:
+                selection_observer(selection.metrics)
+
+            response_content = await operation(selection.messages)
             assistant_message = Message(MessageRole.ASSISTANT, response_content)
             session.messages.extend((user_message, assistant_message))
 
@@ -261,10 +273,11 @@ class ConversationEngine:
         model: str,
         thinking: bool | None = None,
         request_validator: Callable[[tuple[Message, ...]], None] | None = None,
+        request_transformer: Callable[[tuple[Message, ...]], tuple[Message, ...]] | None = None,
     ) -> ConversationStream:
         """Reserve a session and return an incrementally consumed inference stream."""
 
-        session, user_message, request = self._prepare_turn(
+        session, user_message, request, context_metrics = self._prepare_turn(
             session_id,
             content,
             model=model,
@@ -272,6 +285,12 @@ class ConversationEngine:
         )
 
         try:
+            if request_transformer is not None:
+                request = InferenceRequest(
+                    model=request.model,
+                    messages=request_transformer(request.messages),
+                    thinking=request.thinking,
+                )
             if request_validator is not None:
                 request_validator(request.messages)
 
@@ -288,6 +307,7 @@ class ConversationEngine:
             upstream=upstream,
             session=session,
             user_message=user_message,
+            context_metrics=context_metrics,
         )
 
     def _prepare_turn(
@@ -297,7 +317,7 @@ class ConversationEngine:
         *,
         model: str,
         thinking: bool | None,
-    ) -> tuple[_ManagedSession, Message, InferenceRequest]:
+    ) -> tuple[_ManagedSession, Message, InferenceRequest, ContextSelectionMetrics]:
         session = self._get_managed_session(session_id)
         user_message = Message(MessageRole.USER, content)
         self._validate_model_and_thinking(model, thinking)
@@ -305,21 +325,21 @@ class ConversationEngine:
         session.is_busy = True
 
         try:
-            messages = self._context_policy.select(
+            selection = self._context_policy.select_with_metrics(
                 system_instruction=session.system_instruction,
                 history=session.messages,
                 current_message=user_message,
             )
             request = InferenceRequest(
                 model=model,
-                messages=messages,
+                messages=selection.messages,
                 thinking=thinking,
             )
         except Exception:
             session.is_busy = False
             raise
 
-        return session, user_message, request
+        return session, user_message, request, selection.metrics
 
     def _get_managed_session(self, session_id: UUID) -> _ManagedSession:
         if not isinstance(session_id, UUID):

@@ -8,7 +8,7 @@ from kosmos.benchmarking.models import (
     BenchmarkScenario,
     EvaluationStrategy,
 )
-from kosmos.benchmarking.scenarios import list_scenarios, select_suite
+from kosmos.benchmarking.scenarios import SCENARIO_VERSION, list_scenarios, select_suite
 from kosmos.core.orchestration import EffortLevel
 
 
@@ -59,9 +59,24 @@ def test_tool_scenario_requires_explicit_expected_evidence() -> None:
             authorized_tools=("calculate",),
         )
 
+    with pytest.raises(ValueError, match="expected arguments"):
+        BenchmarkScenario(
+            "missing_arguments",
+            BenchmarkCategory.TOOL_CALLING,
+            "Missing expected arguments",
+            ("Prompt",),
+            EffortLevel.LOW,
+            EvaluationStrategy.TOOL_RESULT,
+            selected_tools=("calculate",),
+            authorized_tools=("calculate",),
+            expected_tool="calculate",
+            expected_value=3,
+        )
+
 
 def test_named_suites_are_stable_unique_and_cover_required_categories() -> None:
     catalog = list_scenarios()
+    assert SCENARIO_VERSION == "1.2"
     assert len({item.identifier for item in catalog}) == len(catalog)
     assert len(select_suite("quick")) == 7
     assert {item.category for item in select_suite("full")} >= {
