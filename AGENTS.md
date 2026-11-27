@@ -171,6 +171,26 @@ branches after their pull requests are merged. Do not force-push permanent branc
 published history, create releases or tags without delivered versions, or commit/push unless
 explicitly authorized.
 
+After a maintainer integrates `develop` into `main`, the merge commit initially exists only on
+`main`. Before starting the next feature, the maintainer updates both local permanent branches and
+fast-forwards local `develop` to `origin/main` when ancestry permits:
+
+```bash
+git fetch origin --prune
+git switch main
+git pull --ff-only origin main
+git switch develop
+git pull --ff-only origin develop
+git merge --ff-only origin/main
+git switch -c feature/<feature-name>
+```
+
+The next feature merge into `develop` propagates that shared history without a synchronization-only
+pull request. Do not push directly to protected branches, disable protections, create habitual
+sync-only branches, or reset a deliberately advanced local `develop`. If fast-forward is not
+possible, stop and report the ancestry divergence. Agents may inspect ancestry but must not perform
+this workflow or any other Git mutation automatically.
+
 Commits, pushes, pull requests, merges, rebases, force pushes, tags, releases, and branch deletion
 are absolute maintainer-only operations. Development agents must not perform them.
 

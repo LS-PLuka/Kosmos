@@ -99,12 +99,15 @@ Currently configured:
 - Ruff for linting and formatting
 - Pytest for automated tests
 - HTTPX for asynchronous communication with the loopback-only Ollama API
+- optional SoundDevice/PortAudio support for explicit local PCM audio diagnostics
 - Python standard-library configuration, logging, dataclasses, and asynchronous provider contracts
 - GitHub Actions for continuous integration
 
 Ollama and Qwen 3.5 4B are external local-inference requirements and are not incorporated into the
-repository. Other planned technologies, subject to their applicable evaluation and licensing
-review, include Pydantic, SQLite, openWakeWord, Silero VAD, faster-whisper, SoundDevice, Kokoro or
+repository. SoundDevice is available only through the optional `voice` extra; it is not imported by
+the Core Engine and never opens a device during import. Other planned technologies, subject to
+their applicable evaluation and licensing review, include Pydantic, SQLite, openWakeWord, Silero
+VAD, faster-whisper, Kokoro or
 Piper with the provisional Razo Brazilian Portuguese voice candidate, psutil, Docker SDK, Codex
 and Claude Code integrations, PySide6, Qt Quick/QML, SearXNG,
 Trafilatura, Beautiful Soup, Playwright, and the Google Gemini API.
@@ -122,6 +125,10 @@ validation remain pending. Later stages cover voice, authorized system control, 
 memory, proactive intelligence, desktop, web/external integrations, multimodal intelligence, and
 cross-platform ecosystem expansion.
 
+Stage 02.1 Voice Foundation is implemented on its feature branch with automated validation.
+Physical capture and playback validation on Windows and Ubuntu and Git integration remain pending;
+Stages 02.2–02.8 remain planned.
+
 See the [official roadmap](docs/architecture/ROADMAP.md) for the complete staged plan and status.
 
 ## Getting started
@@ -133,6 +140,19 @@ uv python install 3.12
 uv sync --frozen --dev
 uv run python -c "import kosmos; print(kosmos.__version__)"
 ```
+
+Install the optional Voice Foundation and inspect devices without starting capture:
+
+```bash
+uv sync --frozen --dev --extra voice
+uv run --no-sync kosmos-audio --help
+uv run --no-sync kosmos-audio devices
+uv run --no-sync kosmos-audio status
+```
+
+Microphone tests additionally require explicit `KOSMOS_VOICE_ENABLED=true`; see the
+[audio validation guide](docs/development/audio-validation.md). Installation alone is not consent
+to capture audio.
 
 Run the development CLI after configuring a local Ollama installation and model:
 

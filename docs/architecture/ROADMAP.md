@@ -41,13 +41,22 @@ automated suite.
 
 ## Stage 02 — Voice Engine
 
-Planned and ready to begin only after maintainer approval and refinement-branch integration. No
-Stage 02 implementation has started. Planned capabilities include voice activation, capture,
-recognition, and synthesis. Candidate technologies are
-openWakeWord, SoundDevice, Silero VAD, faster-whisper, Kokoro, and Piper. The Razo Brazilian
-Portuguese voice with Piper is the provisional priority for synthesis, subject to technical,
-provenance, rights, distribution, and license compatibility review. No voice runtime or model is
-incorporated by Stage 01.4.
+- **02.1 — Voice Foundation:** implemented on `feature/voice-foundation` with automated validation;
+  physical Windows and Ubuntu audio validation and Git integration remain pending
+- **02.2 — Text-to-Speech:** planned
+- **02.3 — Speech-to-Text:** planned
+- **02.4 — Voice Activity Detection:** planned
+- **02.5 — Wake Word Detection:** planned
+- **02.6 — Voice Orchestration:** planned
+- **02.7 — Real-Time Voice Interaction:** planned
+- **02.8 — Voice Benchmark & Validation:** planned
+
+Stage 02.1 provides backend-independent PCM models and ports, bounded capture and playback,
+SoundDevice/PortAudio discovery, optional installation, and explicit diagnostics. It does not
+implement speech synthesis, recognition, VAD, wake words, orchestration, or real-time interaction.
+SoundDevice is incorporated only in the optional `voice` extra. Piper, the provisional Razo voice,
+faster-whisper, Silero VAD, and openWakeWord remain candidates subject to their stage-specific
+technical, provenance, rights, distribution, and license reviews.
 
 ## Stage 03 — System Control
 

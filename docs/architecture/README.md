@@ -29,7 +29,7 @@ but only after implemented behavior demonstrates the need. Empty architectural l
 | `intelligence` | Text inference, Ollama, conversation, personality, institutional knowledge, and Stage 01.5 tool calling are integrated; real model behavior remains pending |
 | `benchmarking` | Stage 01.8 scenario, evaluation, runner, and reporting infrastructure is implemented; real validation remains pending |
 | `cli` | Development-only runtime composition and terminal presentation are implemented |
-| `voice` | Activation, capture, recognition, and speech synthesis |
+| `voice` | Stage 02.1 PCM contracts, bounded audio I/O, discovery, and diagnostics are implemented; physical validation remains pending |
 | `system` | Operating system, applications, files, and processes |
 | `developer` | Development agents, projects, sessions, and tasks |
 | `memory` | Context, persistent memory, and information retrieval |
@@ -43,7 +43,8 @@ but only after implemented behavior demonstrates the need. Empty architectural l
 
 The remaining business-capability entries describe planned boundaries only. `cli` and
 `benchmarking` are implemented support packages rather than future business domains. See the
-[Core Foundation specification](core-foundation.md) for the behavior currently available.
+[Core Foundation specification](core-foundation.md) and
+[Voice Foundation specification](voice-foundation.md) for currently implemented behavior.
 
 ## Architectural rules
 
@@ -78,6 +79,8 @@ Tests and future integrations can substitute implementations without changing th
   roadmap boundary, and system-instruction composition
 - [Tool Calling and Tool Registry](tool-calling.md): Stage 01.5 contracts, validation,
   authorization, execution, pure tools, and native Ollama integration
+- [Voice Foundation](voice-foundation.md): Stage 02.1 PCM contracts, optional SoundDevice adapter,
+  explicit diagnostics, and pending physical validation
 - [Core Orchestration](core-orchestration.md): Stage 01.6 coordination, limits, context, and metrics
 - [Development CLI](../development/development-cli.md): Stage 01.7 terminal composition and usage
 - [Model Benchmark and Validation](../development/model-benchmark.md): Stage 01.8 suites, evidence,

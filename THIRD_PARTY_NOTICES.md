@@ -2,8 +2,9 @@
 
 This file records third-party components incorporated into or required to develop the current
 repository. External runtime software and model weights are listed separately and are not
-incorporated into Kosmos. Planned external intelligence providers and web, voice, and desktop
-technologies remain excluded until their corresponding implementation and licensing review.
+incorporated into Kosmos. Planned external intelligence providers and later-stage voice, web, and
+desktop technologies remain excluded until their corresponding implementation and licensing
+review.
 
 ## Python runtime dependencies
 
@@ -16,10 +17,20 @@ technologies remain excluded until their corresponding implementation and licens
 | h11 | 0.16.0 | HTTP/1.1 protocol implementation | MIT |
 | idna | 3.20 | Internationalized domain name handling | BSD-3-Clause |
 | typing-extensions | 4.16.0 | Compatibility typing primitives | PSF-2.0 |
+| SoundDevice | 0.5.6 | Optional local PCM audio and PortAudio adapter | MIT |
+| CFFI | 2.1.1 | Optional SoundDevice foreign-function interface | MIT |
+| pycparser | 3.12 | Optional CFFI parser dependency | BSD-3-Clause |
 
 HTTPX is constrained to `>=0.28,<0.29` and supports Python 3.12. Versions above are the exact
 resolution currently recorded in `uv.lock`. License expressions were checked against installed
 package metadata and upstream project metadata on November 26, 2026.
+
+SoundDevice is constrained to `>=0.5.6,<0.6` in the optional `voice` extra and supports Python 3.12.
+Its Windows wheels include PortAudio binaries under the PortAudio license, which permits use and
+redistribution with its copyright and permission notice. Linux installations use the system
+PortAudio shared library, which this repository does not distribute. SoundDevice, CFFI, and
+pycparser versions above are the exact optional resolution in `uv.lock`; their upstream metadata
+and licenses were checked on November 27, 2026.
 
 ## External local-inference requirements
 
