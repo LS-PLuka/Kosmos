@@ -126,10 +126,11 @@ validation remain pending. Later stages cover voice, authorized system control, 
 memory, proactive intelligence, desktop, web/external integrations, multimodal intelligence, and
 cross-platform ecosystem expansion.
 
-Stage 02.1 Voice Foundation, Stage 02.2 Text-to-Speech, and Stage 02.3 Speech-to-Text are implemented
-on the Stage 02 feature branch with automated validation. Physical capture and playback, real
-Piper/Razo synthesis, real Faster Whisper recognition, voice quality, offline/performance/model
-selection, Ubuntu validation, and Git integration remain pending. Stages 02.4–02.8 remain planned.
+Stage 02.1 Voice Foundation, Stage 02.2 Text-to-Speech, Stage 02.3 Speech-to-Text, and Stage 02.4
+Voice Activity Detection are implemented on the Stage 02 feature branch with automated validation.
+Physical audio, real Piper/Razo synthesis, real Faster Whisper and Silero inference, voice quality,
+offline/performance/model selection, threshold calibration, Ubuntu validation, and Git integration
+remain pending. Stages 02.5–02.8 remain planned.
 
 See the [official roadmap](docs/architecture/ROADMAP.md) for the complete staged plan and status.
 
@@ -177,6 +178,17 @@ uv run --no-sync kosmos-stt status
 Model acquisition is an explicit maintainer action documented in the
 [Speech-to-Text specification](docs/architecture/speech-to-text.md). Runtime recognition accepts
 only a validated local model directory and never downloads automatically.
+
+Install independent VAD dependencies without downloading a model and inspect disabled settings:
+
+```bash
+uv sync --frozen --dev --extra vad
+uv run --no-sync kosmos-vad status
+```
+
+The [Voice Activity Detection specification](docs/architecture/voice-activity-detection.md)
+documents the pinned external Silero model, checksum procedure, PCM contract, segmentation, and
+pending real validation. VAD never enables microphone capture or STT automatically.
 
 Run the development CLI after configuring a local Ollama installation and model:
 

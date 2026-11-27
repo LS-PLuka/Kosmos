@@ -12,6 +12,11 @@ Stage 02.3 STT automated tests use fake models and synthetic PCM. Follow the man
 installation, pinned revision, hash, offline, and privacy procedure in the
 [Speech-to-Text specification](../architecture/speech-to-text.md) before real recognition.
 
+Stage 02.4 VAD automated tests use fake ONNX sessions, synthetic PCM, and predefined
+probabilities. Follow the pinned model, checksum, offline, threshold, and privacy procedure in the
+[Voice Activity Detection specification](../architecture/voice-activity-detection.md) before real
+detection. Automated simulation does not validate Silero behavior.
+
 ## Install and inspect
 
 ```bash
@@ -19,6 +24,8 @@ uv sync --frozen --dev --extra voice
 uv run --no-sync kosmos-audio --help
 uv run --no-sync kosmos-audio devices
 uv run --no-sync kosmos-audio status
+uv sync --frozen --dev --extra vad
+uv run --no-sync kosmos-vad status
 ```
 
 `devices` and `status` enumerate metadata but do not open input or output streams. Device indices
@@ -89,3 +96,13 @@ language, threads, durations, RTF, segment observations, false transcriptions, a
 commit recordings, transcripts, model files, device-private information, or local paths. Real
 recognition, physical microphone, offline, performance, and model-selection validation remain
 pending on Windows and Ubuntu.
+
+For VAD, verify the pinned Silero revision, exact SHA-256, byte size, and local path before setting
+`KOSMOS_VAD_ENABLED=true`. First run `kosmos-vad analyze --file sample.wav` with an explicit
+reviewed compatible WAV. Only after offline file behavior is recorded should a maintainer set
+`KOSMOS_VOICE_ENABLED=true` and run `kosmos-vad listen --duration 5`. Evaluate onset and offset
+clipping, short words, natural pauses, silence, environmental and keyboard noise, background
+speech, playback, maximum-duration splitting, RTF, CPU, and memory. Do not commit recordings,
+probabilities, utterances, model files, device-private information, or local paths. Real Silero,
+physical microphone, offline, performance, threshold, Brazilian Portuguese, Windows, and Ubuntu
+validation remain pending.

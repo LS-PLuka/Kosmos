@@ -49,7 +49,9 @@ automated suite.
 - **02.3 — Speech-to-Text:** implemented on `feature/voice-foundation` with automated simulation;
   real recognition, microphone, offline, performance, model-selection, Ubuntu, and Git validation
   remain pending
-- **02.4 — Voice Activity Detection:** planned
+- **02.4 — Voice Activity Detection:** implemented on `feature/voice-foundation` with automated
+  simulation; real Silero inference, microphone, offline, performance, threshold, Ubuntu, and Git
+  validation remain pending
 - **02.5 — Wake Word Detection:** planned
 - **02.6 — Voice Orchestration:** planned
 - **02.7 — Real-Time Voice Interaction:** planned
@@ -59,12 +61,13 @@ Stage 02.1 provides backend-independent PCM models and ports, bounded capture an
 SoundDevice/PortAudio discovery, optional installation, and explicit diagnostics. Stage 02.2 adds
 backend-independent synthesis contracts, deterministic text preparation, a bounded adapter for an
 independently installed Piper process, and explicit TTS diagnostics. Stage 02.3 adds bounded local
-Faster Whisper recognition, immutable results, and explicit diagnostics. It does not connect voice
-to Core or implement VAD, wake words, orchestration, or real-time interaction.
+Faster Whisper recognition, immutable results, and explicit diagnostics. Stage 02.4 adds independent
+Silero ONNX inference contracts, lossless framing, deterministic segmentation, and VAD diagnostics.
+It does not connect voice to Core or implement wake words, orchestration, or real-time interaction.
 SoundDevice is incorporated only in the optional `voice` extra. Piper and Razo are not distributed;
 Razo remains provisional because provenance, rights, real synthesis, and voice quality are not yet
-fully validated. Faster Whisper is optional and model files are external; Silero VAD and
-openWakeWord remain planned candidates.
+fully validated. Faster Whisper and ONNX Runtime are optional and model files are external;
+openWakeWord remains a planned candidate.
 
 ## Stage 03 — System Control
 

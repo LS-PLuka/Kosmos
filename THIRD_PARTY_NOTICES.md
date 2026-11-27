@@ -102,3 +102,19 @@ The external `Systran/faster-whisper-base` reference model at revision
 distributed by Kosmos. The original OpenAI Whisper model card and converted-model provenance remain
 part of the pre-distribution review. Local hashes demonstrate file identity only. These notices do
 not assert absolute legal compatibility with Kosmos or replace review of exact upstream artifacts.
+
+## Voice activity detection
+
+The optional `vad` extra directly resolves ONNX Runtime 1.32.0 (MIT) and NumPy 2.5.5
+(BSD-3-Clause). ONNX Runtime resolves flatbuffers 25.12.19 (Apache-2.0), packaging 26.4
+(Apache-2.0 OR BSD-2-Clause), and protobuf 7.36.2 (BSD-3-Clause), as recorded in `uv.lock`.
+Exact native runtime notices and the contents of each distributed wheel require artifact-specific
+review.
+
+The selected external model is Silero VAD v6.2.3 `silero_vad.onnx` at revision
+`5cd7945676eb32225748052e2e6a0580e4686a08`. The upstream repository license is MIT, and the
+maintainer explicitly answered that MIT applies to this model file in discussion 817. The cited
+SHA-256 is `1a153a22f4509e292a94e67d6f9b85e8deb25b4988682b7e174c65279d8788e3`, and byte-identical
+mirrors report 2,327,524 bytes. Kosmos does not download, incorporate, or distribute the model;
+these values were not locally verified in this implementation. Any future distribution must
+preserve the Silero copyright and MIT permission notice and repeat exact-artifact review.

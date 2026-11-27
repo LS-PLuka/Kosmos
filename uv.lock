@@ -283,6 +283,10 @@ stt = [
     { name = "faster-whisper" },
     { name = "numpy" },
 ]
+vad = [
+    { name = "numpy" },
+    { name = "onnxruntime" },
+]
 voice = [
     { name = "sounddevice" },
 ]
@@ -298,9 +302,11 @@ requires-dist = [
     { name = "faster-whisper", marker = "extra == 'stt'", specifier = "==1.2.1" },
     { name = "httpx", specifier = ">=0.28,<0.29" },
     { name = "numpy", marker = "extra == 'stt'", specifier = ">=2.0,<3" },
+    { name = "numpy", marker = "extra == 'vad'", specifier = ">=2.0,<3" },
+    { name = "onnxruntime", marker = "extra == 'vad'", specifier = "==1.32.0" },
     { name = "sounddevice", marker = "extra == 'voice'", specifier = ">=0.5.6,<0.6" },
 ]
-provides-extras = ["voice", "stt"]
+provides-extras = ["voice", "stt", "vad"]
 
 [package.metadata.requires-dev]
 dev = [

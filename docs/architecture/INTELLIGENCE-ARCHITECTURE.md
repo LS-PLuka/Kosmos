@@ -35,6 +35,10 @@ Exact calculations, counts, state checks, validation, authorization, and other d
 belong in Python. LLM output may propose an operation, but software validates its arguments and
 policy before any execution.
 
+Voice activity and future transcripts are untrusted inputs, not authorization. Stage 02.4 keeps
+local VAD and deterministic segmentation outside the intelligence boundary and never invokes an
+LLM, tool, speech recognizer, or orchestrator automatically.
+
 ## Initial local intelligence
 
 The primary provider adapter is Ollama. The initial official runtime model selection is Qwen 3.5

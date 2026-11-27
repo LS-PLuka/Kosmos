@@ -57,6 +57,7 @@ def _request(data: bytes = b"\x01\x00" * 16_000) -> SpeechRecognitionRequest:
 
 def test_pcm_conversion_preserves_little_endian_reference_values() -> None:
     pytest.importorskip("numpy")
+    pytest.importorskip("faster_whisper")
     _factory, convert = load_faster_whisper_backend()
 
     waveform = convert(b"\x00\x00\xff\x7f\x00\x80\x00\x40")

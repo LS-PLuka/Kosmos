@@ -89,3 +89,39 @@ class SpeechRecognitionBusyError(SpeechRecognitionError):
 
 class InvalidTranscriptionResultError(SpeechRecognitionError):
     """Raised when a backend returns inconsistent transcription data."""
+
+
+class VoiceActivityError(VoiceError):
+    """Base exception for expected voice-activity failures."""
+
+
+class VoiceActivityDisabledError(VoiceActivityError):
+    """Raised when VAD has not been explicitly enabled."""
+
+
+class VADBackendUnavailableError(VoiceActivityError):
+    """Raised when the optional local VAD runtime cannot be loaded."""
+
+
+class VADModelUnavailableError(VoiceActivityError):
+    """Raised when the configured local VAD model is unavailable."""
+
+
+class InvalidVADModelError(VoiceActivityError):
+    """Raised when a local VAD model fails validation."""
+
+
+class InvalidVADInputError(VoiceActivityError):
+    """Raised when PCM or timeline input violates the VAD contract."""
+
+
+class InvalidVoiceActivityResultError(VoiceActivityError):
+    """Raised when a backend returns an invalid probability or recurrent state."""
+
+
+class VoiceActivityBusyError(VoiceActivityError):
+    """Raised when a detector already owns an inference operation."""
+
+
+class InvalidSpeechSegmentError(VoiceActivityError):
+    """Raised when segmentation state or output is inconsistent."""
